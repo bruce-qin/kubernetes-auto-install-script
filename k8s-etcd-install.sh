@@ -26,14 +26,14 @@ mkdir -p $KUBERNETES_HOME/{bin,cfg,logs,ssl/etcd}
 #install etcd
 if [ ! -f $KUBERNETES_HOME/bin/etcd ]; then
     if [ ! -f "$SHELLDIR/etcd" ]; then
-		wget https://github.com/etcd-io/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-amd64.tar.gz
-		tar -xzf etcd-v3.3.13-linux-amd64.tar.gz 
-		mv -f etcd-v3.3.13-linux-amd64/etcd etcd-v3.3.13-linux-amd64/etcdctl $SHELLDIR/
-		rm -rf etcd-v3.3.13-linux-amd64
-		rm -f etcd-v3.3.13-linux-amd64.tar.gz 
-	fi
-	chmod +x $SHELLDIR/etcd $SHELLDIR/etcdctl
-	\cp -rf $SHELLDIR/etcd $SHELLDIR/etcdctl $KUBERNETES_HOME/bin/
+        wget https://github.com/etcd-io/etcd/releases/download/v3.3.13/etcd-v3.3.13-linux-amd64.tar.gz
+        tar -xzf etcd-v3.3.13-linux-amd64.tar.gz 
+        mv -f etcd-v3.3.13-linux-amd64/etcd etcd-v3.3.13-linux-amd64/etcdctl $SHELLDIR/
+        rm -rf etcd-v3.3.13-linux-amd64
+        rm -f etcd-v3.3.13-linux-amd64.tar.gz 
+    fi
+    chmod +x $SHELLDIR/etcd $SHELLDIR/etcdctl
+    \cp -rf $SHELLDIR/etcd $SHELLDIR/etcdctl $KUBERNETES_HOME/bin/
 fi
 systemctl stop etcd
 rm -rf $etcd_data_dir

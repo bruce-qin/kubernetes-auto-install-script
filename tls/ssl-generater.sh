@@ -70,9 +70,9 @@ read -p "set etcd server ips or hostnames (设置etcd集群授权访问主机IP�
 echo "etcd servers ip or hostnames:[${etcd_server_ip:=127.0.0.1}]"
 fixed_etcd_server_ip=`join_array $etcd_server_ip`
 if [ "$fixed_etcd_server_ip" != "" ]; then
-	fixed_etcd_server_ip=${fixed_etcd_server_ip}',"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+    fixed_etcd_server_ip=${fixed_etcd_server_ip}',"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
 else
-	fixed_etcd_server_ip='"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+    fixed_etcd_server_ip='"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
 fi
     cat >$SHELLDIR/config/etcd/server-etcd-csr.json << EOF
 {
@@ -150,9 +150,9 @@ read -p "set k8s cluster ips or hostnames (设置k8s集群授权访问主机IP�
 echo "k8s cluster ips or hostnames:[${k8s_server_ip:=127.0.0.1}]"
 fixed_k8s_server_ip=`join_array $k8s_server_ip`
 if [ "$fixed_k8s_server_ip" != "" ]; then
-	fixed_k8s_server_ip=${fixed_k8s_server_ip}',"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+    fixed_k8s_server_ip=${fixed_k8s_server_ip}',"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
 else
-	fixed_k8s_server_ip='"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+    fixed_k8s_server_ip='"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
 fi
 #apiserver证书
 cat >$SHELLDIR/config/k8s/server-k8s-csr.json << EOF

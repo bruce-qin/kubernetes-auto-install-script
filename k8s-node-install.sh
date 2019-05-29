@@ -7,20 +7,20 @@ sed -i 's/^SELINUX=\(\(enforcing\)\|\(permissive\)\)$/SELINUX=disabled/g' /etc/s
 #系统配置修改
 #$1:'config key prefix'; $2:'new config'; $3:'file path';
 replace_or_append_file_config(){
-	key_prefix=$1
-	key_prefix_convert=${key_prefix//\//\\\/}
-	new_config=$2
-	new_config_convert=${new_config//\//\\\/}
-	file_path=$3
-	if [ ! -f "$file_path" ]; then
-		touch $file_path
-	fi
-	config_line=`sed -n -e "/$key_prefix_convert/=" $file_path`
-	if [ $? -eq 0 -a "$config_line" != "" ]; then
-		sed -i "s/^${key_prefix_convert}.*/$new_config_convert/g" $file_path
-	else
-		echo "$new_config" >>$file_path
-	fi
+    key_prefix=$1
+    key_prefix_convert=${key_prefix//\//\\\/}
+    new_config=$2
+    new_config_convert=${new_config//\//\\\/}
+    file_path=$3
+    if [ ! -f "$file_path" ]; then
+        touch $file_path
+    fi
+    config_line=`sed -n -e "/$key_prefix_convert/=" $file_path`
+    if [ $? -eq 0 -a "$config_line" != "" ]; then
+        sed -i "s/^${key_prefix_convert}.*/$new_config_convert/g" $file_path
+    else
+        echo "$new_config" >>$file_path
+    fi
 }
 
 #设置内核参数
@@ -69,7 +69,7 @@ sysctl -p
 
 ipvs_file=/etc/sysconfig/modules/ipvs.modules
 if [ ! -f "$ipvs_file" ]; then
-	cat > $ipvs_file <<EOF
+    cat > $ipvs_file <<EOF
 #!/bin/bash
 modprobe -- ip_vs
 modprobe -- ip_vs_rr
@@ -77,7 +77,7 @@ modprobe -- ip_vs_wrr
 modprobe -- ip_vs_sh
 modprobe -- nf_conntrack_ipv4
 EOF
-	chmod 755 /etc/sysconfig/modules/ipvs.modules && bash /etc/sysconfig/modules/ipvs.modules && lsmod | grep -e ip_vs -e nf_conntrack_ipv4 
+    chmod 755 /etc/sysconfig/modules/ipvs.modules && bash /etc/sysconfig/modules/ipvs.modules && lsmod | grep -e ip_vs -e nf_conntrack_ipv4 
 fi
 
 #创建目录
@@ -89,12 +89,12 @@ chmod +x $SHELLDIR/kube-* $SHELLDIR/kubectl
 install_flannel(){
 if [ ! -f "$KUBERNETES_HOME/bin/flanneld" ];then
     if [ ! -f "$SHELLDIR/flanneld" ]; then
-		wget https://github.com/coreos/flannel/releases/download/v0.11.0/flannel-v0.11.0-linux-amd64.tar.gz
-		tar -xzf flannel-v0.11.0-linux-amd64.tar.gz
-		rm -f flannel-v0.11.0-linux-amd64.tar.gz
-		mv -f flanneld mk-docker-opts.sh $SHELLDIR/
-	fi
-	chmod +x $SHELLDIR/flanneld $SHELLDIR/mk-docker-opts.sh
+        wget https://github.com/coreos/flannel/releases/download/v0.11.0/flannel-v0.11.0-linux-amd64.tar.gz
+        tar -xzf flannel-v0.11.0-linux-amd64.tar.gz
+        rm -f flannel-v0.11.0-linux-amd64.tar.gz
+        mv -f flanneld mk-docker-opts.sh $SHELLDIR/
+    fi
+    chmod +x $SHELLDIR/flanneld $SHELLDIR/mk-docker-opts.sh
     \cp -rf $SHELLDIR/flanneld $SHELLDIR/mk-docker-opts.sh $KUBERNETES_HOME/bin/
 fi
     read -p "set etcd client endpoints(设置flannel的etcd存储url) [default https://127.0.0.1:2379]:" ETCD_ENDPOINTS
@@ -300,7 +300,7 @@ EOF
                         \${KUBE_LOG_LEVEL}       \\
                         \${NODE_HOSTNAME}        \\
                         \${KUBELET_KUBECONFIG}   \\
-						\${KUBELET_KUBECONFIG2}  \\
+                        \${KUBELET_KUBECONFIG2}  \\
                         \${KUBELET_BOOTSTRAP_CONFIG}   \\
                         \${CERT_DIR}             \\
                         \$KUBELET_ARGS"
