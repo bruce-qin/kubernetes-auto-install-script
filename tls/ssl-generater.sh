@@ -69,6 +69,11 @@ EOF
 read -p "set etcd server ips or hostnames (设置etcd集群授权访问主机IP地址或hostname,多个用英文逗号分割)[defalut 127.0.0.1]:" etcd_server_ip
 echo "etcd servers ip or hostnames:[${etcd_server_ip:=127.0.0.1}]"
 fixed_etcd_server_ip=`join_array $etcd_server_ip`
+if [ "$fixed_etcd_server_ip" != "" ]; then
+	fixed_etcd_server_ip=${fixed_etcd_server_ip}',"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+else
+	fixed_etcd_server_ip='"127.0.0.1","kubernetes","kubernetes.default","kubernetes.default.svc","kubernetes.default.svc.cluster","kubernetes.default.svc.cluster.local"'
+fi
     cat >$SHELLDIR/config/etcd/server-etcd-csr.json << EOF
 {
     "CN": "etcd",
