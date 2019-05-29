@@ -97,7 +97,7 @@ install_kube_apiserver(){
     read -p "set kube-apiserver etcd connection address(设置kube-apiserver etcd通讯地址,多个用英文逗号分隔)[default https://127.0.0.1:2379]:" ETCD_SERVERS
     echo "kube-apiserver etcd connection address:[${ETCD_SERVERS:=https://127.0.0.1:2379}]"
     
-    cp -n $SHELLDIR/kube-apiserver $KUBERNETES_HOME/bin
+    \cp -rf $SHELLDIR/kube-apiserver $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-apiserver
     cat >$KUBERNETES_HOME/cfg/kube-apiserver <<EOF
 # --logtostderr=true: log to standard error instead of files
@@ -204,7 +204,7 @@ EOF
 
 #安装kube-controller-manager
 install_kube_controller_manager(){
-    cp -n $SHELLDIR/kube-controller-manager $KUBERNETES_HOME/bin
+    \cp -rf $SHELLDIR/kube-controller-manager $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-controller-manager
     cat >$KUBERNETES_HOME/cfg/kube-controller-manager <<EOF
 KUBE_LOGTOSTDERR="--logtostderr=true"
@@ -262,7 +262,7 @@ EOF
 
 #安装kube-scheduler
 install_kube_scheduler(){
-    cp -n $SHELLDIR/kube-scheduler $KUBERNETES_HOME/bin
+    \cp -rf $SHELLDIR/kube-scheduler $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-scheduler
     cat >$KUBERNETES_HOME/cfg/kube-scheduler <<EOF
 ###
@@ -311,7 +311,7 @@ EOF
 install_kube_apiserver
 install_kube_controller_manager
 install_kube_scheduler
-cp -n $SHELLDIR/kubectl $KUBERNETES_HOME/bin
+\cp -rf $SHELLDIR/kubectl $KUBERNETES_HOME/bin
 chmod +x $KUBERNETES_HOME/bin/kubectl
 
 $KUBERNETES_HOME/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap

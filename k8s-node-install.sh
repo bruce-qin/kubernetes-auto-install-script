@@ -207,7 +207,7 @@ read -p "set kube-apiserver connect addtess(设置kube-apiserver通信地址)[li
 echo "kube-apiserver connect addtess:[${MASTER_CONNECTION_ADDRESS:?'kube-apiserver通信地址不能为空'}]"
 read -p "set kubelet bind ip(设置kubelet绑定ip):" NODE_ADDRESS
 echo "kubelet bind ip:[${NODE_ADDRESS:?'kueblet 绑定地址不能为空'}]"
-cp -n $SHELLDIR/kubectl $KUBERNETES_HOME/bin
+\cp -rf $SHELLDIR/kubectl $KUBERNETES_HOME/bin
 chmod +x $KUBERNETES_HOME/bin/kubectl
 
 #生成kubelet配置
@@ -277,7 +277,7 @@ install_kubelet(){
     generate_kubelet_config
 
     KUBECONFIG_DIR=$KUBERNETES_HOME/cfg
-    cp -n $SHELLDIR/kubelet $KUBERNETES_HOME/bin
+    \cp -rf $SHELLDIR/kubelet $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kubelet
 
     cat  >$KUBERNETES_HOME/cfg/kubelet <<EOF
@@ -333,7 +333,7 @@ install_kube_proxy(){
     generate_kube_proxy_config
     read -p "set kubelet cluster ip range(设置kubelet集群服务容器ip地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
     echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
-    cp -n $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
+    \cp -rf $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-proxy
     cat >$KUBERNETES_HOME/cfg/kube-proxy <<EOF
 # --logtostderr=true: log to standard error instead of files
