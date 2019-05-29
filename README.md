@@ -16,3 +16,5 @@
 
 各组件默认开机自启\
 [kubernetes组件介绍](./k8s对象介绍.md)
+[脚本安装示例](https://blog.csdn.net/mygirle/article/details/90678962)
+[docker镜像push到nexus\mavenpush镜像到nexus](https://blog.csdn.net/mygirle/article/details/90516935)
