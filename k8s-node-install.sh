@@ -234,7 +234,7 @@ generate_kubelet_config(){
     # 设置默认上下文
     $KUBERNETES_HOME/bin/kubectl config use-context default --kubeconfig=$KUBERNETES_HOME/cfg/bootstrap.kubeconfig
     
-    cat >$KUBERNETES_HOME/cfg/kubelet.kubeconfig <<EOF
+    cat >$KUBERNETES_HOME/cfg/kubelet.config.yaml<<EOF
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
 address: $NODE_ADDRESS
@@ -288,12 +288,12 @@ KUBE_LOG_LEVEL="--v=4"
 # --hostname-override="": If non-empty, will use this string as identification instead of the actual hostname.
 NODE_HOSTNAME="--hostname-override=${NODE_ADDRESS}"
 # Path to a kubeconfig file, specifying how to connect to the API server.
-KUBELET_KUBECONFIG="--kubeconfig=${KUBECONFIG_DIR}/kubelet.kubeconfig"
-KUBELET_KUBECONFIG2="--config=${KUBECONFIG_DIR}/kubelet.kubeconfig"
+KUBELET_KUBECONFIG="--kubeconfig=${KUBECONFIG_DIR}/kubelet-ssl.kubeconfig"
+KUBELET_KUBECONFIG2="--config=${KUBECONFIG_DIR}/kubelet.config.yaml"
 KUBELET_BOOTSTRAP_CONFIG="--bootstrap-kubeconfig=${KUBECONFIG_DIR}/bootstrap.kubeconfig"
 CERT_DIR="--cert-dir=$KUBERNETES_HOME/ssl"
 # Add your own!
-KUBELET_ARGS="--pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1"
+KUBELET_ARGS="--pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 --runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"
 EOF
 
     KUBELET_OPTS="      \${KUBE_LOGTOSTDERR}     \\
