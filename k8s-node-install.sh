@@ -84,7 +84,7 @@ fi
 KUBERNETES_HOME=/usr/local/kubernetes
 mkdir -p $KUBERNETES_HOME/{bin,cfg,logs,ssl}
 unzip -o $SHELLDIR/kubernetes-node.zip -d $SHELLDIR/
-
+chmod +x $SHELLDIR/kube-* $SHELLDIR/kubectl
 #install flannel
 install_flannel(){
 if [ ! -f "$KUBERNETES_HOME/bin/flanneld" ];then
@@ -94,6 +94,7 @@ if [ ! -f "$KUBERNETES_HOME/bin/flanneld" ];then
 		rm -f flannel-v0.11.0-linux-amd64.tar.gz
 		mv -f flanneld mk-docker-opts.sh $SHELLDIR/
 	fi
+	chmod +x $SHELLDIR/flanneld $SHELLDIR/mk-docker-opts.sh
     \cp -rf $SHELLDIR/flanneld $SHELLDIR/mk-docker-opts.sh $KUBERNETES_HOME/bin/
 fi
     read -p "set etcd client endpoints(设置flannel的etcd存储url) [default https://127.0.0.1:2379]:" ETCD_ENDPOINTS

@@ -85,6 +85,7 @@ fi
 KUBERNETES_HOME=/usr/local/kubernetes
 mkdir -p $KUBERNETES_HOME/{bin,cfg,logs,ssl/etcd}
 unzip -o $SHELLDIR/kubernetes-master.zip -d $SHELLDIR/
+chmod +x $SHELLDIR/kube-* $SHELLDIR/kubectl
 read -p "set kube-apiserver bind ip(设置kube-apiserver绑定ip)[default 127.0.0.1]:" MASTER_ADDRESS
 echo "kube-apiserver bind ip:[${MASTER_ADDRESS:=127.0.0.1}]"
 read -p "set kube-apiserver communication bind port(设置kube-apiserver加密通讯绑定端口)[default 6443]:" MASTER_BIND_PORT

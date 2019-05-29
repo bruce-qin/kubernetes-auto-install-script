@@ -32,6 +32,7 @@ if [ ! -f $KUBERNETES_HOME/bin/etcd ]; then
 		rm -rf etcd-v3.3.13-linux-amd64
 		rm -f etcd-v3.3.13-linux-amd64.tar.gz 
 	fi
+	chmod +x $SHELLDIR/etcd $SHELLDIR/etcdctl
 	\cp -rf $SHELLDIR/etcd $SHELLDIR/etcdctl $KUBERNETES_HOME/bin/
 fi
 systemctl stop etcd
