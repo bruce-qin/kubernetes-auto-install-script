@@ -98,7 +98,7 @@ EOF
     #生成server证书
     cfssl gencert -ca=$SHELLDIR/ssl/etcd/ca-etcd.pem -ca-key=$SHELLDIR/ssl/etcd/ca-etcd-key.pem -config=$SHELLDIR/config/etcd/ca-etcd-config.json -profile=etcd $SHELLDIR/config/etcd/server-etcd-csr.json | cfssljson -bare $SHELLDIR/ssl/etcd/server-etcd
 fi
-cp -rf $SHELLDIR/ssl/etcd/* $KUBERNETES_HOME/ssl/etcd/
+\cp -rf $SHELLDIR/ssl/etcd/* $KUBERNETES_HOME/ssl/etcd/
 }
 generate_etcd_ssl
 
@@ -222,7 +222,7 @@ cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-
 cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/admin-k8s-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/admin-k8s
 
 fi
-cp -rf $SHELLDIR/ssl/k8s/* $KUBERNETES_HOME/ssl/
+\cp -rf $SHELLDIR/ssl/k8s/* $KUBERNETES_HOME/ssl/
 }
 generate_k8s_ssl
 
@@ -231,7 +231,7 @@ if [ ! -f "$SHELLDIR/token.csv" ];then
     token_uuid=`head -c 16 /dev/urandom | od -An -t x | tr -d ' '`
     echo "$token_uuid,kubelet-bootstrap,10001,\"system:kubelet-bootstrap\"" >$SHELLDIR/token.csv
 fi
-cp -rf $SHELLDIR/token.csv $KUBERNETES_HOME/cfg/
+\cp -rf $SHELLDIR/token.csv $KUBERNETES_HOME/cfg/
 }
 generate_k8s_token
 
