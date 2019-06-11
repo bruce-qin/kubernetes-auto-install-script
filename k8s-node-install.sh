@@ -241,7 +241,7 @@ address: $NODE_ADDRESS
 port: 10250
 readOnlyPort: 10255
 cgroupDriver: cgroupfs
-clusterDNS: ["172.17.128.2"]
+clusterDNS: ["172.17.0.2"]
 clusterDomain: cluster.local
 failSwapOn: false
 authentication:
