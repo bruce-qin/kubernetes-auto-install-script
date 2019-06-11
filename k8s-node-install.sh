@@ -126,7 +126,7 @@ install_docker(){
     mkdir -p /etc/docker
     cat > /etc/docker/daemon.json << EOF
 {
-    "registry-mirrors": ["https://registry.docker-cn.com", "https://mirror.ccs.tencentyun.com", "http://hub-mirror.c.163.com"],
+    "registry-mirrors": ["http://f1361db2.m.daocloud.io", "http://hub-mirror.c.163.com"],
     "insecure-registries": [],
     "exec-opts": ["native.cgroupdriver=cgroupfs"],
     "log-driver": "json-file",
