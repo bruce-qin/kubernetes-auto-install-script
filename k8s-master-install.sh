@@ -315,3 +315,4 @@ install_kube_scheduler
 chmod +x $KUBERNETES_HOME/bin/kubectl
 
 $KUBERNETES_HOME/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
+$KUBERNETES_HOME/bin/kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous

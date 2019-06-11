@@ -375,10 +375,12 @@ EOF
 install_kubelet
 install_kube_proxy
 
-#如果node kubelet启动失败：
+#如果node kubelet启动失败：                                 cannot create certificate signing request: certificatesigningrequests.certificates.k8s.io is forbidden: User "system:anonymous" cannot create resource "certificatesigningrequests" in API group "certificates.k8s.io" at the cluster scope
 #这里可能会有个报错导致启动失败：error: failed to run Kubelet: cannot create certificate signing request: certificatesigningrequests.certificates.k8s.io is forbidden: User "kubelet-bootstrap" cannot create certificatesigningrequests.certificates.k8s.io at the cluster scope
 #原因是：kubelet-bootstrap并没有权限创建证书。所以要创建这个用户的权限并绑定到这个角色上。
-#解决方法是在master上执行kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
+#解决方法是在master上执行
+#kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+#kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
 #查看csr
 #kubectl get csr
 #授权接入node
