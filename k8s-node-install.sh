@@ -331,8 +331,8 @@ EOF
 #安装kube-proxy
 install_kube_proxy(){
     generate_kube_proxy_config
-    read -p "set kubelet cluster ip range(设置kubelet集群服务容器ip地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-    echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+    read -p "set kubelet cluster ip range(设置kubelet集群服务pods ip地址范围,不能与api-server ip范围有重叠)[default 172.17.128.0/17]" SERVICE_CLUSTER_IP_RANGE
+    echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.128.0/17}]"
     \cp -rf $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-proxy
     cat >$KUBERNETES_HOME/cfg/kube-proxy <<EOF

@@ -90,8 +90,8 @@ read -p "set kube-apiserver bind ip(设置kube-apiserver绑定ip)[default 127.0.
 echo "kube-apiserver bind ip:[${MASTER_ADDRESS:=127.0.0.1}]"
 read -p "set kube-apiserver communication bind port(设置kube-apiserver加密通讯绑定端口)[default 6443]:" MASTER_BIND_PORT
 echo "kube-apiserver communication bind port:[${MASTER_BIND_PORT:=6443}]"
-read -p "set kubelet cluster ip range(设置kubelet集群服务容器ip地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+read -p "set kubelet cluster ip range(设置kubelet集群api-server服务地址范围，不能与pods地址段有重叠！)[default 172.17.1.0/24]" SERVICE_CLUSTER_IP_RANGE
+echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.1.0/24}]"
 #安装kube-apiserver
 install_kube_apiserver(){
     read -p "set kube-apiserver etcd connection address(设置kube-apiserver etcd通讯地址,多个用英文逗号分隔)[default https://127.0.0.1:2379]:" ETCD_SERVERS

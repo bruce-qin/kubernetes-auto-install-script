@@ -112,7 +112,7 @@ else
 fi
 source /etc/profile
 
-read -p "set kubelet cluster ip range(设置kubelet集群服务容器ip地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+read -p "set kubelet cluster ip range(设置kubelet集群服务docker容器ip地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
 echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
 
 etcdctl --endpoints="$etcd_listen_client_urls" \
