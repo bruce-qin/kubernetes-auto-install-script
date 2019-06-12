@@ -63,7 +63,7 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 WORKDIR $GOPATH
 
-ADD /EasyDarwin-linux-8.1.0-1901141151.zip /easydarwin/
+ADD /easydarwin /easydarwin/
 #系统登录账号（rtsp推拉流）
 ENV DEFAULT_USERNAME admin
 #系统登录密码（rtsp推拉流）
