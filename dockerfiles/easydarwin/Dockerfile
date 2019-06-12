@@ -66,7 +66,8 @@ WORKDIR $GOPATH
 ADD https://github.com/EasyDarwin/EasyDarwin/releases/download/v8.1.0/EasyDarwin-linux-8.1.0-1901141151.tar.gz /easydarwin
 RUN {\
         echo '#!/bin/sh';\
-        echo 'EASYDARWIN_HOME=/easydarwin';\
+        echo 'EASYDARWIN_HOME=$(dirname $(find /easydarwin/ -name easydarwin.ini))';\
+        echo 'chmod +x $EASYDARWIN_HOME/easydarwin';\
         echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/local\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'if [[ -n $DEFAULT_USERNAME ]];then';\
         echo '  sed -i "s/^default_username=.*/default_username=$DEFAULT_USERNAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
@@ -77,8 +78,8 @@ RUN {\
         echo 'if [ "$AUTHORIZATION_ENABLE" == "1" ];then';\
         echo '  sed -i "s/^authorization_enable=.*/authorization_enable=$AUTHORIZATION_ENABLE/g"';\
         echo 'fi';\
-        echo '/easydarwin/easydarwin start';\
-        }>/start-easydarwin && chmod +x /start-easydarwin && chmod +x /easydarwin/easydarwin
+        echo '$EASYDARWIN_HOME/easydarwin start';\
+        }>/start-easydarwin && chmod +x /start-easydarwin
 #系统登录账号（rtsp推拉流）
 ENV DEFAULT_USERNAME admin
 #系统登录密码（rtsp推拉流）
