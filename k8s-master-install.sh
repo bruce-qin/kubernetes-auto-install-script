@@ -313,6 +313,12 @@ install_kube_controller_manager
 install_kube_scheduler
 \cp -rf $SHELLDIR/kubectl $KUBERNETES_HOME/bin
 chmod +x $KUBERNETES_HOME/bin/kubectl
-
+yum install -y nc nmap
+flag=1
+while [ $flag -eq 1 ]; do
+    if [ "$(nmap 127.0.0.1 -p8080 | grep open)" != "" -a "$(curl http://127.0.0.1:8080)" != "" ]; then
+        flag=0
+    fi
+done
 $KUBERNETES_HOME/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
 $KUBERNETES_HOME/bin/kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
