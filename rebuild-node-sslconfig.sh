@@ -1,11 +1,11 @@
 #!/bin/bash
 KUBERNETES_HOME=/usr/local/kubernetes
 #kubernetes配置文件
-if [ ! -f "$SHELLDIR/tls/token.csv" ]; then
+if [ ! -f "$KUBERNETES_HOME/cfg//token.csv" ]; then
     echo "证书文件不存在，请先生成证书"
     exit 1
 fi
-token0=$(cat $SHELLDIR/tls/token.csv)
+token0=$(cat $KUBERNETES_HOME/cfg//token.csv)
 kube_bootstrap_token=${token0%%,*}
 read -p "set kube-apiserver connect addtess(设置kube-apiserver通信地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
 echo "kube-apiserver connect addtess:[${MASTER_CONNECTION_ADDRESS:?'kube-apiserver通信地址不能为空'}]"
