@@ -58,4 +58,5 @@ generate_kube_proxy_config(){
     $KUBERNETES_HOME/bin/kubectl config use-context default --kubeconfig=$KUBERNETES_HOME/cfg/kube-proxy.kubeconfig
 }
 rm -f $KUBERNETES_HOME/ssl/kubelet*
+rm -f $KUBERNETES_HOME/cfg/kubelet-ssl.kubeconfig
 systemctl restart kube-proxy kubelet
