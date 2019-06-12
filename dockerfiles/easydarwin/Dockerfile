@@ -1,0 +1,92 @@
+FROM jrottenberg/ffmpeg:4.1-alpine
+ENV LANG C.UTF-8
+
+RUN apk add --no-cache \
+		ca-certificates
+
+# set up nsswitch.conf for Go's "netgo" implementation
+# - https://github.com/golang/go/blob/go1.9.1/src/net/conf.go#L194-L275
+# - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
+RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+
+ENV GOLANG_VERSION 1.12.5
+
+RUN set -eux; \
+	apk add --no-cache --virtual .build-deps \
+		bash \
+		gcc \
+		musl-dev \
+		openssl \
+		go \
+	; \
+	export \
+# set GOROOT_BOOTSTRAP such that we can actually build Go
+		GOROOT_BOOTSTRAP="$(go env GOROOT)" \
+# ... and set "cross-building" related vars to the installed system's values so that we create a build targeting the proper arch
+# (for example, if our build host is GOARCH=amd64, but our build env/image is GOARCH=386, our build needs GOARCH=386)
+		GOOS="$(go env GOOS)" \
+		GOARCH="$(go env GOARCH)" \
+		GOHOSTOS="$(go env GOHOSTOS)" \
+		GOHOSTARCH="$(go env GOHOSTARCH)" \
+	; \
+# also explicitly set GO386 and GOARM if appropriate
+# https://github.com/docker-library/golang/issues/184
+	apkArch="$(apk --print-arch)"; \
+	case "$apkArch" in \
+		armhf) export GOARM='6' ;; \
+		x86) export GO386='387' ;; \
+	esac; \
+	\
+	wget -O go.tgz "https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz"; \
+	echo '2aa5f088cbb332e73fc3def546800616b38d3bfe6b8713b8a6404060f22503e8 *go.tgz' | sha256sum -c -; \
+	tar -C /usr/local -xzf go.tgz; \
+	rm go.tgz; \
+	\
+	cd /usr/local/go/src; \
+	./make.bash; \
+	\
+	rm -rf \
+# https://github.com/golang/go/blob/0b30cf534a03618162d3015c8705dd2231e34703/src/cmd/dist/buildtool.go#L121-L125
+		/usr/local/go/pkg/bootstrap \
+# https://golang.org/cl/82095
+# https://github.com/golang/build/blob/e3fe1605c30f6a3fd136b561569933312ede8782/cmd/release/releaselet.go#L56
+		/usr/local/go/pkg/obj \
+	; \
+	apk del .build-deps; \
+	\
+	export PATH="/usr/local/go/bin:$PATH"; \
+	go version
+
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+WORKDIR $GOPATH
+
+ADD https://github.com/EasyDarwin/EasyDarwin/releases/download/v8.1.0/EasyDarwin-linux-8.1.0-1901141151.tar.gz /easydarwin
+RUN {\
+        echo '#!/bin/sh';\
+        echo 'EASYDARWIN_HOME=/easydarwin';\
+        echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/local\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'if [[ -n $DEFAULT_USERNAME ]];then';\
+        echo '  sed -i "s/^default_username=.*/default_username=$DEFAULT_USERNAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $DEFAULT_PASSWORD ]];then';\
+        echo '  sed -i "s/^default_password=.*/default_password=$DEFAULT_PASSWORD/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [ "$AUTHORIZATION_ENABLE" == "1" ];then';\
+        echo '  sed -i "s/^authorization_enable=.*/authorization_enable=$AUTHORIZATION_ENABLE/g"';\
+        echo 'fi';\
+        echo '/easydarwin/easydarwin start';\
+        }>/start-easydarwin && chmod +x /start-easydarwin && chmod +x /easydarwin/easydarwin
+#系统登录账号（rtsp推拉流）
+ENV DEFAULT_USERNAME admin
+#系统登录密码（rtsp推拉流）
+ENV DEFAULT_PASSWORD admin
+#是否使能向服务器推流或者从服务器播放时验证用户名密码. [注意] 因为服务器端并不保存明文密码，所以推送或者播放时，客户端应该输入密码的md5后的值。
+ENV AUTHORIZATION_ENABLE 0
+#暴露容器rtsp端口
+EXPOSE 554
+#暴露容器http端口
+EXPOSE 10008
+ENTRYPOINT ["/start-easydarwin"]
