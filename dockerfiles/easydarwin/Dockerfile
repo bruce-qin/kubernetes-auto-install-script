@@ -152,7 +152,7 @@ RUN go get -u -v github.com/kardianos/govendor; \
 
 RUN {\
         echo '#!/bin/sh';\
-        echo 'export EASYDARWIN_HOME=$(dirname $(find /$GOPATH/src/github.com/EasyDarwin -name easydarwin.ini))';\
+        echo 'EASYDARWIN_HOME=$(dirname $(find /$GOPATH/src/github.com/EasyDarwin -name easydarwin.ini))';\
         echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/local\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'if [[ -n $DEFAULT_USERNAME ]];then';\
         echo '  sed -i "s/^default_username=.*/default_username=$DEFAULT_USERNAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
@@ -163,9 +163,10 @@ RUN {\
         echo 'if [ "$AUTHORIZATION_ENABLE" == "1" ];then';\
         echo '  sed -i "s/^authorization_enable=.*/authorization_enable=$AUTHORIZATION_ENABLE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        }>/init-easydarwin && chmod +x /init-easydarwin && sh /init-easydarwin
+        } | sh
 RUN {\
         echo '#!/bin/sh';\
+        echo 'EASYDARWIN_HOME=$(dirname $(find /$GOPATH/src/github.com/EasyDarwin -name easydarwin.ini))';\
         echo 'cd $EASYDARWIN_HOME';\
         echo 'npm run dev:lin';\
         }>/start-easydarwin && chmod +x /start-easydarwin
