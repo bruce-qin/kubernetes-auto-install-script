@@ -149,7 +149,7 @@ RUN go get -u -v github.com/kardianos/govendor; \
         mkdir EasyDarwin && cd EasyDarwin; \
         git clone https://github.com/EasyDarwin/EasyDarwin.git --depth=1 EasyDarwin; \
         find $GOPATH -type d -name ".git"|xargs rm -rf ;\
-        cd EasyDarwin; \
+        cd EasyDarwin;
 
 RUN {\
         echo '#!/bin/sh';\
