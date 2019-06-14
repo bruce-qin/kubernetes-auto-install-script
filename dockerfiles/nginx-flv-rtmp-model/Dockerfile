@@ -22,6 +22,7 @@ RUN apk add --no-cache --virtual .build-deps \
         tar -xzf pcre2-${PCRE_VERSION}.tar.gz;\
         wget -O openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
         tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
+        mv openssl-${OPENSSL_VERSION} .openssl;\
         wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
