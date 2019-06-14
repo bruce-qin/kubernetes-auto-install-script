@@ -28,7 +28,7 @@ RUN apk add --no-cache --virtual .build-deps \
         #编译Nginx
         ./configure \
         --with-pcre=./pcre2-${PCRE_VERSION} \
-        --with-openssl=./openssl-${OPENSSL_VERSION} \
+        --with-openssl=./\
         --with-zlib=./zlib-${ZLIB_VERSION} \
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --with-http_ssl_module \
