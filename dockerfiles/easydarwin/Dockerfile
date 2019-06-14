@@ -8,13 +8,14 @@ RUN addgroup -g 1000 node \
     && adduser -u 1000 -G node -s /bin/sh -D node \
     && apk add --no-cache \
         libstdc++ \
-    && apk add --no-cache --virtual .build-deps \
-        binutils-gold \
+        libgcc \
         curl \
         g++ \
         gcc \
         gnupg \
-        libgcc \
+        git \
+    && apk add --no-cache --virtual .build-deps \
+        binutils-gold \
         linux-headers \
         make \
         python \
@@ -52,7 +53,7 @@ RUN addgroup -g 1000 node \
 
 ENV YARN_VERSION 1.16.0
 
-RUN apk add --no-cache --virtual .build-deps-yarn curl gnupg tar \
+RUN apk add --no-cache --virtual .build-deps-yarn  tar \
   && for key in \
     6A010C5166006599AA17F08146C2130DFD2497F5 \
   ; do \
@@ -84,11 +85,9 @@ ENV GOLANG_VERSION 1.12.5
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
 		bash \
-		gcc \
 		musl-dev \
 		openssl \
 		go \
-		git \
 	; \
 	export \
 # set GOROOT_BOOTSTRAP such that we can actually build Go
