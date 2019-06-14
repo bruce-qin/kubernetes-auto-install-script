@@ -57,7 +57,7 @@ RUN yum update;\
 #https://www.openssl.org/source/openssl-1.1.1c.tar.gz
 #http://www.zlib.net/zlib-1.2.11.tar.gz
 
-FROM alpine:3.9
+FROM alpine
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
