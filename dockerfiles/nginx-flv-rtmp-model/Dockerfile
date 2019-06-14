@@ -32,6 +32,7 @@ RUN apk add --no-cache --virtual .build-deps \
         --with-zlib=./zlib-${ZLIB_VERSION} \
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --with-http_ssl_module \
+        --with-http_v2_module \
         --with-stream \
         --prefix=/usr/local/nginx;\
         make;\
