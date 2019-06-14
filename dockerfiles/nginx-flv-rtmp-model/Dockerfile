@@ -8,21 +8,21 @@ RUN apk add --no-cache --virtual .build-deps \
                 build-base \
                 libressl-dev \
                 tar \
-                curl \
+                wget \
                 gcc \
                 libc-dev \
                 make ;\
         cd /root;\
-        curl -o nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
+        wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
         tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
         cd nginx-${NGINX_VERSION};\
-        curl -o nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
+        wget -O nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
         tar -xzf nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
-        curl -o pcre2-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre2-${PCRE_VERSION}.tar.gz;\
+        wget -O pcre2-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre2-${PCRE_VERSION}.tar.gz;\
         tar -xzf pcre2-${PCRE_VERSION}.tar.gz;\
-        curl -o openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
+        wget -O openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
         tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
-        curl -o zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
+        wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
         ./configure \
