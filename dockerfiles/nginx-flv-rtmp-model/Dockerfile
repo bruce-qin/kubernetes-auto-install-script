@@ -50,8 +50,7 @@ RUN yum update;\
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --prefix=/usr/local/nginx;\
         make -j $(getconf _NPROCESSORS_ONLN);\
-        make  install;\
-        apk del .build-deps
+        make  install
 #http://nginx.org/download/nginx-1.16.0.tar.gz
 #https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
 #https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz
