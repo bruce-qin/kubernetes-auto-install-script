@@ -11,6 +11,20 @@ RUN apk add --no-cache --virtual .build-deps \
                 wget \
                 gcc \
                 libc-dev \
+                gcc \
+                openssl-dev \
+                pcre-dev \
+                zlib-dev \
+                linux-headers \
+                libxslt-dev \
+                gd-dev \
+                geoip-dev \
+                perl-dev \
+                libedit-dev \
+                mercurial \
+                bash \
+                alpine-sdk \
+                findutils \
                 make ;\
         cd /root;\
         wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
