@@ -1,36 +1,23 @@
-FROM alpine:3.9 AS baseBuild
+FROM centos:7 AS baseBuild
 ARG NGINX_VERSION=1.16.0
 ARG NGINX_HTTP_FLV_MODEL_VERSION=1.2.6
 ARG PCRE_VERSION=8.43
 ARG OPENSSL_VERSION=1.1.1c
 ARG ZLIB_VERSION=1.2.11
-RUN apk add --no-cache --virtual .build-deps \
-                build-base \
-                libressl-dev \
-                tar \
+RUN yum update;\
+        yum install -y psmisc \
                 wget \
+                autoconf \
+                automake \
+                cmake \
+                freetype-devel \
                 gcc \
-                g++ \
-                libc-dev \
-                libstdc++ \
-                libgcc \
-                binutils-gold \
-                linux-headers \
-                gnupg \
-                openssl-dev \
-                pcre-dev \
-                zlib-dev \
-                linux-headers \
-                libxslt-dev \
-                gd-dev \
-                geoip-dev \
-                perl-dev \
-                libedit-dev \
+                gcc-c++ \
+                libtool \
+                make \
                 mercurial \
-                bash \
-                alpine-sdk \
-                findutils \
-                make ;\
+                pkgconfig \
+                zlib-devel;\
         cd /root;\
         wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
         tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
@@ -46,17 +33,26 @@ RUN apk add --no-cache --virtual .build-deps \
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
         ./configure \
-        --with-openssl=./openssl-${OPENSSL_VERSION}\
-        --with-pcre=./pcre-${PCRE_VERSION} \
-        --with-stream_ssl_module  \
-        --with-zlib=./zlib-${ZLIB_VERSION} \
-        --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
+        --with-stream_ssl_module \
+        --with-cc-opt=-static \
+        --with-ld-opt=-static \
+        --with-threads \
+        --with-file-aio \
+        --with-http_sub_module \
+        --with-http_gunzip_module \
+        --with-http_gzip_static_module \
+        --with-http_stub_status_module \
         --with-http_ssl_module \
         --with-http_v2_module \
         --with-stream \
+        --with-openssl=./openssl-${OPENSSL_VERSION}\
+        --with-pcre=./pcre-${PCRE_VERSION} \
+        --with-pcre-jit \
+        --with-zlib=./zlib-${ZLIB_VERSION} \
+        --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --prefix=/usr/local/nginx;\
-        make;\
-        make -j $(getconf _NPROCESSORS_ONLN) install;\
+        make -j $(getconf _NPROCESSORS_ONLN);\
+        make  install;\
         apk del .build-deps
 #http://nginx.org/download/nginx-1.16.0.tar.gz
 #https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
@@ -67,6 +63,7 @@ RUN apk add --no-cache --virtual .build-deps \
 FROM alpine:3.9
 EXPOSE 1935
 EXPOSE 80
+EXPOSE 443
 COPY --from=baseBuild  /usr/local/nginx /usr/local/nginx
 COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 RUN chmox +x /usr/local/sbin/nginx && ln -sf /usr/local/nginx/sbin/nginx /usr/local/sbin/nginx
