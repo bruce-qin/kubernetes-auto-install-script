@@ -37,7 +37,7 @@ RUN apk add --no-cache --virtual .build-deps \
         cd nginx-${NGINX_VERSION};\
         wget -O nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
         tar -xzf nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
-        sed -i "s/\.openssl\///g" ./auto/lib/openssl/conf;\
+        #sed -i "s/\.openssl\///g" ./auto/lib/openssl/conf;\
         wget -O pcre-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz;\
         tar -xzf pcre-${PCRE_VERSION}.tar.gz;\
         wget -O openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
@@ -46,8 +46,9 @@ RUN apk add --no-cache --virtual .build-deps \
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
         ./configure \
-        --with-pcre=./pcre-${PCRE_VERSION} \
         --with-openssl=./openssl-${OPENSSL_VERSION}\
+        --with-pcre=./pcre-${PCRE_VERSION} \
+        --with-stream_ssl_module  \
         --with-zlib=./zlib-${ZLIB_VERSION} \
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --with-http_ssl_module \
