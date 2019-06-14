@@ -36,7 +36,6 @@ RUN yum update;\
         --with-stream_ssl_module \
         --with-cc-opt=-static \
         --with-threads \
-        --with-file-aio \
         --with-http_sub_module \
         --with-http_gunzip_module \
         --with-http_gzip_static_module \
