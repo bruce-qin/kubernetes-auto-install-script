@@ -1,7 +1,7 @@
 FROM alpine:3.9 AS baseBuild
 ARG NGINX_VERSION=1.16.0
 ARG NGINX_HTTP_FLV_MODEL_VERSION=1.2.6
-ARG PCRE_VERSION=10.33
+ARG PCRE_VERSION=8.43
 ARG OPENSSL_VERSION=1.1.1c
 ARG ZLIB_VERSION=1.2.11
 RUN apk add --no-cache --virtual .build-deps \
@@ -19,15 +19,15 @@ RUN apk add --no-cache --virtual .build-deps \
         wget -O nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
         tar -xzf nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
         sed -i "s/\.openssl\///g" ./auto/lib/openssl/conf;\
-        wget -O pcre2-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre2-${PCRE_VERSION}.tar.gz;\
-        tar -xzf pcre2-${PCRE_VERSION}.tar.gz;\
+        wget -O pcre-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz;\
+        tar -xzf pcre-${PCRE_VERSION}.tar.gz;\
         wget -O openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
         tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
         wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
         ./configure \
-        --with-pcre=./pcre2-${PCRE_VERSION} \
+        --with-pcre=./pcre-${PCRE_VERSION} \
         --with-openssl=./openssl-${OPENSSL_VERSION}\
         --with-zlib=./zlib-${ZLIB_VERSION} \
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
