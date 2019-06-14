@@ -9,14 +9,15 @@ RUN addgroup -g 1000 node \
     && apk add --no-cache \
         libstdc++ \
         libgcc \
+        libc-dev \
         curl \
         g++ \
         gcc \
-        gnupg \
         git \
     && apk add --no-cache --virtual .build-deps \
         binutils-gold \
         linux-headers \
+         gnupg \
         make \
         python \
   # gpg keys listed at https://github.com/nodejs/node#release-keys
