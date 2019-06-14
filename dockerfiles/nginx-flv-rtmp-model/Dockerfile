@@ -33,8 +33,8 @@ RUN yum update;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
         #编译Nginx
         ./configure \
+        --with-stream \
         --with-stream_ssl_module \
-        --with-cc-opt=-static \
         --with-threads \
         --with-http_sub_module \
         --with-http_gunzip_module \
@@ -42,14 +42,13 @@ RUN yum update;\
         --with-http_stub_status_module \
         --with-http_ssl_module \
         --with-http_v2_module \
-        --with-stream \
         --with-openssl=./openssl-${OPENSSL_VERSION}\
         --with-pcre=./pcre-${PCRE_VERSION} \
         --with-pcre-jit \
         --with-zlib=./zlib-${ZLIB_VERSION} \
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --prefix=/usr/local/nginx;\
-        make -j 4;\
+        make -j $(getconf _NPROCESSORS_ONLN);\
         make  install
 #http://nginx.org/download/nginx-1.16.0.tar.gz
 #https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
