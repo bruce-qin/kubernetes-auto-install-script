@@ -17,8 +17,7 @@ RUN yum update;\
                 make \
                 mercurial \
                 pkgconfig \
-                zlib-devel \
-                jemalloc;\
+                zlib-devel ;\
         cd /root;\
         wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
         tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
@@ -36,7 +35,6 @@ RUN yum update;\
         ./configure \
         --with-stream_ssl_module \
         --with-cc-opt=-static \
-        --with-ld-opt="-ljemalloc" \
         --with-threads \
         --with-file-aio \
         --with-http_sub_module \
