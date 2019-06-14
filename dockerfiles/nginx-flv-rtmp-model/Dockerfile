@@ -62,5 +62,5 @@ EXPOSE 80
 EXPOSE 443
 COPY --from=baseBuild  /usr/local/nginx /usr/local/nginx
 COPY nginx.conf /usr/local/nginx/conf/nginx.conf
-RUN chmox +x /usr/local/sbin/nginx && ln -sf /usr/local/nginx/sbin/nginx /usr/local/sbin/nginx
+RUN chmod +x /usr/local/sbin/nginx && ln -sf /usr/local/nginx/sbin/nginx /usr/local/sbin/nginx
 CMD ["nginx", "-g", "daemon off;"]
