@@ -10,8 +10,13 @@ RUN apk add --no-cache --virtual .build-deps \
                 tar \
                 wget \
                 gcc \
+                g++ \
                 libc-dev \
-                gcc \
+                libstdc++ \
+                libgcc \
+                binutils-gold \
+                linux-headers \
+                gnupg \
                 openssl-dev \
                 pcre-dev \
                 zlib-dev \
