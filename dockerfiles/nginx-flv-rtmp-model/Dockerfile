@@ -1,0 +1,51 @@
+FROM alpine:3.9 AS baseBuild
+ARG NGINX_VERSION=1.16.0
+ARG NGINX_HTTP_FLV_MODEL_VERSION=1.2.6
+ARG PCRE_VERSION=10.33
+ARG OPENSSL_VERSION=1.1.1c
+ARG ZLIB_VERSION=1.2.11
+RUN apk add --no-cache --virtual .build-deps \
+                build-base \
+                libressl-dev \
+                tar \
+                curl \
+                gcc \
+                libc-dev \
+                make ;\
+        cd /root;\
+        curl -o nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
+        tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
+        cd nginx-${NGINX_VERSION};\
+        curl -o nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
+        tar -xzf nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
+        curl -o pcre2-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre2-${PCRE_VERSION}.tar.gz;\
+        tar -xzf pcre2-${PCRE_VERSION}.tar.gz;\
+        curl -o openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
+        tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
+        curl -o zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
+        tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
+        #编译Nginx
+        ./configure \
+        --with-pcre=./pcre2-${PCRE_VERSION} \
+        --with-openssl=./openssl-${OPENSSL_VERSION} \
+        --with-zlib=./zlib-${ZLIB_VERSION} \
+        --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
+        --with-http_ssl_module \
+        --with-stream \
+        --prefix=/usr/local/nginx;\
+        make;\
+        make -j $(getconf _NPROCESSORS_ONLN) install;\
+        apk del .build-deps
+#http://nginx.org/download/nginx-1.16.0.tar.gz
+#https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
+#https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz
+#https://www.openssl.org/source/openssl-1.1.1c.tar.gz
+#http://www.zlib.net/zlib-1.2.11.tar.gz
+
+FROM alpine:3.9
+EXPOSE 1935
+EXPOSE 80
+COPY --from=baseBuild  /usr/local/nginx /usr/local/nginx
+COPY nginx.conf /usr/local/nginx/conf/nginx.conf
+RUN chmox +x /usr/local/sbin/nginx && ln -sf /usr/local/nginx/sbin/nginx /usr/local/sbin/nginx
+CMD ["nginx", "-g", "daemon off;"]
