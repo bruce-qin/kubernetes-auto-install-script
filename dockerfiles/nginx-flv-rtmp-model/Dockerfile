@@ -17,7 +17,20 @@ RUN yum update;\
                 make \
                 mercurial \
                 pkgconfig \
+                openssl-libs \
+                openssl-devel \
+                openssl-static \
+                pcre-static \
+                pcre-devel \
+                pcre \
+                libstdc++ \
+                libstdc++-devel \
+                libstdc++-static \
                 zlib-devel \
+                zlib-static \
+                ca-certificates \
+                gd-devel \
+                gd \
                 dos2unix;\
         cd /root;\
         wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
