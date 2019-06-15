@@ -45,7 +45,7 @@ ENV CLOSE_OLD 0
 #当close_old为1时，是否保留被关闭的推流器对应的播放器。
 #如果为0，则原推流器对应的播放器会被断开。否则会被保留下来。注意，如果该选项为1，可能某些播放器会有异常，因为RTP序列可能不一致了。
 ENV KEEP_PLAYERS 0
-COPY --from=baseBuild ${OUT_PUT_DIR} /easydarwin
+COPY --from=0 ${OUT_PUT_DIR} /easydarwin
 RUN {\
         echo '#!/bin/sh';\
         echo 'if [ ! -f "/easydarwin_home" ];then';\
