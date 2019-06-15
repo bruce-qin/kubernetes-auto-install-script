@@ -1,5 +1,5 @@
 FROM golang:alpine AS baseBuild
-ARG OUT_PUT_DIR=/tmp/easydarwin
+ARG OUT_PUT_DIR=/tmp/build/easydarwin
 RUN apk add --no-cache git \
                         gcc \
                         g++ \
