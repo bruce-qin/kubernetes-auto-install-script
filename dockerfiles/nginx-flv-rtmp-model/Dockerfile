@@ -17,7 +17,8 @@ RUN yum update;\
                 make \
                 mercurial \
                 pkgconfig \
-                zlib-devel ;\
+                zlib-devel \
+                dos2unix;\
         cd /root;\
         wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
         tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
@@ -55,12 +56,13 @@ RUN yum update;\
 #https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz
 #https://www.openssl.org/source/openssl-1.1.1c.tar.gz
 #http://www.zlib.net/zlib-1.2.11.tar.gz
+COPY nginx.conf /usr/local/nginx/conf/nginx.conf
+RUN dos2unix /usr/local/nginx/conf/nginx.conf
 
 FROM alpine
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
 COPY --from=baseBuild  /usr/local/nginx /usr/local/nginx
-COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 RUN chmod +x /usr/local/nginx/sbin/nginx
 CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
