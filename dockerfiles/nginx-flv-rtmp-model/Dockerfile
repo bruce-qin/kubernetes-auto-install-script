@@ -50,7 +50,8 @@ RUN yum update;\
         --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
         --prefix=/usr/local/nginx;\
         make -j $(getconf _NPROCESSORS_ONLN);\
-        make  install
+        make  install;\
+        cp ./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}/stat.xsl /usr/local/nginx/conf/stat.xsl
 #http://nginx.org/download/nginx-1.16.0.tar.gz
 #https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
 #https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz
@@ -60,10 +61,20 @@ COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 RUN dos2unix /usr/local/nginx/conf/*
 
 FROM alpine
-RUN apk add --no-cache bash
+RUN apk update		;\
+            apk add --no-cache	  \
+                openssl		   \
+                libstdc++	   \
+                ca-certificates	   \
+                zlib    \
+                pcre
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
 COPY --from=0  /usr/local/nginx /usr/local/nginx
-RUN chmod +x /usr/local/nginx/sbin/nginx && ls -lthR /usr/local/nginx/
-ENTRYPOINT ["/usr/local/nginx/sbin/nginx", "-g", "daemon off"]
+RUN chmod +x /usr/local/nginx/sbin/nginx && ls -lthR /usr/local/nginx/;\
+                {\
+                echo '#!/bin/sh';\
+                echo '/usr/local/nginx/sbin/nginx -g "daemon off;"';\
+                }>/docker-endpoint && chmod +x /docker-endpoint
+ENTRYPOINT ["/docker-endpoint"]
