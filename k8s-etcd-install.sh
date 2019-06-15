@@ -94,7 +94,7 @@ EnvironmentFile=-$KUBERNETES_HOME/cfg/etcd
 ExecStart=$KUBERNETES_HOME/bin/etcd $ETCD_START_OPTIONS
 Restart=on-failure
 LimitNOFILE=65535
-
+RestartSec=15s
 [Install]
 wantedBy=multi-user.target
 EOF

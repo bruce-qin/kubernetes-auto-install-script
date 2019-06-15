@@ -112,7 +112,7 @@ EnvironmentFile=$KUBERNETES_HOME/cfg/flanneld
 ExecStart=$KUBERNETES_HOME/bin/flanneld --ip-masq \$FLANNEL_OPTIONS
 ExecStartPost=$KUBERNETES_HOME/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/subnet.env
 Restart=on-failure
-
+RestartSec=15s
 [Install]
 wantedBy=multi-user.target
 EOF
@@ -362,7 +362,7 @@ After=network.target
 EnvironmentFile=-$KUBERNETES_HOME/cfg/kube-proxy
 ExecStart=$KUBERNETES_HOME/bin/kube-proxy ${KUBE_PROXY_OPTS}
 Restart=on-failure
-
+RestartSec=15s
 [Install]
 WantedBy=multi-user.target
 EOF

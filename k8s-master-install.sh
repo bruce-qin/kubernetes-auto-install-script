@@ -191,7 +191,7 @@ Wants=network-online.target
 EnvironmentFile=-$KUBERNETES_HOME/cfg/kube-apiserver
 ExecStart=$KUBERNETES_HOME/bin/kube-apiserver ${KUBE_APISERVER_OPTS}
 Restart=on-failure
-
+RestartSec=15s
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -250,7 +250,7 @@ Wants=network-online.target kube-apiserver.service
 EnvironmentFile=-$KUBERNETES_HOME/cfg/kube-controller-manager
 ExecStart=$KUBERNETES_HOME/bin/kube-controller-manager ${KUBE_CONTROLLER_MANAGER_OPTS}
 Restart=on-failure
-
+RestartSec=15s
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -298,7 +298,7 @@ Wants=network-online.target kube-apiserver.service
 EnvironmentFile=-$KUBERNETES_HOME/cfg/kube-scheduler
 ExecStart=$KUBERNETES_HOME/bin/kube-scheduler ${KUBE_SCHEDULER_OPTS}
 Restart=on-failure
-
+RestartSec=15s
 [Install]
 WantedBy=multi-user.target
 EOF
