@@ -25,7 +25,7 @@ RUN apk add --no-cache git \
         npm run build:lin;\
         dos2unix easydarwin.ini;\
         mkdir ${OUT_PUT_DIR};\
-        \cp -rf easydarwin easydarwin.ini  *.sh www ${OUT_PUT_DIR};
+#        \cp -rf easydarwin easydarwin.ini  *.sh www ${OUT_PUT_DIR};
         pack tar;\
         tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
