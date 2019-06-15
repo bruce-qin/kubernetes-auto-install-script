@@ -8,6 +8,7 @@ RUN apk add --no-cache git \
                         nodejs \
                         npm \
                         gzip \
+                        dos2unix \
                         tar ;\
         go get -u -v github.com/kardianos/govendor;\
         go get -u -v github.com/penggy/gobuild;\
@@ -21,9 +22,11 @@ RUN apk add --no-cache git \
         sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags '-extldflags -static -s -w' -o easydarwin\"," package.json;\
         cat package.json;\
         npm run build:lin;\
-        pack tar;\
+        dos2unix easydarwin.ini;\
         mkdir ${OUT_PUT_DIR};\
-        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
+        \cp -rf easydarwin easydarwin.ini  *.sh www ${OUT_PUT_DIR}
+#        pack tar;\
+#        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
 FROM jrottenberg/ffmpeg:4.1-alpine
 ENV LANG C.UTF-8
