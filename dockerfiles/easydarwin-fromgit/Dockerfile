@@ -15,6 +15,7 @@ RUN apk add --no-cache git \
         cd EasyDarwin;\
         replace_line=$(sed -n -e '/"build:lin":/=' package.json);\
         sed -i "${replace_line}c \"build:lin\": \"go build -tags release -tags netgo -ldflags \\\"-extldflags -static -s -w\\\" -o easydarwin\"," package.json;\
+        cat package.json;\
         npm run build:lin;\
         pack tar;\
         mkdir ${OUT_PUT_DIR};\
