@@ -32,6 +32,7 @@ RUN yum update;\
         tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
         wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
+        export CFLAGS="$CFLAGS -static";\
         #编译Nginx
         ./configure \
         --with-stream \
@@ -61,13 +62,13 @@ COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 RUN dos2unix /usr/local/nginx/conf/*
 
 FROM alpine
-RUN apk update		;\
-            apk add --no-cache	  \
-                openssl		   \
-                libstdc++	   \
-                ca-certificates	   \
-                zlib    \
-                pcre
+#RUN apk update		;\
+#            apk add --no-cache	  \
+#                openssl		   \
+#                libstdc++	   \
+#                ca-certificates	   \
+#                zlib    \
+#                pcre
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
