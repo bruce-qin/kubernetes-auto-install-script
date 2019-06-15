@@ -1,6 +1,10 @@
 FROM golang:alpine AS baseBuild
 ARG OUT_PUT_DIR=/easydarwin
 RUN apk add --no-cache git \
+                        gcc \
+                        gcc-c++ \
+                        libtool \
+                        make \
                         nodejs \
                         npm \
                         tar ;\
