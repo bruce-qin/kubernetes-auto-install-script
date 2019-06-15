@@ -14,7 +14,7 @@ RUN apk add --no-cache git \
         go get -u -v github.com/penggy/gobuild;\
         npm i -g apidoc;\
         npm i -g rimraf;\
-        npm i -g @penggy/pack;\
+#        npm i -g @penggy/pack;\
         cd $GOPATH/src/github.com;\
         mkdir EasyDarwin && cd EasyDarwin;\
         git clone https://github.com/EasyDarwin/EasyDarwin.git --depth=1 EasyDarwin;\
