@@ -18,8 +18,7 @@ RUN apk add --no-cache git \
         npm run build:lin;\
         pack tar;\
         mkdir ${OUT_PUT_DIR};\
-        tar_filename=$(ls | grep EasyDarwin-*.tar.gz);\
-        tar -xzf ${tar_filename} -C ${OUT_PUT_DIR}
+        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
 FROM jrottenberg/ffmpeg:4.1-alpine
 ENV LANG C.UTF-8
