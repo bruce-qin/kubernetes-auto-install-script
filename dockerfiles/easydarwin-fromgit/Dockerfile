@@ -13,7 +13,7 @@ RUN apk add --no-cache git \
         mkdir EasyDarwin && cd EasyDarwin;\
         git clone https://github.com/EasyDarwin/EasyDarwin.git --depth=1 EasyDarwin;\
         cd EasyDarwin;\
-        sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags \\\"-extldflags -static -s -w\\\" -o easydarwin\"," package.json;\
+        sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags '-extldflags -static -s -w'-o easydarwin\"," package.json;\
         cat package.json;\
         npm run build:lin;\
         pack tar;\
