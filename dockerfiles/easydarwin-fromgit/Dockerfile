@@ -7,6 +7,7 @@ RUN apk add --no-cache git \
                         make \
                         nodejs \
                         npm \
+                        gzip \
                         tar ;\
         go get -u -v github.com/kardianos/govendor;\
         go get -u -v github.com/penggy/gobuild;\

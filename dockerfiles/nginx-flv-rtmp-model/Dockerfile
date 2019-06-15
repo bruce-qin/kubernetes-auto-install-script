@@ -64,5 +64,5 @@ EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
 COPY --from=baseBuild  /usr/local/nginx /usr/local/nginx
-RUN chmod +x /usr/local/nginx/sbin/nginx
+RUN chmod +x /usr/local/nginx/sbin/nginx && ls -lthR /usr/local/nginx/
 CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
