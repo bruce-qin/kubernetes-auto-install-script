@@ -45,7 +45,7 @@ RUN yum update;\
         tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
         wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
         tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
-        export CFLAGS="$CFLAGS -Werror -static";\
+        export CFLAGS="$CFLAGS -Werror -g -static";\
         #编译Nginx
         ./configure \
         --with-stream \
