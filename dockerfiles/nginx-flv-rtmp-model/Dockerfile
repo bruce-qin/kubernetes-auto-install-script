@@ -57,7 +57,7 @@ RUN yum update;\
 #https://www.openssl.org/source/openssl-1.1.1c.tar.gz
 #http://www.zlib.net/zlib-1.2.11.tar.gz
 COPY nginx.conf /usr/local/nginx/conf/nginx.conf
-RUN dos2unix /usr/local/nginx/conf/nginx.conf
+RUN dos2unix /usr/local/nginx/conf/*
 
 FROM alpine
 RUN apk add --no-cache bash
