@@ -13,9 +13,9 @@ RUN apk add --no-cache git \
         go get -u -v github.com/kardianos/govendor;\
         go get -u -v github.com/penggy/gobuild;\
         npm i -g apidoc;\
-        npm i -g rimraf;\
-        npm i -g  readline;\
-        npm i -g @penggy/pack;\
+#        npm i -g rimraf;\
+#        npm i -g  readline;\
+#        npm i -g @penggy/pack;\
         cd $GOPATH/src/github.com;\
         mkdir EasyDarwin && cd EasyDarwin;\
         git clone https://github.com/EasyDarwin/EasyDarwin.git --depth=1 EasyDarwin;\
@@ -25,13 +25,13 @@ RUN apk add --no-cache git \
         npm run build:lin;\
         dos2unix easydarwin.ini;\
         mkdir ${OUT_PUT_DIR};\
-#        \cp -rf easydarwin easydarwin.ini  *.sh www ${OUT_PUT_DIR};
-        pack tar;\
-        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
+        cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
+#        pack tar;\
+#        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
 FROM jrottenberg/ffmpeg:4.1-alpine
 ENV LANG C.UTF-8
-
+WORKDIR /
 #install easydarwin
 #系统登录账号（rtsp推拉流）
 ENV DEFAULT_USERNAME admin
