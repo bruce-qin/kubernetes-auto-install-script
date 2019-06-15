@@ -1,5 +1,5 @@
 FROM golang:alpine AS baseBuild
-ARG OUT_PUT_DIR=/easydarwin
+ARG OUT_PUT_DIR=/tmp/easydarwin
 RUN apk add --no-cache git \
                         gcc \
                         g++ \
@@ -24,7 +24,7 @@ RUN apk add --no-cache git \
         cat package.json;\
         npm run build:lin;\
         dos2unix easydarwin.ini;\
-        mkdir ${OUT_PUT_DIR};\
+        mkdir -p ${OUT_PUT_DIR};\
         cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
 #        pack tar;\
 #        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
