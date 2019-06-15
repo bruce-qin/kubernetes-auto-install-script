@@ -60,6 +60,7 @@ COPY nginx.conf /usr/local/nginx/conf/nginx.conf
 RUN dos2unix /usr/local/nginx/conf/nginx.conf
 
 FROM alpine
+RUN apk add --no-cache bash
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
