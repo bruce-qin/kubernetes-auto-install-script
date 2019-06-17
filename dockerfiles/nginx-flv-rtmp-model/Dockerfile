@@ -1,53 +1,62 @@
-FROM centos:7 AS baseBuild
-ARG NGINX_VERSION=1.16.0
+# Dockerfile.ok for a simple Nginx stream replicator
+
+# Separate build stage to keep build dependencies out of our final image
+ARG ALPINE_VERSION=alpine
+FROM ${ALPINE_VERSION}
+
+# Software versions to build
+ARG NGINX_VERSION=nginx-1.16.0
 ARG NGINX_HTTP_FLV_MODEL_VERSION=1.2.6
 ARG PCRE_VERSION=8.43
 ARG OPENSSL_VERSION=1.1.1c
 ARG ZLIB_VERSION=1.2.11
-RUN yum update;\
-        yum install -y psmisc \
-                wget \
-                autoconf \
-                automake \
-                cmake \
-                freetype-devel \
-                gcc \
-                gcc-c++ \
-                libtool \
-                make \
-                mercurial \
-                pkgconfig \
-                openssl-libs \
-                openssl-devel \
-                openssl-static \
-                pcre-static \
-                pcre-devel \
-                pcre \
-                libstdc++ \
-                libstdc++-devel \
-                libstdc++-static \
-                zlib-devel \
-                zlib-static \
-                ca-certificates \
-                gd-devel \
-                gd \
-                dos2unix;\
-        cd /root;\
-        wget -O nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz;\
-        tar -xzf nginx-${NGINX_VERSION}.tar.gz;\
-        cd nginx-${NGINX_VERSION};\
-        wget -O nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
-        tar -xzf nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz;\
-        #sed -i "s/\.openssl\///g" ./auto/lib/openssl/conf;\
-        wget -O pcre-${PCRE_VERSION}.tar.gz https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz;\
-        tar -xzf pcre-${PCRE_VERSION}.tar.gz;\
-        wget -O openssl-${OPENSSL_VERSION}.tar.gz https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz;\
-        tar -xzf openssl-${OPENSSL_VERSION}.tar.gz;\
-        wget -O zlib-${ZLIB_VERSION}.tar.gz http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz;\
-        tar -xzf zlib-${ZLIB_VERSION}.tar.gz;\
-        export CFLAGS="$CFLAGS -Werror -g -static";\
-        #编译Nginx
-        ./configure \
+
+# Install buildtime dependencies
+# Note: We build against LibreSSL instead of OpenSSL, because LibreSSL is already included in Alpine
+RUN apk --no-cache add build-base tar \
+            gcc \
+            libc-dev \
+            make \
+            openssl-dev \
+            pcre-dev \
+            zlib-dev \
+            linux-headers \
+            libxslt-dev \
+            gd-dev \
+            geoip-dev \
+            perl-dev \
+            libedit-dev \
+            mercurial \
+            bash \
+            alpine-sdk \
+            findutils
+
+# Download sources
+# Note: We download our own fork of nginx-rtmp-module which contains some additional enhancements over the original version by arut
+RUN mkdir -p /build && \
+    wget -O - https://nginx.org/download/${NGINX_VERSION}.tar.gz | tar -zxC /build -f - && \
+    mv /build/${NGINX_VERSION} /build/nginx && \
+    wget -O - https://github.com/winshining/nginx-http-flv-module/archive/v${NGINX_HTTP_FLV_MODEL_VERSION}.tar.gz | tar -zxC /build -f - && \
+    mv /build/nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} /build/nginx-http-flv-module&& \
+    wget -O - https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz | tar -zxC /build -f - && \
+    mv /build/pcre-${PCRE_VERSION} /build/pcre && \
+    wget -O - https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz | tar -zxC /build -f - && \
+    mv /build/openssl-${OPENSSL_VERSION} /build/openssl && \
+    wget -O - http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar -zxC /build -f - && \
+    mv /build/zlib-${ZLIB_VERSION} /build/zlib
+
+# Build a minimal version of nginx
+RUN cd /build/nginx && \
+    ./configure \
+        --prefix=/etc/nginx \
+        --sbin-path=/usr/local/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --pid-path=/var/run/nginx.pid \
+        --lock-path=/var/lock/nginx.lock \
+        --http-client-body-temp-path=/tmp/nginx/client-body \
+        --user=nginx --group=nginx \
         --with-stream \
         --with-stream_ssl_module \
         --with-threads \
@@ -57,38 +66,49 @@ RUN yum update;\
         --with-http_stub_status_module \
         --with-http_ssl_module \
         --with-http_v2_module \
-        --with-openssl=./openssl-${OPENSSL_VERSION}\
-        --with-pcre=./pcre-${PCRE_VERSION} \
+        --with-openssl=/build/openssl \
+        --with-pcre=/build/pcre \
         --with-pcre-jit \
-        --with-zlib=./zlib-${ZLIB_VERSION} \
-        --add-module=./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION} \
-        --prefix=/usr/local/nginx;\
-        make -j $(getconf _NPROCESSORS_ONLN);\
-        make  install;\
-        cp ./nginx-http-flv-module-${NGINX_HTTP_FLV_MODEL_VERSION}/stat.xsl /usr/local/nginx/conf/stat.xsl
-#http://nginx.org/download/nginx-1.16.0.tar.gz
-#https://github.com/winshining/nginx-http-flv-module/archive/v1.2.6.tar.gz
-#https://ftp.pcre.org/pub/pcre/pcre2-10.33.tar.gz
-#https://www.openssl.org/source/openssl-1.1.1c.tar.gz
-#http://www.zlib.net/zlib-1.2.11.tar.gz
-COPY nginx.conf /usr/local/nginx/conf/nginx.conf
-RUN dos2unix /usr/local/nginx/conf/*
+        --with-zlib=/build/zlib \
+        --add-module=/build/nginx-http-flv-module && \
+    make -j $(getconf _NPROCESSORS_ONLN) && \
+    cp /build/nginx-http-flv-module/stat.xsl /build/nginx/conf/
 
-FROM alpine
-#RUN apk update		;\
-#            apk add --no-cache	  \
-#                openssl		   \
-#                libstdc++	   \
-#                ca-certificates	   \
-#                zlib    \
-#                pcre
+# Final image stage
+FROM ${ALPINE_VERSION}
+
+RUN apk --no-cache add nginx-mod-http-image-filter \
+                libxslt \
+                libedit \
+                perl \
+                geoip \
+                gd
+
+# Set up group and user
+#RUN set +e && addgroup -S nginx && \
+#    adduser -s /sbin/nologin -G nginx -S -D -H nginx
+
+# Set up directories
+RUN set -e && mkdir -p /etc/nginx /var/log/nginx /var/www /tmp/nginx/client-body && \
+    chown -R nginx:nginx /var/log/nginx /var/www && \
+    chmod -R 775 /var/log/nginx /var/www
+
+# Set up exposed ports
 EXPOSE 1935
 EXPOSE 80
 EXPOSE 443
-COPY --from=0  /usr/local/nginx /usr/local/nginx
-RUN chmod +x /usr/local/nginx/sbin/nginx && ls -lthR /usr/local/nginx/;\
+
+# Copy files from build stage
+COPY --from=0 /build/nginx/conf/ /etc/nginx/
+COPY --from=0 /build/nginx/html/ /etc/nginx/html/
+COPY --from=0 /build/nginx/objs/nginx /usr/local/sbin/nginx
+# Set up config file
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN chmod 444 /etc/nginx/nginx.conf
+
+RUN chmod +x /usr/local/sbin/nginx && \
                 {\
-                echo '#!/bin/sh';\
-                echo '/usr/local/nginx/sbin/nginx -g "daemon off;"';\
+                echo '#!/bin/sh' ;\
+                echo '/usr/local/sbin/nginx -g "daemon off;"' ;\
                 }>/docker-endpoint && chmod +x /docker-endpoint
-ENTRYPOINT ["/docker-endpoint"]
+ENTRYPOINT [ "/docker-endpoint" ]
