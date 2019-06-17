@@ -1,0 +1,34 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: rmq-cluster
+  name: rmq-cluster
+  namespace: public-service
+spec:
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+   - name: stomp
+     targetPort: 61613
+     port: 61613
+  selector:
+    app: rmq-cluster
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: rmq-cluster-web
+  name: rmq-cluster-web
+  namespace: public-service
+spec:
+  clusterIP: NodePort
+  ports:
+    - name: web
+      port: 15672
+      targetPort: 15672
+      nodePort: 25672
+  selector:
+    app: rmq-cluster

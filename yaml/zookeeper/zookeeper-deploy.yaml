@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-cluster-1
+  labels:
+    app: zookeeper-cluster-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: zookeeper-cluster-1
+        app: zookeeper-cluster-1
+    spec:
+      containers:
+        - name: zookeeper-cluster-1
+          image: zookeeper:3.4.14
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /etc/localtime
+              name: tz-config
+              readOnly: true
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: follower
+            - containerPort: 3888
+              name: leader
+          env:
+            - name: ZOO_MY_ID
+              value: "1"
+            - name: ZOO_SERVERS
+              value: "server.1=zookeeper-cluster-1:2888:3888 server.2=zookeeper-cluster-2:2888:3888 server.3=zookeeper-cluster-3:2888:3888"
+      restartPolicy: Always
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /etc/localtime
+  selector:
+    matchLabels:
+      app: zookeeper-cluster-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-cluster-2
+  labels:
+    app: zookeeper-cluster-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: zookeeper-cluster-2
+        app: zookeeper-cluster-2
+    spec:
+      containers:
+        - name: zookeeper-cluster-2
+          image: zookeeper:3.4.14
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: follower
+            - containerPort: 3888
+              name: leader
+          volumeMounts:
+            - mountPath: /etc/localtime
+              name: tz-config
+              readOnly: true
+          env:
+            - name: ZOO_MY_ID
+              value: "2"
+            - name: ZOO_SERVERS
+              value: "server.1=zookeeper-cluster-1:2888:3888 server.2=zookeeper-cluster-2:2888:3888 server.3=zookeeper-cluster-3:2888:3888"
+      restartPolicy: Always
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /etc/localtime
+  selector:
+    matchLabels:
+      app: zookeeper-cluster-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-cluster-3
+  labels:
+    app: zookeeper-cluster-3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: zookeeper-cluster-3
+        app: zookeeper-cluster-3
+    spec:
+      containers:
+        - name: zookeeper-cluster-3
+          image: zookeeper:3.4.14
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /etc/localtime
+              name: tz-config
+              readOnly: true
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: follower
+            - containerPort: 3888
+              name: leader
+          env:
+            - name: ZOO_MY_ID
+              value: "3"
+            - name: ZOO_SERVERS
+              value: "server.1=zookeeper-cluster-1:2888:3888 server.2=zookeeper-cluster-2:2888:3888 server.3=zookeeper-cluster-3:2888:3888"
+      restartPolicy: Always
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /etc/localtime
+  selector:
+    matchLabels:
+      app: zookeeper-cluster-3
