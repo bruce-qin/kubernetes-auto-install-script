@@ -93,6 +93,10 @@ RUN set -e && mkdir -p /etc/nginx /var/log/nginx /var/www /tmp/nginx/client-body
     chown -R nginx:nginx /var/log/nginx /var/www && \
     chmod -R 775 /var/log/nginx /var/www
 
+# Forward logs to Docker
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
+
 # Set up exposed ports
 EXPOSE 1935
 EXPOSE 80
