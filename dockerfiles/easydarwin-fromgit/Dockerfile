@@ -45,6 +45,8 @@ ENV CLOSE_OLD 0
 #当close_old为1时，是否保留被关闭的推流器对应的播放器。
 #如果为0，则原推流器对应的播放器会被断开。否则会被保留下来。注意，如果该选项为1，可能某些播放器会有异常，因为RTP序列可能不一致了。
 ENV KEEP_PLAYERS 0
+#是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置/media/hls
+ENV SAVE_STREAM_TO_LOCAL 0
 COPY --from=0 /tmp/build/easydarwin /easydarwin
 RUN {\
         echo '#!/bin/sh';\
@@ -65,6 +67,10 @@ RUN {\
         echo 'fi';\
         echo 'if [ "$KEEP_PLAYERS" == "1" ];then';\
         echo '  sed -i "s/^keep_players=.*/keep_players=$KEEP_PLAYERS/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
+        echo '  sed -i "s/^save_stream_to_local=.*/keep_players=$SAVE_STREAM_TO_LOCAL/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^m3u8_dir_path=.*/m3u8_dir_path=\/media\/hls/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'chmod +x $EASYDARWIN_HOME/easydarwin';\
         echo 'echo "$EASYDARWIN_HOME" > /easydarwin_home';\
