@@ -108,7 +108,7 @@ COPY --from=0 /build/nginx/html/ /etc/nginx/html/
 COPY --from=0 /build/nginx/objs/nginx /usr/local/sbin/nginx
 # Set up config file
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN chmod 444 /etc/nginx/nginx.conf && mkdir /media
+RUN chmod 444 /etc/nginx/nginx.conf && mkdir -p /media/{hls,dash}
 #挂载音视频媒体文件 hls:/media/hls dash:/media/dash
 VOLUME /media
 #自定义nginx配置
