@@ -84,6 +84,6 @@ EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
 #ts存储文件位置
-RUN mkidr -p /media/hls
+RUN mkdir -p /media/hls
 VOLUME /media/hls
 ENTRYPOINT ["/start-easydarwin"]
