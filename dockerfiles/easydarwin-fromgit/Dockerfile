@@ -83,4 +83,6 @@ RUN {\
 EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
+#ts存储文件位置
+VOLUME /media/hls
 ENTRYPOINT ["/start-easydarwin"]
