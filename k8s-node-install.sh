@@ -331,7 +331,7 @@ EOF
 #安装kube-proxy
 install_kube_proxy(){
     generate_kube_proxy_config
-    read -p "set kubernetes cluster ip range(设置kubernetes集群服务地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+    read -p "set kubernetes cluster service subnet ip range(设置kubernetes service subnet地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
     echo "kubernetes cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
     \cp -rf $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-proxy
