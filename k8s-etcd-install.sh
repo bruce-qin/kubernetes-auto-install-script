@@ -96,7 +96,7 @@ Restart=on-failure
 LimitNOFILE=65535
 RestartSec=15s
 [Install]
-wantedBy=multi-user.target
+WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
 systemctl enable etcd

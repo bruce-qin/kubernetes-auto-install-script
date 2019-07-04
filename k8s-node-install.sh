@@ -114,7 +114,7 @@ ExecStartPost=$KUBERNETES_HOME/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -
 Restart=on-failure
 RestartSec=15s
 [Install]
-wantedBy=multi-user.target
+WantedBy=multi-user.target
 EOF
 }
 
@@ -206,7 +206,7 @@ kube_bootstrap_token=${token0%%,*}
 read -p "set kube-apiserver connect addtess(设置kube-apiserver通信地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
 echo "kube-apiserver connect addtess:[${MASTER_CONNECTION_ADDRESS:?'kube-apiserver通信地址不能为空'}]"
 read -p "set kubelet bind ip(设置kubelet绑定ip):" NODE_ADDRESS
-echo "kubelet bind ip:[${NODE_ADDRESS:?'kueblet 绑定地址不能为空'}]"
+echo "kubelet bind ip:[${NODE_ADDRESS:?'kubelet 绑定地址不能为空'}]"
 \cp -rf $SHELLDIR/kubectl $KUBERNETES_HOME/bin
 chmod +x $KUBERNETES_HOME/bin/kubectl
 
