@@ -203,8 +203,8 @@ if [ ! -f "$SHELLDIR/tls/token.csv" ]; then
 fi
 token0=$(cat $SHELLDIR/tls/token.csv)
 kube_bootstrap_token=${token0%%,*}
-read -p "set kube-apiserver connect addtess(设置kube-apiserver通信地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
-echo "kube-apiserver connect addtess:[${MASTER_CONNECTION_ADDRESS:?'kube-apiserver通信地址不能为空'}]"
+read -p "set kube-apiserver connect address(设置kube-apiserver通信地址，最好是haproxy负载均衡代理地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
+echo "kube-apiserver connect address:[${MASTER_CONNECTION_ADDRESS:?'kube-apiserver通信地址不能为空'}]"
 read -p "set kubelet bind ip(设置kubelet绑定ip):" NODE_ADDRESS
 echo "kubelet bind ip:[${NODE_ADDRESS:?'kubelet 绑定地址不能为空'}]"
 \cp -rf $SHELLDIR/kubectl $KUBERNETES_HOME/bin
@@ -331,8 +331,8 @@ EOF
 #安装kube-proxy
 install_kube_proxy(){
     generate_kube_proxy_config
-    read -p "set kubelet cluster ip range(设置kubelet集群服务pods ip地址范围,不能与api-server ip范围有重叠)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-    echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+    read -p "set kubernetes cluster ip range(设置kubernetes集群服务地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+    echo "kubernetes cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
     \cp -rf $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-proxy
     cat >$KUBERNETES_HOME/cfg/kube-proxy <<EOF

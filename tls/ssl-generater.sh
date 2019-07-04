@@ -189,7 +189,49 @@ cat >$SHELLDIR/config/k8s/kube-proxy-csr.json << EOF
         "C": "CN",
         "L": "SiChuan",
         "ST": "ChengDu",
-        "O": "k8s",
+        "O": "system:kube-proxy",
+        "OU": "System"
+    }
+  ]
+}
+EOF
+
+#kube-controller-manager证书
+cat >$SHELLDIR/config/k8s/kube-controller-manager-csr.json << EOF
+{
+  "CN": "system:kube-controller-manager",
+  "hosts": [$fixed_k8s_server_ip],
+  "key": {
+        "algo": "rsa",
+        "size": 2048
+  },
+  "names": [
+    {
+        "C": "CN",
+        "L": "SiChuan",
+        "ST": "ChengDu",
+        "O": "system:kube-controller-manager",
+        "OU": "System"
+    }
+  ]
+}
+EOF
+
+#kube-scheduler证书
+cat >$SHELLDIR/config/k8s/kube-scheduler-csr.json << EOF
+{
+  "CN": "system:kube-scheduler",
+  "hosts": [$fixed_k8s_server_ip],
+  "key": {
+        "algo": "rsa",
+        "size": 2048
+  },
+  "names": [
+    {
+        "C": "CN",
+        "L": "SiChuan",
+        "ST": "ChengDu",
+        "O": "system:kube-scheduler",
         "OU": "System"
     }
   ]
@@ -219,6 +261,8 @@ EOF
 cfssl gencert -initca $SHELLDIR/config/k8s/ca-k8s-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/ca-k8s
 cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/server-k8s-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/server-k8s
 cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/kube-proxy-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/kube-proxy
+cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/kube-controller-manager-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/kube-controller-manager
+cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/kube-scheduler-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/kube-scheduler
 cfssl gencert -ca=$SHELLDIR/ssl/k8s/ca-k8s.pem -ca-key=$SHELLDIR/ssl/k8s/ca-k8s-key.pem -config=$SHELLDIR/config/k8s/ca-k8s-config.json -profile=kubernetes $SHELLDIR/config/k8s/admin-k8s-csr.json | cfssljson -bare $SHELLDIR/ssl/k8s/admin-k8s
 
 fi

@@ -90,8 +90,10 @@ read -p "set kube-apiserver bind ip(设置kube-apiserver绑定ip)[default 127.0.
 echo "kube-apiserver bind ip:[${MASTER_ADDRESS:=127.0.0.1}]"
 read -p "set kube-apiserver communication bind port(设置kube-apiserver加密通讯绑定端口)[default 6443]:" MASTER_BIND_PORT
 echo "kube-apiserver communication bind port:[${MASTER_BIND_PORT:=6443}]"
-read -p "set kubelet cluster ip range(设置kubelet集群api-server服务地址范围，不能与pods地址段有重叠！)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-echo "kubelet cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+read -p "set kubernetes cluster ip range(设置kubernetes集群服务地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+echo "kubernetes cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+read -p "set kube-apiserver connect address(设置kube-apiserver通信地址，最好是haproxy负载均衡代理地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
+echo "kube-apiserver connect address:[${MASTER_CONNECTION_ADDRESS:=https://${MASTER_ADDRESS}:${MASTER_BIND_PORT}}]"
 #安装kube-apiserver
 install_kube_apiserver(){
     read -p "set kube-apiserver etcd connection address(设置kube-apiserver etcd通讯地址,多个用英文逗号分隔)[default https://127.0.0.1:2379]:" ETCD_SERVERS
@@ -137,7 +139,7 @@ KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=${SERVICE_CLUSTER_IP_RANGE}"
 #   ServiceAccount, DefaultStorageClass, DefaultTolerationSeconds, ResourceQuota
 # Mark Deprecated. Use --enable-admission-plugins or --disable-admission-plugins instead since v1.10.
 # It will be removed in a future version.
-KUBE_ADMISSION_CONTROL="--enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota,NodeRestriction"
+KUBE_ADMISSION_CONTROL="--enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction"
 # --client-ca-file="": If set, any request presenting a client certificate signed
 # by one of the authorities in the client-ca-file is authenticated with an identity
 # corresponding to the CommonName of the client certificate.
@@ -201,9 +203,38 @@ EOF
     systemctl restart kube-apiserver
 }
 
+generate_kube_controller_manager_config(){
+
+    # 配置客户端认证参数；
+    # 认证用户为前文签名中的“system:kube-controller-manager”；
+    # 指定对应的公钥证书/私钥等
+    $KUBERNETES_HOME/bin/kubectl config set-cluster kubernetes \
+    --certificate-authority=$KUBERNETES_HOME/ssl/ca-k8s.pem \
+    --embed-certs=true \
+    --server=${MASTER_CONNECTION_ADDRESS} \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-controller-manager.kubeconfig
+
+    # 配置客户端认证参数；
+    # 认证用户为前文签名中的“system:kube-controller-manager”；
+    # 指定对应的公钥证书/私钥等
+    $KUBERNETES_HOME/bin/kubectl config set-credentials system:kube-controller-manager \
+    --client-certificate=$KUBERNETES_HOME/ssl/kube-controller-manager.pem \
+    --embed-certs=true \
+    --client-key=$KUBERNETES_HOME/ssl/kube-controller-manager-key.pem \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-controller-manager.kubeconfig
+
+    # 配置上下文参数
+    $KUBERNETES_HOME/bin/kubectl config set-context system:kube-controller-manager@kubernetes \
+    --cluster=kubernetes \
+    --user=system:kube-controller-manager \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-controller-manager.kubeconfig
+    # 配置默认上下文
+    $KUBERNETES_HOME/bin/kubectl config use-context system:kube-controller-manager@kubernetes --kubeconfig=$KUBERNETES_HOME/cfg/kube-controller-manager.kubeconfig
+}
 
 #安装kube-controller-manager
 install_kube_controller_manager(){
+    generate_kube_controller_manager_config
     \cp -rf $SHELLDIR/kube-controller-manager $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-controller-manager
     cat >$KUBERNETES_HOME/cfg/kube-controller-manager <<EOF
@@ -221,10 +252,16 @@ KUBE_CONTROLLER_MANAGER_ROOT_CA_FILE="--root-ca-file=$KUBERNETES_HOME/ssl/ca-k8s
 KUBE_CONTROLLER_MANAGER_SERVICE_ACCOUNT_PRIVATE_KEY_FILE="--service-account-private-key-file=$KUBERNETES_HOME/ssl/ca-k8s-key.pem"
 # --leader-elect: Start a leader election client and gain leadership before
 # executing the main loop. Enable this when running replicated components for high availability.
-KUBE_LEADER_ELECT="--leader-elect"
+KUBE_LEADER_ELECT="--leader-elect=true"
 KUBE_CLUSTER_NAME="--cluster-name=kubernetes"
 KUBE_CLUSTER_SIGNING_CERT_FILE="--cluster-signing-cert-file=$KUBERNETES_HOME/ssl/ca-k8s.pem"
 KUBE_CLUSTER_SIGNING_KEY_FILE="--cluster-signing-key-file=$KUBERNETES_HOME/ssl/ca-k8s-key.pem"
+KUBECONFIG="--kubeconfig=$KUBERNETES_HOME/cfg/kube-controller-manager.kubeconfig"
+ALLOCATE_NODE_CIDRS="--allocate-node-cidrs=true"
+CLUSTER_CIDR="--cluster-cidr=10.10.0.0/16"
+INSECURE_EXPERIMENTAL_APPROVE_ALL_KUBELET_CSRS_FOR_GROUP="--insecure-experimental-approve-all-kubelet-csrs-for-group=system:bootstrappers"
+USE_SERVICE_ACCOUNT_CREDENTIALS="--use-service-account-credentials=true"
+CONTROLLERS="--controllers=*,bootstrapsigner,tokencleaner"
 EOF
 
     KUBE_CONTROLLER_MANAGER_OPTS="  \${KUBE_LOGTOSTDERR}        \\
@@ -236,6 +273,12 @@ EOF
                                     \${KUBE_CLUSTER_NAME}       \\
                                     \${KUBE_CLUSTER_SIGNING_CERT_FILE}  \\
                                     \${KUBE_CLUSTER_SIGNING_KEY_FILE}   \\
+                                    \${KUBECONFIG}  \\
+                                    \${ALLOCATE_NODE_CIDRS} \\
+                                    \${CLUSTER_CIDR}    \\
+                                    \${INSECURE_EXPERIMENTAL_APPROVE_ALL_KUBELET_CSRS_FOR_GROUP}    \\
+                                    \${USE_SERVICE_ACCOUNT_CREDENTIALS} \\
+                                    \${CONTROLLERS} \\
                                     \${KUBE_LEADER_ELECT}"
 
     cat >/usr/lib/systemd/system/kube-controller-manager.service <<EOF
@@ -260,8 +303,31 @@ EOF
     systemctl restart kube-controller-manager
 }
 
+generate_kube_scheduler_config(){
+
+    $KUBERNETES_HOME/bin/kubectl  config set-cluster kubernetes \
+    --certificate-authority=$KUBERNETES_HOME/ssl/ca-k8s.pem \
+    --embed-certs=true \
+    --server=${MASTER_CONNECTION_ADDRESS} \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-scheduler.kubeconfig
+
+    $KUBERNETES_HOME/bin/kubectl  config set-credentials system:kube-scheduler \
+    --client-certificate=$KUBERNETES_HOME/ssl/kube-scheduler.pem \
+    --embed-certs=true \
+    --client-key=$KUBERNETES_HOME/ssl/kube-scheduler-key.pem \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-scheduler.kubeconfig
+
+    $KUBERNETES_HOME/bin/kubectl  config set-context system:kube-scheduler@kubernetes \
+    --cluster=kubernetes \
+    --user=system:kube-scheduler \
+    --kubeconfig=$KUBERNETES_HOME/cfg/kube-scheduler.kubeconfig
+
+    $KUBERNETES_HOME/bin/kubectl  config use-context system:kube-scheduler@kubernetes --kubeconfig=$KUBERNETES_HOME/cfg/kube-scheduler.kubeconfig
+}
+
 #安装kube-scheduler
 install_kube_scheduler(){
+    generate_kube_scheduler_config
     \cp -rf $SHELLDIR/kube-scheduler $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-scheduler
     cat >$KUBERNETES_HOME/cfg/kube-scheduler <<EOF
@@ -276,6 +342,7 @@ KUBE_MASTER="--master=127.0.0.1:8080"
 # --leader-elect: Start a leader election client and gain leadership before
 # executing the main loop. Enable this when running replicated components for high availability.
 KUBE_LEADER_ELECT="--leader-elect"
+KUBECONFIG="--kubeconfig=$KUBERNETES_HOME/cfg/kube-scheduler.kubeconfig"
 # Add your own!
 KUBE_SCHEDULER_ARGS=""
 EOF
@@ -284,6 +351,7 @@ EOF
                             \${KUBE_LOG_LEVEL}       \\
                             \${KUBE_MASTER}          \\
                             \${KUBE_LEADER_ELECT}    \\
+                            \${KUBECONFIG}  \\
                             \$KUBE_SCHEDULER_ARGS"
 
     cat >/usr/lib/systemd/system/kube-scheduler.service <<EOF
@@ -321,4 +389,4 @@ while [ $flag -eq 1 ]; do
     fi
 done
 $KUBERNETES_HOME/bin/kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
-$KUBERNETES_HOME/bin/kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+#$KUBERNETES_HOME/bin/kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
