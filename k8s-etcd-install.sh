@@ -112,8 +112,8 @@ else
 fi
 source /etc/profile
 
-read -p "set kubelet cluster pods ip range(设置kubelet集群服务docker容器ip地址范围，注意需要与kube-controller-manager的参数--cluster-cidr一致)[default 172.10.0.0/16]:" SERVICE_CLUSTER_POD_IP_RANGE
-echo "kubelet cluster pods ip range:[${SERVICE_CLUSTER_POD_IP_RANGE:=172.10.0.0/16}]"
+read -p "set kubelet cluster pods ip range(设置kubelet集群服务docker容器ip地址范围，注意需要与kube-controller-manager的参数--cluster-cidr一致)[default 10.254.0.0/16]:" SERVICE_CLUSTER_POD_IP_RANGE
+echo "kubelet cluster pods ip range:[${SERVICE_CLUSTER_POD_IP_RANGE:=10.254.0.0/16}]"
 
 etcdctl --endpoints="$etcd_listen_client_urls" \
 set /k8s/network/config "{\"Network\": \"$SERVICE_CLUSTER_POD_IP_RANGE\", \"Backend\": {\"Type\": \"vxlan\"}}"

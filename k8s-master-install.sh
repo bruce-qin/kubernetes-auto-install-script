@@ -90,10 +90,10 @@ read -p "set kube-apiserver bind ip(设置kube-apiserver绑定ip)[default 127.0.
 echo "kube-apiserver bind ip:[${MASTER_ADDRESS:=127.0.0.1}]"
 read -p "set kube-apiserver communication bind port(设置kube-apiserver加密通讯绑定端口)[default 6443]:" MASTER_BIND_PORT
 echo "kube-apiserver communication bind port:[${MASTER_BIND_PORT:=6443}]"
-read -p "set kubernetes cluster service subnet ip range(设置kubernetes service subnet地址范围,如果ip网段不冲突不建议修改)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-echo "kubernetes cluster service subnet ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
-read -p "set kubernetes cluster pods subnet ip range(设置kubernetes pods subnet地址范围,要与flannel设置的网段一致,如果ip网段不冲突不建议修改)[default 172.10.0.0/16]" KUBERNETES_PODS_IP_RANGE
-echo "kubernetes cluster pods subnet ip range:[${KUBERNETES_PODS_IP_RANGE:=172.10.0.0/16}]"
+read -p "set kubernetes cluster service subnet ip range(设置kubernetes service subnet地址范围,如果ip网段不冲突不建议修改)[default 10.253.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+echo "kubernetes cluster service subnet ip range:[${SERVICE_CLUSTER_IP_RANGE:=10.253.0.0/16}]"
+read -p "set kubernetes cluster pods subnet ip range(设置kubernetes pods subnet地址范围,要与flannel设置的网段一致,如果ip网段不冲突不建议修改)[default 10.254.0.0/16]" KUBERNETES_PODS_IP_RANGE
+echo "kubernetes cluster pods subnet ip range:[${KUBERNETES_PODS_IP_RANGE:=10.254.0.0/16}]"
 read -p "set kube-apiserver connect address(设置kube-apiserver通信地址，最好是haproxy负载均衡代理地址)[like http://127.0.0.1:8080/ or https://10.2.8.44:6443]:" MASTER_CONNECTION_ADDRESS
 echo "kube-apiserver connect address:[${MASTER_CONNECTION_ADDRESS:=https://${MASTER_ADDRESS}:${MASTER_BIND_PORT}}]"
 #安装kube-apiserver

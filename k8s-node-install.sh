@@ -241,7 +241,7 @@ address: $NODE_ADDRESS
 port: 10250
 readOnlyPort: 10255
 cgroupDriver: cgroupfs
-clusterDNS: ["172.17.0.2"]
+clusterDNS: ["10.253.0.2"]
 clusterDomain: cluster.local
 failSwapOn: false
 authentication:
@@ -331,8 +331,8 @@ EOF
 #安装kube-proxy
 install_kube_proxy(){
     generate_kube_proxy_config
-    read -p "set kubernetes cluster service subnet ip range(设置kubernetes service subnet地址范围)[default 172.17.0.0/16]" SERVICE_CLUSTER_IP_RANGE
-    echo "kubernetes cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=172.17.0.0/16}]"
+    read -p "set kubernetes cluster service subnet ip range(设置kubernetes service subnet地址范围)[default 10.253.0.0/16]" SERVICE_CLUSTER_IP_RANGE
+    echo "kubernetes cluster ip range:[${SERVICE_CLUSTER_IP_RANGE:=10.253.0.0/16}]"
     \cp -rf $SHELLDIR/kube-proxy $KUBERNETES_HOME/bin
     chmod +x $KUBERNETES_HOME/bin/kube-proxy
     cat >$KUBERNETES_HOME/cfg/kube-proxy <<EOF

@@ -70,7 +70,6 @@ backend k8s-apiserver-backend
 	stick on src
 	#后端服务器定义, maxconn 1024表示该服务器的最大连接数, cookie 1表示serverid为1, weight代表权重(默认1，最大为265，0则表示不参与负载均衡),
 	#check inter 1500是检测心跳频率, rise 2是2次正确认为服务器可用, fall 3是3次失败认为服务器不可用.
-	#server kubenode1 172.17.200.21:6443 maxconn 1024 cookie 1 weight 3 check inter 1500 rise 2 fall 3
 EOF
 apiserver_array=(${KUBE_APISERVER_PROXY_SERVERS//,/ })
 for((i=0;i<=$((${#apiserver_array[*]}-1));i++));
