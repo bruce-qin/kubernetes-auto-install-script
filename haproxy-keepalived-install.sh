@@ -137,7 +137,7 @@ if [ ! -f "$SHELLDIR/keepalived.tar.gz" ]; then
 fi
 read -p "set keepalived bind interface name(设置keepalived绑定物理网卡名称)[example:  eth0]:" KEEPALIVED_BIND_INTERFACE
 echo "keepalived bind interface name:[${KEEPALIVED_BIND_INTERFACE?'keepalived绑定物理网卡不能为空'}]"
-read -p "set keepalived bind virtual ipaddress(设置keepalived绑定虚拟ip地址)[example:  eh0]:" KEEPALIVED_VIRTUAL_IPADDRESS
+read -p "set keepalived bind virtual ipaddress(设置keepalived绑定虚拟ip地址)[example:  192.168.100.100]:" KEEPALIVED_VIRTUAL_IPADDRESS
 echo "keepalived bind virtual ipaddress:[${KEEPALIVED_VIRTUAL_IPADDRESS?'keepalived绑定虚拟ip地址不能为空'}]"
 tar -xzf $SHELLDIR/keepalived.tar.gz
 cd $(ls -F | grep keepalived.*/)
