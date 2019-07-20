@@ -93,7 +93,7 @@ stop)
     count=0
     while  [ \$flag -lt 1 ]; do
         flag=1
-        haproxy_pid=`ps -ef|grep \$HAPROXY_HOME/sbin/haproxy | grep -v grep | awk '{print \$2}'`
+        haproxy_pid=\`ps -ef|grep \$HAPROXY_HOME/sbin/haproxy | grep -v grep | awk '{print \$2}'\`
         echo "haproxy pid [\$haproxy_pid] is stoping..."
         if [ "\$haproxy_pid" != "" ]
             then
