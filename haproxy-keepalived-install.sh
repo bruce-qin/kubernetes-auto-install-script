@@ -260,6 +260,8 @@ vrrp_instance VI_1 {
     notify_backup "/etc/init.d/haproxy stop"
 }
 EOF
+ln -sf /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived/keepalived.conf
+systemctl enable keepalived
 systemctl restart keepalived
 }
 keepalived_install
