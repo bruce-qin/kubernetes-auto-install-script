@@ -135,6 +135,7 @@ KEEPALIVED_HOME=/usr/local/keepalived
 if [ ! -f "$SHELLDIR/keepalived.tar.gz" ]; then
     wget -O $SHELLDIR/keepalived.tar.gz https://github.com/haproxy/haproxy/archive/v2.0.0.tar.gz
 fi
+mkdir -p /etc/keepalived/
 read -p "set keepalived bind interface name(设置keepalived绑定物理网卡名称)[example:  eth0]:" KEEPALIVED_BIND_INTERFACE
 echo "keepalived bind interface name:[${KEEPALIVED_BIND_INTERFACE?'keepalived绑定物理网卡不能为空'}]"
 read -p "set keepalived bind virtual ipaddress(设置keepalived绑定虚拟ip地址)[example:  192.168.100.100]:" KEEPALIVED_VIRTUAL_IPADDRESS
