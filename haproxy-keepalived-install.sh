@@ -1,6 +1,6 @@
 #!/bin/bash
 SHELLDIR=$(cd $(dirname $0); pwd)
-yum install gcc gcc-c++ pcre-devel zlib-devel libnl3-devel ipset-devel iptables-devel libnfnetlink-devel popt popt-static popt-devel kernel-headers kernel-devel make net-snmp-devel  wget openssl-devel -y
+yum install gcc gcc-c++ systemd-devel pcre-devel zlib-devel libnl3-devel ipset-devel iptables-devel libnfnetlink-devel popt popt-static popt-devel kernel-headers kernel-devel make net-snmp-devel  wget openssl-devel -y
 
 #install haproxy
 haproxy_install(){
@@ -15,7 +15,7 @@ if [ ! -f "$SHELLDIR/haproxy.tar.gz" ]; then
 fi
 tar -xzf $SHELLDIR/haproxy.tar.gz
 cd $(ls -F | grep haproxy.*/)
-make TARGET=linux-glibc PREFIX=$HAPROXY_INSTALL_DIR
+make make ARCH=x86_64 TARGET=linux-glibc USE_PCRE=1 USE_OPENSSL=1 USE_ZLIB=1 USE_SYSTEMD=1 USE_CPU_AFFINITY=1 PREFIX=$HAPROXY_INSTALL_DIR
 make install PREFIX=$HAPROXY_INSTALL_DIR
 groupadd haproxy
 useradd -g haproxy haproxy -s /sbin/nologin
