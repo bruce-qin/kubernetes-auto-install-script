@@ -11,7 +11,7 @@ spec:
     - host: k8s.konka.com
       http:
         paths:
-        - path: /k8sys
+        - path: /
           backend:
             serviceName: kubernetes-dashboard
             servicePort: 443
