@@ -219,6 +219,8 @@ spec:
         kubernetes.io/os: linux
         #此处添加了node节点筛选器指定node labels 为master的节点 可以通过 `kubectl label nodes NODE_NAME ingress=master` 指定
         ingress: master
+      # 使其共用宿主机网络
+      hostNetwork: true
       containers:
         - name: nginx-ingress-controller
           image: siriuszg/nginx-ingress-controller:0.26.1
