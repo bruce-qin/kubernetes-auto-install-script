@@ -14,8 +14,7 @@
 
 # Should keep target in cluster/addons/dns-horizontal-autoscaler/dns-horizontal-autoscaler.yaml
 # in sync with this file.
-
-# __MACHINE_GENERATED_WARNING__
+# https://github.com/kubernetes/kubernetes/tree/v1.16.3/cluster/addons/dns/kube-dns
 
 apiVersion: v1
 kind: Service
@@ -30,6 +29,7 @@ metadata:
 spec:
   selector:
     k8s-app: kube-dns
+  # FIX kubectl get svc -A 获取 ip段
   clusterIP: 10.253.0.2
   ports:
     - name: dns

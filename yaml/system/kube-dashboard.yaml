@@ -1,6 +1,8 @@
 #dashboard创建成功后使用https端口30030访问
 #选择token登录，执行以下命令获取token：
 #kubectl describe secret $(kubectl describe serviceaccount kubernetes-dashboard -n kube-system | grep Tokens | awk '{print $2}') -n kube-system | grep 'token:' | awk '{print $2}'
+# https://github.com/kubernetes/dashboard/releases
+#
 apiVersion: v1
 kind: ConfigMap
 metadata:
