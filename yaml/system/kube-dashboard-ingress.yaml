@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kube-dashboard-ingress
+spec:
+  tls:
+    - hosts:
+        - k8s.konka.com
+      secretName: konka-ingress-secret
+  rules:
+    - host: k8s.konka.com
+      http:
+        paths: /k8sys
+        - backend:
+            serviceName: kubernetes-dashboard
+            servicePort: 443
