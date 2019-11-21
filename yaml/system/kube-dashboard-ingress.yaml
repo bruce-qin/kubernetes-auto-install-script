@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: kube-dashboard-ingress
   namespace: kubernetes-dashboard
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/secure-backends: "true"
 spec:
   tls:
     - hosts:
