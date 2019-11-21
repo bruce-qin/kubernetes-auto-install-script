@@ -2,6 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: kube-dashboard-ingress
+  namespace: kubernetes-dashboard
 spec:
   tls:
     - hosts:
