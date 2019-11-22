@@ -226,11 +226,14 @@ spec:
           image: siriuszg/nginx-ingress-controller:0.26.1
           args:
             - /nginx-ingress-controller
+            - --default-backend-service=$(POD_NAMESPACE)/default-http-backend
             - --configmap=$(POD_NAMESPACE)/nginx-configuration
             - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
             - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
             - --publish-service=$(POD_NAMESPACE)/ingress-nginx
             - --annotations-prefix=nginx.ingress.kubernetes.io
+            # 添加https转发支持
+            - --enable-ssl-passthrough
           securityContext:
             allowPrivilegeEscalation: true
             capabilities:
