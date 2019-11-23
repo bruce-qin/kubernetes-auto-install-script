@@ -135,10 +135,10 @@ metadata:
 rules:
   # Allow Metrics Scraper to get metrics from the Metrics server
   - apiGroups: ["metrics.k8s.io"]
-    resources: ["pods", "nodes","namespaces","secrets","persistentvolumeclaims"]
+    resources: ["pods", "nodes","namespaces","secrets","persistentvolumeclaims","replicasets","deployments","events", "replicationcontrollers", "statefulsets","ingresses", "services", "configmaps", "jobs", "daemonsets", "cronjobs", "clusterroles", "persistentvolumes", "storageclasses"]
     verbs: ["get", "list", "watch"]
   - apiGroups: ["","apps"]
-    resources: ["pods", "nodes","namespaces","secrets","persistentvolumeclaims","replicasets","deployments","events"]
+    resources: ["pods", "nodes","namespaces","secrets","persistentvolumeclaims","replicasets","deployments","events", "replicationcontrollers", "statefulsets","ingresses", "services", "configmaps", "jobs", "daemonsets", "cronjobs", "clusterroles", "persistentvolumes", "storageclasses"]
     verbs: ["get", "list", "watch"]
 
 ---
