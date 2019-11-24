@@ -9,7 +9,7 @@
 `chmod -R 777 /home/nfs/`
 
 >挂载共享目录：\
-`echo "/home/nfs *(rw,no_root_squash,sync)" >> /home/nfs && exportfs -r`
+`echo "/home/nfs *(rw,no_root_squash,sync)" >> /etc/exports && exportfs -r`
 
 >启动服务：\
 `systemctl restart rpcbind && systemctl enable rpcbind`\
