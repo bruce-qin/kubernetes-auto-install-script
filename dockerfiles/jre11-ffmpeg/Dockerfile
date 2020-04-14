@@ -1,10 +1,15 @@
-FROM adoptopenjdk:11-jre-hotspot as java
-FROM jrottenberg/ffmpeg:4.2-alpine311
+#ffmpeg
+FROM jrottenberg/ffmpeg:4.2-alpine311 AS ffmpeg
 
-COPY --from=java /opt/java/openjdk  /opt/java/openjdk
-ENV     JAVA_HOME=/opt/java/openjdk
-ENV     PATH=$PATH:$JAVA_HOME/bin
+FROM alpine:3.11 AS release
+#ffmpeg lib
+RUN         apk add --no-cache --update libgcc libstdc++ ca-certificates libcrypto1.1 libssl1.1 libgomp expat zlib openjdk11-jre
+#ffmpeg
+COPY --from=ffmpeg  /usr/local    /usr/local
 ENV     LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/usr/lib:/usr/lib64:/lib:/lib64
+#java
+ENV JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
+ENV CLASSPATH=.:$JAVA_HOME/lib
+ENV PATH=$PATH:$JAVA_HOME/bin
 
-CMD         ["--help"]
-ENTRYPOINT  ["ffmpeg"]
+ENTRYPOINT  ["sh"]
