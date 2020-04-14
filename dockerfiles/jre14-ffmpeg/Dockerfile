@@ -1,6 +1,6 @@
 FROM alpine AS release
 #install ffmpeg openjdk
-RUN         apk add --no-cache --update openjdk14-jre ffmpeg
+RUN         apk add --no-cache --update openjdk14-jre@testing ffmpeg
 #java
 ENV JAVA_HOME=/usr/lib/jvm/jre-14-openjdk
 ENV CLASSPATH=.:$JAVA_HOME/lib
