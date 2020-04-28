@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: heketi-secret
+  namespace: default
+data:
+  # base64 encoded password. E.g.: echo -n "mypassword" | base64
+  key: YWRtaW5fc2VjcmV0
+type: kubernetes.io/glusterfs
+---
+#storageclass 需要安装heketi，而heketi管理gluster fs需要单独的空磁盘
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: glusterfs
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "http://192.168.101.224:8080"
+  # clusterid 是上面`heketi-cli node list -s http://192.168.101.224:8080 --user admin --secret admin_secret` 的Cluster:
+  clusterid: "8c61d242f4788ae64b0d05aeebcf2deb"
+  restauthenabled: "true"
+  restuser: "admin"
+  restuserkey: "admin_secret"
+  # secretNamespace: "default"
+  # secretName: "heketi-secret"
+  gidMin: "40000"
+  gidMax: "50000"
+  volumetype: "replicate:2"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-pvc10g-rwm
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
