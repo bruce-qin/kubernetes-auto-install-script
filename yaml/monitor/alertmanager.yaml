@@ -1,0 +1,171 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-templates
+  namespace: kube-system
+data:
+  wechat.tmpl: |
+    {{ define "wechat.default.message" }}
+    {{ if gt (len .Alerts.Firing) 0 -}}
+    Alerts Firing:
+    {{ range .Alerts}}
+    告警级别: {{ .Labels.severity }}
+    告警类型: {{ .Labels.alertname }}
+    故障主机: {{ .Labels.instance }}
+    告警主题: {{ .Annotations.summary }}
+    告警详情: {{ .Annotations.description }}
+    触发时间: {{ .StartsAt.Format "2020-01-02 15:04:05" }}
+    {{- end }}
+    {{- end }}
+    {{ if gt (len .Alerts.Resolved) 0 -}}
+    Alerts Resolved:
+    {{ range .Alerts}}
+    告警级别: {{ .Labels.severity }}
+    告警类型: {{ .Labels.alertname }}
+    故障主机: {{ .Labels.instance }}
+    告警主题: {{ .Annotations.summary }}
+    触发时间: {{ .StartsAt.Format "2020-01-02 15:04:05" }}
+    恢复时间: {{ .EndsAt.Format "2020-01-02 15:04:05" }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: kube-system
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m    ##多久没有收到告警，默认告警已恢复
+      smtp_smarthost: '*'    ##注意：这里的mail-server要加端口，要不然发不出去
+      smtp_from: '*'
+      smtp_auth_username: '*'
+      smtp_auth_password: '*'
+
+    templates:
+    - '/etc/alertmanager-templates/*.tmpl'   ##指定告警模板路径
+    receivers:
+    - name: default-receiver
+      email_configs:
+      - to: 'wujqc@*'
+        send_resolved: true        ##是否发送告警恢复邮件
+      wechat_configs:
+      - send_resolved: true        ##是否发送告警恢复微信
+        agent_id: '*'                ##应用页面上的配置
+        to_party: '1'                ##企业微信后台->通讯录->部门ID
+        corp_id: '*'                 ##应用页面上的配置
+        api_secret: '*'              ##应用页面上的配置
+
+    route:
+      group_interval: 10s           ##第一次以后的告警分组要等到多久继续
+      group_by: ['alertname']      ##根据prometheus-rule的alertname进行告警分组
+      group_wait: 10s                ##第一次告警分组要等待多久
+      receiver: default-receiver   ##告警组名称要与receivers保持一致
+      repeat_interval: 5m           ##相同告警间隔多久发送下一条:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-alertmanager
+  namespace: kube-system
+  labels:
+    app: prometheus-alertmanager
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: prometheus-alertmanager
+      labels:
+        app: prometheus-alertmanager
+    spec:
+      priorityClassName: system-cluster-critical
+      containers:
+        - name: prometheus-alertmanager
+          image: prom/alertmanager
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config.file=/etc/config/alertmanager.yml
+            - --storage.path=/alertmanager
+            - --web.external-url=/
+          ports:
+            - containerPort: 9093
+          readinessProbe:
+            httpGet:
+              path: /#/status
+              port: 9093
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          resources:
+            limits:
+              cpu: 10m
+              memory: 50Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+          volumeMounts:
+            - mountPath: /alertmanager
+              name: storage-volume
+            - mountPath: config-volume
+              name: /etc/config/
+            - mountPath: /etc/alertmanager-templates
+              name: templates-volume
+            - mountPath: /etc/localtime
+              name: localtime
+        - name: prometheus-alertmanager-configmap-reload #重新加载configmap配置
+          image: "registry.cn-hangzhou.aliyuncs.com/google_containers/configmap-reload"
+          imagePullPolicy: "IfNotPresent"
+          args:
+            - --volume-dir=/etc/config
+            - --webhook-url=http://localhost:9093/-/reload
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+              readOnly: true
+          resources:
+            limits:
+              cpu: 10m
+              memory: 10Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+      restartPolicy: Always
+      volumes:
+        - name: config-volume
+          configMap:
+            name: alertmanager-config
+        - name: storage-volume
+          emptyDir: {}
+        - name: templates-volume
+          configMap:
+            name: alertmanager-templates     #挂载告警模板
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+  selector:
+    matchLabels:
+      app: prometheus-alertmanager
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-alertmanager
+  namespace: kube-system
+  labels:
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Alertmanager"
+spec:
+  selector:
+    app: prometheus-alertmanager
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 9093
+      nodePort: 30004
+  type: NodePort
+---

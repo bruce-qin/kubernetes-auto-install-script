@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-grafana
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: kube-system
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1000Gi
+            requests:
+              cpu: 500m
+              memory: 500Gi
+          env:
+          # env demo GF_<SectionName>_<KeyName>
+          # <a href="https://grafana.com/docs/grafana/latest/installation/configuration/"/>
+          # Where the section name is the text within the brackets. Everything should be uppercase, . should be replaced by _. For example, if you have these configuration settings:
+          #  default section
+          # instance_name = ${HOSTNAME}
+          #
+          #[security]
+          #admin_user = admin
+          #
+          #[auth.google]
+          #client_secret = 0ldS3cretKey
+          # demo
+          # GF_DEFAULT_INSTANCE_NAME=my-instance
+          # GF_SECURITY_ADMIN_USER=owner
+          # GF_AUTH_GOOGLE_CLIENT_SECRET=newS3cretKey
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "true"
+            - name: GF_SERVER_ENABLE_GZIP
+              value: "true"
+#           - name: GF_AUTH_ANONYMOUS_ENABLED
+#             value: "false"
+#           - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+#             value: "Main Org."
+          readinessProbe:
+            httpGet:
+              port: 3000
+              path: /login
+              scheme: http
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-grafana
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: kube-system
+spec:
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: http
+      nodePort: 31300
+  type: NodePort
