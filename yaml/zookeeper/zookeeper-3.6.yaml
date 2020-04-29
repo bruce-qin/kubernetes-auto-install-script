@@ -1,0 +1,341 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-data1
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-data2
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-data3
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-log1
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-log2
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-ss-zookeeper-log3
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName:  glusterfs #指定使用storageclass 的名称，
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper-cluster1
+  labels:
+    app: zookeeper-cluster1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper-cluster1
+  serviceName: zookeeper-cluster-server1
+  template:
+    metadata:
+      labels:
+        app: zookeeper-cluster1
+    spec:
+      restartPolicy: Always
+      hostname: zookeeper-cluster1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-data1
+        - name: log
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-log1
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+      containers:
+        - name: zookeeper
+          image: zookeeper:3.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ZOO_TICK_TIME
+              value: "1000"
+            - name: ZOO_INIT_LIMIT
+              value: "30"
+            - name: ZOO_SYNC_LIMIT
+              value: "4"
+            - name: ZOO_MAX_CLIENT_CNXNS
+              value: "600"
+            - name: ZOO_MY_ID
+              value: "1"
+            - name: ZOO_SERVERS
+              value: "server.1=0.0.0.0:2888:3888;2181 server.2=zookeeper-cluster-server2:2888:3888;2181 server.3=zookeeper-cluster-server3:2888:3888;2181"
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /datalog
+              name: log
+            - mountPath: /etc/localtime
+              name: localtime
+              readOnly: true
+          ports:
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper-cluster2
+  labels:
+    app: zookeeper-cluster2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper-cluster2
+  serviceName: zookeeper-cluster-server2
+  template:
+    metadata:
+      labels:
+        app: zookeeper-cluster2
+    spec:
+      restartPolicy: Always
+      hostname: zookeeper-cluster2
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-data2
+        - name: log
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-log2
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+      containers:
+        - name: zookeeper
+          image: zookeeper:3.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ZOO_TICK_TIME
+              value: "1000"
+            - name: ZOO_INIT_LIMIT
+              value: "30"
+            - name: ZOO_SYNC_LIMIT
+              value: "4"
+            - name: ZOO_MAX_CLIENT_CNXNS
+              value: "600"
+            - name: ZOO_MY_ID
+              value: "2"
+            - name: ZOO_SERVERS
+              value: "server.1=zookeeper-cluster-server1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zookeeper-cluster-server3:2888:3888;2181"
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /datalog
+              name: log
+            - mountPath: /etc/localtime
+              name: localtime
+              readOnly: true
+          ports:
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper-cluster3
+  labels:
+    app: zookeeper-cluster3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper-cluster3
+  serviceName: zookeeper-cluster-server3
+  template:
+    metadata:
+      labels:
+        app: zookeeper-cluster3
+    spec:
+      restartPolicy: Always
+      hostname: zookeeper-cluster3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-data3
+        - name: log
+          persistentVolumeClaim:
+            claimName: glusterfs-ss-zookeeper-log3
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+      containers:
+        - name: zookeeper
+          image: zookeeper:3.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ZOO_TICK_TIME
+              value: "1000"
+            - name: ZOO_INIT_LIMIT
+              value: "30"
+            - name: ZOO_SYNC_LIMIT
+              value: "4"
+            - name: ZOO_MAX_CLIENT_CNXNS
+              value: "600"
+            - name: ZOO_MY_ID
+              value: "3"
+            - name: ZOO_SERVERS
+              value: "server.1=zookeeper-cluster-server1:2888:3888;2181 server.2=zookeeper-cluster-server2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181"
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /datalog
+              name: log
+            - mountPath: /etc/localtime
+              name: localtime
+              readOnly: true
+          ports:
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-cluster-server1
+spec:
+  selector:
+    app: zookeeper-cluster1
+  ports:
+    - port: 2181
+      targetPort: 2181
+      name: client
+      protocol: TCP
+    - port: 2888
+      targetPort: 2888
+      name: follower
+      protocol: TCP
+    - port: 3888
+      targetPort: 3888
+      name: leader
+      protocol: TCP
+    - port: 8080
+      targetPort: 8080
+      name: admin
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-cluster-server2
+spec:
+  selector:
+    app: zookeeper-cluster2
+  ports:
+    - port: 2181
+      targetPort: 2181
+      name: client
+      protocol: TCP
+    - port: 2888
+      targetPort: 2888
+      name: follower
+      protocol: TCP
+    - port: 3888
+      targetPort: 3888
+      name: leader
+      protocol: TCP
+    - port: 8080
+      targetPort: 8080
+      name: admin
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-cluster-server3
+spec:
+  selector:
+    app: zookeeper-cluster3
+  ports:
+    - port: 2181
+      targetPort: 2181
+      name: client
+      protocol: TCP
+    - port: 2888
+      targetPort: 2888
+      name: follower
+      protocol: TCP
+    - port: 3888
+      targetPort: 3888
+      name: leader
+      protocol: TCP
+    - port: 8080
+      targetPort: 8080
+      name: admin
+      protocol: TCP
