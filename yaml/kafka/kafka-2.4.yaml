@@ -28,13 +28,13 @@ spec:
           env:
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
-            - name: BROKER_ID_COMMAND
+            - name: KAFKA_BROKER_ID
               value: "1"
             - name: KAFKA_LOG_DIRS
               value: "/kafka/logs"
             - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
               value: "30000"
-            - name: KAFKA_log.retention.hours
+            - name: KAFKA_LOG_RETENTION_HOURS
               value: "24"
       restartPolicy: Always
   selector:
@@ -83,13 +83,13 @@ spec:
           env:
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
-            - name: BROKER_ID_COMMAND
+            - name: KAFKA_BROKER_ID
               value: "2"
             - name: KAFKA_LOG_DIRS
               value: "/kafka/logs"
             - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
               value: "30000"
-            - name: KAFKA_log.retention.hours
+            - name: KAFKA_LOG_RETENTION_HOURS
               value: "24"
       restartPolicy: Always
   selector:
@@ -138,13 +138,13 @@ spec:
           env:
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
-            - name: BROKER_ID_COMMAND
+            - name: KAFKA_BROKER_ID
               value: "3"
             - name: KAFKA_LOG_DIRS
               value: "/kafka/logs"
             - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
               value: "30000"
-            - name: KAFKA_log.retention.hours
+            - name: KAFKA_LOG_RETENTION_HOURS
               value: "24"
       restartPolicy: Always
   selector:
