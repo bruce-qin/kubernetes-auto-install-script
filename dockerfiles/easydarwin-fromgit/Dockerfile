@@ -10,16 +10,15 @@ RUN apk add --no-cache git \
                         gzip \
                         dos2unix \
                         tar ;\
-        go get -u -v github.com/kardianos/govendor;\
-        go get -u -v github.com/penggy/gobuild;\
         npm i -g apidoc;\
 #        npm i -g rimraf;\
 #        npm i -g  readline;\
 #        npm i -g @penggy/pack;\
         cd $GOPATH/src/github.com;\
         mkdir EasyDarwin && cd EasyDarwin;\
-        git clone https://github.com/EasyDarwin/EasyDarwin.git --depth=1 EasyDarwin;\
+        git clone https://github.com/bruce-qin/EasyDarwin.git --depth=1 EasyDarwin;\
         cd EasyDarwin;\
+        go get;\
         sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags '-extldflags -static -s -w' -o easydarwin\"," package.json;\
         cat package.json;\
         npm run build:lin;\
@@ -29,7 +28,7 @@ RUN apk add --no-cache git \
 #        pack tar;\
 #        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
-FROM jrottenberg/ffmpeg:4.1-alpine
+FROM jrottenberg/ffmpeg:4.2-alpine
 ENV LANG C.UTF-8
 WORKDIR /
 #install easydarwin
@@ -47,6 +46,8 @@ ENV CLOSE_OLD 0
 ENV KEEP_PLAYERS 0
 #是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置/media/hls
 ENV SAVE_STREAM_TO_LOCAL 0
+#rtp udp推送时服务端端口范围
+ENV RTPSERVER_UDPORT_RANGE 50000:55000
 COPY --from=0 /tmp/build/easydarwin /easydarwin
 RUN {\
         echo '#!/bin/sh';\
@@ -67,6 +68,9 @@ RUN {\
         echo 'fi';\
         echo 'if [ "$KEEP_PLAYERS" == "1" ];then';\
         echo '  sed -i "s/^keep_players=.*/keep_players=$KEEP_PLAYERS/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $RTPSERVER_UDPORT_RANGE ]];then';\
+        echo '  sed -i "s/^rtpserver_udport_range=.*/rtpserver_udport_range=$RTPSERVER_UDPORT_RANGE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
         echo '  sed -i "s/^save_stream_to_local=.*/keep_players=$SAVE_STREAM_TO_LOCAL/g" $EASYDARWIN_HOME/easydarwin.ini';\

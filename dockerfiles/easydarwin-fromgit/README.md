@@ -14,3 +14,5 @@ ENV CLOSE_OLD 0
 ENV KEEP_PLAYERS 0
 ## 是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置`/media/hls`
 ENV SAVE_STREAM_TO_LOCAL 0
+## rtp udp推送时服务端端口范围
+ENV RTPSERVER_UDPORT_RANGE 50000:55000
