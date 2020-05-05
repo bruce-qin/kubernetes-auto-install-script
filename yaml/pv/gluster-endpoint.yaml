@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: glusterfs-cluster-endpoint
+subsets:
+  - addresses:
+      - ip: 192.168.101.223
+  - addresses:
+      - ip: 192.168.101.224
+  - addresses:
+      - ip:  192.168.101.225
+---
+#pv demo，pv消费endpoint
+#PV 生命周期总共四个阶段：
+#1：Available： 可用状态，尚未被 PVC 绑定。
+#2：Bound： 绑定状态，已经与某个 PVC 绑定。
+#3：Failed： 当删除 PVC 清理资源，自动回收卷时失败，所以处于故障状态。
+#4：Released： 与之绑定的 PVC 已经被删除，但资源尚未被集群回收。
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: glusterfs-pv10g-rwm
+  labels:
+    flag: media-source #指定标签
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany #ReadWriteOnce：读写权限，只能被单个节点挂载；ReadOnlyMany（ROX）：只读权限，允许被多个节点挂载读；ReadWriteMany：读写权限，允许被多个节点挂载。
+  persistentVolumeReclaimPolicy:  Retain #Retain（保留）： 保留数据，需要由管理员手动清理；Recycle（回收）： 删除数据，即删除目录下的所有文件；Delete（删除）： 删除存储资源，仅仅部分云存储系统支持
+  glusterfs:
+    endpoints: glusterfs-cluster-endpoint
+    path:  k8s-pv10g-rwm #这里的path是`gluster volume create k8s-pv10g-rwm server1:/exp1 server2:/exp2` 的path
+    readOnly: false
+---
+#pvc demo,deployment 消费pvc,pvc消费pv：需要先创建pv集，否则无法正常挂载给pods。pv不同于storageclass，storageclass可以动态给PVC分配资源
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glusterfs-pv-pvc10g-rwm
+spec:
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      flag: media-source #选择指定标签

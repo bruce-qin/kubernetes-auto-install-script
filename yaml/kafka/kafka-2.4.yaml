@@ -1,0 +1,203 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-cluster1
+  labels:
+    app: kafka-cluster1
+spec:
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      name: kafka-cluster1
+      labels:
+        app: kafka-cluster1
+    spec:
+      containers:
+        - name: kafka-cluster
+          image: wurstmeister/kafka:2.12-2.4.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /kafka/logs
+              name: kafka-log-data
+          ports:
+            - containerPort: 9092
+              protocol: TCP
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_LOG_DIRS
+              value: "/kafka/logs"
+            - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
+              value: "30000"
+            - name: KAFKA_LOG_RETENTION_HOURS
+              value: "24"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: kafka-cluster1
+  serviceName: kafka-cluster-svc
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-log-data
+        labels:
+          name: kafka-cluster
+      spec:
+        storageClassName: glusterfs
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-cluster2
+  labels:
+    app: kafka-cluster2
+spec:
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      name: kafka-cluster2
+      labels:
+        app: kafka-cluster2
+    spec:
+      containers:
+        - name: kafka-cluster
+          image: wurstmeister/kafka:2.12-2.4.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /kafka/logs
+              name: kafka-log-data
+          ports:
+            - containerPort: 9092
+              protocol: TCP
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
+            - name: KAFKA_BROKER_ID
+              value: "2"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_LOG_DIRS
+              value: "/kafka/logs"
+            - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
+              value: "30000"
+            - name: KAFKA_LOG_RETENTION_HOURS
+              value: "24"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: kafka-cluster2
+  serviceName: kafka-cluster-svc
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-log-data
+        labels:
+          name: kafka-cluster
+      spec:
+        storageClassName: glusterfs
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-cluster3
+  labels:
+    app: kafka-cluster3
+spec:
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      name: kafka-cluster3
+      labels:
+        app: kafka-cluster3
+    spec:
+      containers:
+        - name: kafka-cluster
+          image: wurstmeister/kafka:2.12-2.4.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /kafka/logs
+              name: kafka-log-data
+          ports:
+            - containerPort: 9092
+              protocol: TCP
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "zookeeper-cluster-server1:2181,zookeeper-cluster-server2:2181,zookeeper-cluster-server3:2181"
+            - name: KAFKA_BROKER_ID
+              value: "3"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_LOG_DIRS
+              value: "/kafka/logs"
+            - name: KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS
+              value: "30000"
+            - name: KAFKA_LOG_RETENTION_HOURS
+              value: "24"
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: kafka-cluster3
+  serviceName: kafka-cluster-svc
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-log-data
+        labels:
+          name: kafka-cluster
+      spec:
+        storageClassName: glusterfs
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-cluster1
+spec:
+  selector:
+    app: kafka-cluster1
+  ports:
+    - port: 9092
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-cluster2
+spec:
+  selector:
+    app: kafka-cluster2
+  ports:
+    - port: 9092
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-cluster3
+spec:
+  selector:
+    app: kafka-cluster3
+  ports:
+    - port: 9092
+      protocol: TCP
