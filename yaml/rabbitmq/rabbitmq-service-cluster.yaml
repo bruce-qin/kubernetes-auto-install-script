@@ -4,15 +4,15 @@ metadata:
   labels:
     app: rmq-cluster
   name: rmq-cluster
-  namespace: public-service
 spec:
+  type: ClusterIP
   ports:
   - name: amqp
     port: 5672
     targetPort: 5672
-   - name: stomp
-     targetPort: 61613
-     port: 61613
+  - name: stomp
+    targetPort: 61613
+    port: 61613
   selector:
     app: rmq-cluster
 ---
@@ -22,13 +22,12 @@ metadata:
   labels:
     app: rmq-cluster-web
   name: rmq-cluster-web
-  namespace: public-service
 spec:
-  clusterIP: NodePort
+  type: NodePort
   ports:
     - name: web
       port: 15672
       targetPort: 15672
-      nodePort: 25672
+      nodePort: 32672
   selector:
     app: rmq-cluster

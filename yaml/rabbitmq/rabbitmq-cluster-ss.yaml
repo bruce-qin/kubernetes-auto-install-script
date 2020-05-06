@@ -1,10 +1,9 @@
 kind: StatefulSet
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 metadata:
   labels:
     app: rmq-cluster
   name: rmq-cluster
-  namespace: public-service
 spec:
   replicas: 3
   selector:
@@ -59,7 +58,7 @@ spec:
           value: rabbit@$(POD_NAME).rmq-cluster.$(POD_NAMESPACE).svc.cluster.local
         - name: RABBITMQ_CONFIG_FILE
           value: /var/lib/rabbitmq/rabbitmq.conf
-        image: rabbitmq:3.7-management-alpine
+        image: rabbitmq:3.8-management-alpine
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -82,9 +81,9 @@ spec:
         - containerPort: 5672
           name: amqp
           protocol: TCP
-         - name: stomp
-           containerPort: 61613
-           protocol: TCP
+        - name: stomp
+          containerPort: 61613
+          protocol: TCP
         readinessProbe:
           exec:
             command:
@@ -103,12 +102,12 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
       - configMap:
+          name: rmq-cluster-config
           items:
           - key: rabbitmq.conf
             path: rabbitmq.conf
           - key: enabled_plugins
             path: enabled_plugins
-          name: rmq-cluster-config
         name: config-volume
   volumeClaimTemplates:
   - metadata:
@@ -116,7 +115,7 @@ spec:
     spec:
       accessModes:
       - ReadWriteMany
-      storageClassName: "rmq-storage-class"
+      storageClassName: glusterfs
       resources:
         requests:
           storage: 4Gi
