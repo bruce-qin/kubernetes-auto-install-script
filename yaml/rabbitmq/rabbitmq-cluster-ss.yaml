@@ -1,3 +1,4 @@
+# https://github.com/rabbitmq/rabbitmq-peer-discovery-k8s
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
@@ -18,8 +19,7 @@ spec:
       containers:
       - args:
         - -c
-        - cp -v /etc/rabbitmq/rabbitmq.conf ${RABBITMQ_CONFIG_FILE}; exec docker-entrypoint.sh
-          rabbitmq-server
+        - "echo ${RABBITMQ_ERLANG_COOKIE} > /var/lib/rabbitmq/.erlang.cookie; chmod 600 /var/lib/rabbitmq/.erlang.cookie;  cp -v /etc/rabbitmq/rabbitmq.conf ${RABBITMQ_CONFIG_FILE}; exec docker-entrypoint.sh rabbitmq-server"
         command:
         - sh
         env:
@@ -44,18 +44,20 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: POD_NAME
+        - name: MY_POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        - name: POD_NAMESPACE
+        - name: MY_POD_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         - name: RABBITMQ_USE_LONGNAME
           value: "true"
         - name: RABBITMQ_NODENAME
-          value: rabbit@$(POD_NAME).rmq-cluster.$(POD_NAMESPACE).svc.cluster.local
+          value: rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+        - name: K8S_HOSTNAME_SUFFIX
+          value: .$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
         - name: RABBITMQ_CONFIG_FILE
           value: /var/lib/rabbitmq/rabbitmq.conf
         image: rabbitmq:3.8-management-alpine
@@ -73,7 +75,7 @@ spec:
           name: epmd
           protocol: TCP
         - containerPort: 25672
-          name: erlang-distribution
+          name: erlang
           protocol: TCP
         - containerPort: 15672
           name: http

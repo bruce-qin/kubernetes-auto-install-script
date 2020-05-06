@@ -15,9 +15,9 @@ data:
       cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
       cluster_formation.k8s.address_type = hostname
       #################################################
-      # public-service is rabbitmq-cluster's namespace#
+      # default is rabbitmq-cluster's namespace# 指定namespace
       #################################################
-      cluster_formation.k8s.hostname_suffix = .rmq-cluster.public-service.svc.cluster.local
+      cluster_formation.k8s.hostname_suffix = .rmq-cluster.default.svc.cluster.local
       cluster_formation.node_cleanup.interval = 10
       cluster_formation.node_cleanup.only_log_warning = true
       cluster_partition_handling = autoheal
