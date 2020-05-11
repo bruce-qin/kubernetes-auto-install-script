@@ -12,7 +12,7 @@ ENV AUTHORIZATION_ENABLE 0
 ENV CLOSE_OLD 0
 ## 当close_old为1时，是否保留被关闭的推流器对应的播放器。如果为0，则原推流器对应的播放器会被断开。否则会被保留下来。注意，如果该选项为1，可能某些播放器会有异常，因为RTP序列可能不一致了。
 ENV KEEP_PLAYERS 0
-## 是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置`/media/hls`
+## 是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置`/home/media/hls`
 ENV SAVE_STREAM_TO_LOCAL 0
 ## rtp udp推送时服务端端口范围
 ENV RTPSERVER_UDPORT_RANGE 50000:55000
