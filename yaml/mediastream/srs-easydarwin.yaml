@@ -85,7 +85,7 @@ data:
         transcode {
             enabled     on;
             ffmpeg      ./objs/ffmpeg/bin/ffmpeg;
-            engine easydarwin-0 {
+            engine easydarwin {
                 enabled         on;
                 vcodec          copy;
                 acodec          copy;
@@ -94,29 +94,7 @@ data:
                     rtsp_transport tcp;
                     v   error;
                 }
-                output         rtsp://easydarwin-0.rtsp-svc/[app]/[stream];
-            }
-            engine easydarwin-1 {
-                enabled         on;
-                vcodec          copy;
-                acodec          copy;
-                oformat         rtsp;
-                aparams {
-                    rtsp_transport tcp;
-                    v   error;
-                }
-                output         rtsp://easydarwin-1.rtsp-svc/[app]/[stream];
-            }
-            engine easydarwin-2 {
-                enabled         on;
-                vcodec          copy;
-                acodec          copy;
-                oformat         rtsp;
-                aparams {
-                    rtsp_transport tcp;
-                    v   error;
-                }
-                output         rtsp://easydarwin-2.rtsp-svc/[app]/[stream];
+                output         rtsp://rtsp-svc/[app]/[stream];
             }
         }
     }
