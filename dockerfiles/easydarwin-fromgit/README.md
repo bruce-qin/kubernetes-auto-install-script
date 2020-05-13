@@ -16,3 +16,7 @@ ENV KEEP_PLAYERS 0
 ENV SAVE_STREAM_TO_LOCAL 0
 ## rtp udp推送时服务端端口范围
 ENV RTPSERVER_UDPORT_RANGE 50000:55000
+## 是否启用组播集群
+ENV ENABLE_MULTICAST 0
+##推流时执行ffmpeg命令，变量 `{path}`。多个用英文`;`分割。
+ENV EASYDARWIN_PUSH_FFMPEG_CMD ""

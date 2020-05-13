@@ -72,6 +72,9 @@ RUN {\
         echo 'if [[ -n $RTPSERVER_UDPORT_RANGE ]];then';\
         echo '  sed -i "s/^rtpserver_udport_range=.*/rtpserver_udport_range=$RTPSERVER_UDPORT_RANGE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
+        echo 'if [[ -n $ENABLE_MULTICAST ]];then';\
+        echo '  sed -i "s/^enable_multicast=.*/enable_multicast=$ENABLE_MULTICAST/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
         echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
         echo '  sed -i "s/^save_stream_to_local=.*/keep_players=$SAVE_STREAM_TO_LOCAL/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo '  sed -i "s/^m3u8_dir_path=.*/m3u8_dir_path=\/media\/hls/g" $EASYDARWIN_HOME/easydarwin.ini';\
