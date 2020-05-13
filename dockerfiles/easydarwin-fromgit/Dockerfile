@@ -77,7 +77,7 @@ RUN {\
         echo 'fi';\
         echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
         echo '  sed -i "s/^save_stream_to_local=.*/keep_players=$SAVE_STREAM_TO_LOCAL/g" $EASYDARWIN_HOME/easydarwin.ini';\
-        echo '  sed -i "s/^m3u8_dir_path=.*/m3u8_dir_path=\/media\/hls/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^m3u8_dir_path=.*/m3u8_dir_path=\/home\/media\/hls/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'chmod +x $EASYDARWIN_HOME/easydarwin';\
         echo 'echo "$EASYDARWIN_HOME" > /easydarwin_home';\
@@ -91,6 +91,6 @@ EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
 #ts存储文件位置
-RUN mkdir -p /media/hls
+RUN mkdir -p /home/media/hls
 VOLUME /media/hls
 ENTRYPOINT ["/start-easydarwin"]
