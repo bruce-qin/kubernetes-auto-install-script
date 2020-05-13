@@ -158,7 +158,7 @@ spec:
             - name: ENABLE_MULTICAST
               value:  "1"
             - name:   EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://srs-origin-0.socs/{path} -hide_banner"
+              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://socs/{path} -hide_banner"
 ---
 apiVersion: v1
 kind: Service
