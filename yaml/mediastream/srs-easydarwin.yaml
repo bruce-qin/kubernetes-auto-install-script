@@ -402,7 +402,7 @@ spec:
             - name: CLOSE_OLD
               value: "0"
             - name: EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://127.0.0.1:31935/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f rtsp rtsp://127.0.0.1:30554/{path} -hide_banner"
+              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://127.0.0.1:31935/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:30554/{path} -hide_banner"
       restartPolicy: Always
   selector:
     matchLabels:
