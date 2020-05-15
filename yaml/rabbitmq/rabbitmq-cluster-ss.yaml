@@ -17,11 +17,7 @@ spec:
         app: rmq-cluster
     spec:
       containers:
-      - args:
-        - -c
-        - "echo ${RABBITMQ_ERLANG_COOKIE} > /var/lib/rabbitmq/.erlang.cookie; chmod 600 /var/lib/rabbitmq/.erlang.cookie;  cp -v /etc/rabbitmq/rabbitmq.conf ${RABBITMQ_CONFIG_FILE}; exec docker-entrypoint.sh rabbitmq-server"
-        command:
-        - sh
+      - name: rabbitmq
         env:
         - name: RABBITMQ_DEFAULT_USER
           valueFrom:
@@ -62,14 +58,6 @@ spec:
           value: /var/lib/rabbitmq/rabbitmq.conf
         image: rabbitmq:3.8-management-alpine
         imagePullPolicy: IfNotPresent
-        livenessProbe:
-          exec:
-            command:
-            - rabbitmqctl
-            - status
-          initialDelaySeconds: 30
-          timeoutSeconds: 10
-        name: rabbitmq
         ports:
         - containerPort: 4369
           name: epmd
@@ -86,17 +74,21 @@ spec:
         - name: stomp
           containerPort: 61613
           protocol: TCP
+        livenessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
         readinessProbe:
           exec:
-            command:
-            - rabbitmqctl
-            - status
-          initialDelaySeconds: 10
+            command: ["rabbitmq-diagnostics", "status"]
+          initialDelaySeconds: 20
+          periodSeconds: 60
           timeoutSeconds: 10
         volumeMounts:
         - mountPath: /etc/rabbitmq
           name: config-volume
-          readOnly: false
         - mountPath: /var/lib/rabbitmq
           name: rabbitmq-storage
           readOnly: false
