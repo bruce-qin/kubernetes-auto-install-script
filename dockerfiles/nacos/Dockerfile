@@ -30,7 +30,7 @@ FROM nacos/nacos-server:${NACOS_VERSION} AS standard
 #阶段三 重新发布
 FROM alpine AS release
 
-ARG NACOS_VERSION=1.2.1
+#ARG NACOS_VERSION=1.2.1
 
 RUN apk add --no-cache openjdk8-jre
 
