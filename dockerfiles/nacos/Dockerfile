@@ -38,12 +38,12 @@ RUN apk add --no-cache openjdk8-jre bash dos2unix
 ENV MODE="cluster" \
     PREFER_HOST_MODE="ip"\
     BASE_DIR="/home/nacos" \
-    JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk" \
+    JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk" \
     CLASSPATH=".:/home/nacos/conf:$JAVA_HOME/lib" \
     CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
     FUNCTION_MODE="all" \
     NACOS_USER="nacos" \
-    JAVA="/usr/lib/jvm/java-1.8.0-openjdk/bin/java" \
+    JAVA="${JAVA_HOME}/bin/java" \
     JVM_XMS="2g" \
     JVM_XMX="2g" \
     JVM_XMN="1g" \
@@ -51,7 +51,8 @@ ENV MODE="cluster" \
     JVM_MMS="320m" \
     NACOS_DEBUG="n" \
     TOMCAT_ACCESSLOG_ENABLED="false" \
-    TIME_ZONE="Asia/Shanghai"
+    TIME_ZONE="Asia/Shanghai" \
+    JAVA_OPT_EXT="--server.tomcat.basedir=$BASE_DIR/logs"
 
 RUN mkdir -p $BASE_DIR
 
