@@ -17,7 +17,7 @@ WORKDIR /tmp
 RUN  wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
         tar -xzf ${NACOS_VERSION}.tar.gz
 
-RUN nacos-${NACOS_VERSION}; \
+RUN cd nacos-${NACOS_VERSION}; \
         sed -i "$(( $(sed -n -e '/spring-boot-dependencies/=' pom.xml) +1 ))s/<version>.*/<version>${SPRING_BOOT_VERSION}.RELEASE<\/version>/g" pom.xml;\
         sed -i "$(( $(sed -n -e '/mysql-connector-java/=' pom.xml) +1 ))s/<version>.*/<version>${MYSQL_VERSION}<\/version>/g" pom.xml;\
         sed -i "$(( $(sed -n -e '/mina-core/=' pom.xml) +1 ))s/<version>.*/<version>${MINA_IO_VERSION}<\/version>/g" pom.xml;\
