@@ -14,15 +14,15 @@ ENV CLASSPATH=.:$JAVA_HOME/lib
 ENV PATH=$PATH:$JAVA_HOME/bin
 
 WORKDIR /tmp
-RUN cd /tmp ;\
-        wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
+RUN  wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
         tar -xzf ${NACOS_VERSION}.tar.gz
 
-RUN sed -i "$(( $(sed -n -e '/spring-boot-dependencies/=' pom.xml) +1 ))s/<version>.*/<version>${SPRING_BOOT_VERSION}.RELEASE<\/version>/g" ./nacos-${NACOS_VERSION}/pom.xml
-RUN sed -i "$(( $(sed -n -e '/mysql-connector-java/=' pom.xml) +1 ))s/<version>.*/<version>${MYSQL_VERSION}<\/version>/g" ./nacos-${NACOS_VERSION}/pom.xml
-RUN sed -i "$(( $(sed -n -e '/mina-core/=' pom.xml) +1 ))s/<version>.*/<version>${MINA_IO_VERSION}<\/version>/g" ./nacos-${NACOS_VERSION}/pom.xml
-RUN sed -i "s/${MYSQL_OLD_CLASS}/${MYSQL_NEW_CLASS}/g" ./nacos-${NACOS_VERSION}/naming/src/main/java/com/alibaba/nacos/naming/healthcheck/MysqlHealthCheckProcessor.java
-RUN cd nacos-${NACOS_VERSION} && mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
+RUN nacos-${NACOS_VERSION}; \
+        sed -i "$(( $(sed -n -e '/spring-boot-dependencies/=' pom.xml) +1 ))s/<version>.*/<version>${SPRING_BOOT_VERSION}.RELEASE<\/version>/g" pom.xml;\
+        sed -i "$(( $(sed -n -e '/mysql-connector-java/=' pom.xml) +1 ))s/<version>.*/<version>${MYSQL_VERSION}<\/version>/g" pom.xml;\
+        sed -i "$(( $(sed -n -e '/mina-core/=' pom.xml) +1 ))s/<version>.*/<version>${MINA_IO_VERSION}<\/version>/g" pom.xml;\
+        sed -i "s/${MYSQL_OLD_CLASS}/${MYSQL_NEW_CLASS}/g" naming/src/main/java/com/alibaba/nacos/naming/healthcheck/MysqlHealthCheckProcessor.java;\
+        mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
 
 #阶段二 拉取nacos官方镜像
 FROM nacos/nacos-server:${NACOS_VERSION} AS standard
