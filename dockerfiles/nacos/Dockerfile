@@ -33,7 +33,7 @@ FROM alpine AS release
 
 ARG NACOS_VERSION=1.2.1
 
-RUN apk add --no-cache openjdk8-jre bash
+RUN apk add --no-cache openjdk8-jre bash dos2unix
 
 ENV MODE="cluster" \
     PREFER_HOST_MODE="ip"\
@@ -64,7 +64,10 @@ RUN  cd logs \
 	&& touch start.out \
 	&& ln -sf /dev/stdout start.out \
 	&& ln -sf /dev/stderr start.out
-RUN chmod +x bin/docker-startup.sh
+
+RUN dos2unix bin/docker-startup.sh &&  dos2unix conf/* && chmod +x bin/docker-startup.sh
+
+RUN apk del dos2unix
 
 EXPOSE 8848
 ENTRYPOINT ["bin/docker-startup.sh"]
