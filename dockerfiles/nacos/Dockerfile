@@ -1,12 +1,12 @@
+#阶段一 修改mysql数据库连接版本 并构建
+FROM alpine AS build
+
 ARG NACOS_VERSION=1.2.1
 ARG SPRING_BOOT_VERSION=2.2.7
 ARG MYSQL_VERSION=8.0.20
 ARG MINA_IO_VERSION=2.1.3
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
 ARG MYSQL_NEW_CLASS=com.mysql.cj.jdbc.MysqlDataSource
-
-#阶段一 修改mysql数据库连接版本 并构建
-FROM alpine AS build
 
 RUN apk add --no-cache wget openjdk8 maven tar
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
@@ -15,8 +15,8 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 
 WORKDIR /tmp
 RUN cd /tmp ;\
-        wget https://github.com/alibaba/nacos/archive/1.2.1.tar.gz ;\
-        tar -xzf 1.2.1.tar.gz
+        wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
+        tar -xzf ${NACOS_VERSION}.tar.gz
 
 RUN sed -i "$(( $(sed -n -e '/spring-boot-dependencies/=' pom.xml) +1 ))s/<version>.*/<version>${SPRING_BOOT_VERSION}.RELEASE<\/version>/g" ./nacos-${NACOS_VERSION}/pom.xml
 RUN sed -i "$(( $(sed -n -e '/mysql-connector-java/=' pom.xml) +1 ))s/<version>.*/<version>${MYSQL_VERSION}<\/version>/g" ./nacos-${NACOS_VERSION}/pom.xml
@@ -29,6 +29,8 @@ FROM nacos/nacos-server:${NACOS_VERSION} AS standard
 
 #阶段三 重新发布
 FROM alpine AS release
+
+ARG NACOS_VERSION=1.2.1
 
 RUN apk add --no-cache openjdk8-jre
 
