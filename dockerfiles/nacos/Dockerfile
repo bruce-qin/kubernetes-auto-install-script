@@ -33,7 +33,7 @@ FROM alpine AS release
 
 ARG NACOS_VERSION=1.2.1
 
-RUN apk add --no-cache openjdk8-jre
+RUN apk add --no-cache openjdk8-jre bash
 
 ENV MODE="cluster" \
     PREFER_HOST_MODE="ip"\
