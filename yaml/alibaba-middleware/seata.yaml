@@ -113,23 +113,10 @@ spec:
               name: seata-cluster-conf
               subPath: registry-k8s.conf
               readOnly: false
-            - mountPath: /seata-server/sessionStore
-              name: seata-session
-              readOnly: false
     metadata:
       labels:
         app: seata-cluster
         kubernetes.io/cluster-service: seata-cluster
-  volumeClaimTemplates:
-    - metadata:
-        name: seata-session
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: glusterfs
-        resources:
-          requests:
-            storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
