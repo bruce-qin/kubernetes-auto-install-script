@@ -1,0 +1,63 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: sentinel-dasboard-pwd
+type: Opaque
+data:
+  sentinel-user: c2VudGluZWw= #echo -n 'sentinel' | base64
+  sentinel-pwd: c2VudGluZWw= #echo -n 'sentinel' | base64
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alicloud-sentinel-dashboard
+  labels:
+    app: alicloud-sentinel-dashboard
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: alicloud-sentinel-dashboard
+      labels:
+        app: alicloud-sentinel-dashboard
+    spec:
+      containers:
+        - name: alicloud-sentinel-dashboard
+          image: justtin/sentinel
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+            - containerPort: 8719
+          env:
+            - name: SENTINEL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: sentinel-pwd
+                  name: sentinel-dasboard-pwd
+            - name: SENTINEL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: sentinel-user
+                  name: sentinel-dasboard-pwd
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: alicloud-sentinel-dashboard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alicloud-sentinel-dashboard
+spec:
+  selector:
+    app: alicloud-sentinel-dashboard
+  ports:
+    - port: 8080
+      name: web-ui
+      targetPort: 8080
+      nodePort: 30180
+    - port: 8719
+      nodePort: 30719
+      targetPort: 8719
+      name: api
+  type: NodePort

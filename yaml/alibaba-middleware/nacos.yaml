@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nacos-cluster
+  labels:
+    app: nacos-cluster
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nacos-cluster
+  serviceName: nacos-svc
+  template:
+    spec:
+#      initContainers:
+#        - name: peer-finder-plugin-install
+#          image: nacos/nacos-peer-finder-plugin:1.0
+#          imagePullPolicy: Always
+#          volumeMounts:
+#            - mountPath: /home/nacos/plugins/peer-finder
+#              name: plguindir
+      containers:
+        - name: nacos-cluster
+          image: justtin/nacos
+          env:
+            - name: PREFER_HOST_MODE
+              value: hostname
+            - name: NACOS_REPLICAS
+              value: "2"
+            - name: SERVICE_NAME
+              value: "nacos-svc"
+            - name: DOMAIN_NAME
+              value: "cluster.local"
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: MYSQL_SERVICE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-cluster-pwd
+                  key: nacos-pwd
+            - name: MYSQL_SERVICE_USER
+              value: nacos
+            - name: MYSQL_SERVICE_DB_NAME
+              value: nacos
+            - name: MYSQL_SERVICE_PORT
+              value: "3306"
+            - name: MYSQL_SERVICE_HOST
+              value: mysql-cluster-master-svc #跨namespace需要跟.(namespace)
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: mysql
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: NACOS_SERVERS
+              value: "nacos-cluster-0.$(SERVICE_NAME).$(POD_NAMESPACE).svc.cluster.local:8848 nacos-cluster-1.$(SERVICE_NAME).$(POD_NAMESPACE).svc.cluster.local:8848 nacos-cluster-2.$(SERVICE_NAME).$(POD_NAMESPACE).svc.cluster.local:8848"
+            - name: MODE
+              value: cluster
+          volumeMounts:
+            - mountPath: /home/nacos/data
+              name: datadir
+#            - mountPath: /home/nacos/plugins/peer-finder
+#              name: plguindir
+#            - mountPath: /home/nacos/logs
+#              name: logdir
+    metadata:
+      labels:
+        app: nacos-cluster
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: glusterfs
+        resources:
+          requests:
+            storage: 2Gi
+#    - metadata:
+#        name: logdir
+#      spec:
+#        accessModes:
+#          - ReadWriteOnce
+#        storageClassName: glusterfs
+#        resources:
+#          requests:
+#            storage: 500Mi
+#    - metadata:
+#        name: plguindir
+#      spec:
+#        accessModes:
+#          - ReadWriteOnce
+#        storageClassName: glusterfs
+#        resources:
+#          requests:
+#            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-svc
+spec:
+  selector:
+    app: nacos-cluster
+  ports:
+    - port: 8848
+      protocol: TCP
+      name: nacos
+      targetPort: 8848
+      nodePort: 31848
+  type: NodePort

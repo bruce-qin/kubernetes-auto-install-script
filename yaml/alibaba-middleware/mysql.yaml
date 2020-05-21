@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-conf
+data:
+  master-slave.cnf: |
+    [mysqld]
+    log-bin=mysql-bin
+    server-id=0
+    character-set-server=utf8mb4
+    collation-server=utf8mb4_unicode_ci
+    [mysql]
+    default-character-set=utf8mb4
+    [client]
+    default-character-set=utf8mb4
+    [galera]
+    binlog_format=ROW
+    default_storage_engine=InnoDB
+    innodb_autoinc_lock_mode=2
+    bind-address=0.0.0.0
+    wsrep-sst-method=rsync
+  init.sh: |
+    #!/bin/sh
+
+    if [ ! -f "/etc/mysql/conf.d/master-slave.cnf" ];then
+      cp -f /etc/mysql/conf-tmp/master-slave.cnf /etc/mysql/conf.d/
+      server_id=$(hostname | awk -F "-" '{print $NF;}')
+      sed -i "s/server-id=0/server-id=${server_id}/g" /etc/mysql/conf.d/master-slave.cnf
+      mkdir -p /docker-entrypoint-initdb.d
+      echo "server_id: $server_id"
+      if [ $server_id -eq 0 ]; then # master
+        touch /docker-entrypoint-initdb.d/master.sql
+        {
+          echo "CREATE USER \"$MYSQL_REPLICATION_USER\"@\"%\" IDENTIFIED BY \"$MYSQL_REPLICATION_PASSWORD\" PASSWORD EXPIRE NEVER ;"
+          echo "ALTER  USER \"$MYSQL_REPLICATION_USER\"@\"%\" IDENTIFIED WITH mysql_native_password BY \"$MYSQL_REPLICATION_PASSWORD\";"
+          echo "GRANT REPLICATION SLAVE ON *.* TO \"$MYSQL_REPLICATION_USER\"@\"%\" IDENTIFIED BY \"$MYSQL_REPLICATION_PASSWORD\" ;"
+          echo "FLUSH PRIVILEGES ;"
+        } > /docker-entrypoint-initdb.d/master.sql
+      else # slave
+        touch /docker-entrypoint-initdb.d/slave.sql
+        {
+          echo "STOP SLAVE;"
+          echo "CHANGE MASTER TO master_host=\"$MYSQL_MASTER_SERVICE_HOST\", master_user=\"$MYSQL_REPLICATION_USER\", master_password=\"$MYSQL_REPLICATION_PASSWORD\" ;"
+          echo "START SLAVE;"
+        } > /docker-entrypoint-initdb.d/slave.sql
+      fi
+    fi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-cluster-pwd
+type: Opaque
+data:
+  sync-pwd: bXlzcWwtc3luYw==  #echo -n 'mysql-sync' | base64
+  root-pwd: MTIzNDU2 #echo -n '123456' | base64
+  nacos-pwd: bmFjb3M= #echo -n 'nacos' | base64
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-cluster
+  labels:
+    app: mysql-cluster
+spec:
+  selector:
+    matchLabels:
+      app: mysql-cluster
+  serviceName: mysql-cluster-svc
+  replicas: 2
+  template:
+    spec:
+      volumes:
+        - name: mysql-config
+          configMap:
+            name: mysql-conf
+            items:
+              - key: init.sh
+                path: init.sh
+              - key: master-slave.cnf
+                path: master-slave.cnf
+      containers:
+        - name: mysql-cluster
+          image: mysql:8
+          command:
+            - 'sh'
+          args:
+            - '-c'
+            - |
+              chmod a+x /usr/local/bin/docker-entrypoint.sh
+              bash /usr/local/bin/init.sh
+              /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-pvc-template
+              readOnly: false
+            - mountPath: /usr/local/bin/init.sh
+              name: mysql-config
+              subPath: init.sh
+            - mountPath: /etc/mysql/conf-tmp/master-slave.cnf
+              name: mysql-config
+              subPath: master-slave.cnf
+          env:
+            - name: MYSQL_DATABASE
+              value: nacos
+            - name: MYSQL_USER
+              value: nacos
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: nacos-pwd
+                  name: mysql-cluster-pwd
+            - name: MYSQL_REPLICATION_USER
+              value: sync
+            - name: MYSQL_REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-cluster-pwd
+                  key: sync-pwd
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: root-pwd
+                  name: mysql-cluster-pwd
+            - name: MYSQL_MASTER_SERVICE_HOST
+              value: mysql-cluster-0
+    metadata:
+      labels:
+        app: mysql-cluster
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-pvc-template
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: glusterfs
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-cluster-master-svc
+spec:
+  selector:
+    app: mysql-cluster
+    statefulset.kubernetes.io/pod-name: mysql-cluster-0
+  ports:
+    - port: 3306
+      name: connect
+      protocol: TCP
+      targetPort: 3306
+      nodePort: 30306
+    - port: 33060
+      name: xinterface
+      targetPort: 33060
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-cluster-slave-svc
+spec:
+  selector:
+    app: mysql-cluster
+    statefulset.kubernetes.io/pod-name: mysql-cluster-1
+  ports:
+    - port: 3306
+      name: connect
+      protocol: TCP
+      targetPort: 3306
+      nodePort: 31306
+    - port: 33060
+      name: xinterface
+      targetPort: 33060
+      protocol: TCP
+  type: NodePort

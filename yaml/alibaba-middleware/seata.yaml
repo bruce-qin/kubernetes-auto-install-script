@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seata-cluster-conf
+data:
+  file.conf: |
+    store {
+      mode = "file"
+      db {
+        datasource = "druid"
+        dbType = "mysql"
+        driverClassName = "com.mysql.cj.jdbc.Driver"
+        url = "jdbc:mysql://mysql-cluster-master-svc:3306/seata"
+        user = "seata"
+        password = "seata"
+        minConn = 5
+        maxConn = 30
+        globalTable = "global_table"
+        branchTable = "branch_table"
+        lockTable = "lock_table"
+        queryLimit = 100
+      }
+    }
+  registry-k8s.conf: |
+    registry {
+      type = "nacos"
+      nacos {
+        application = "seata-server"
+        serverAddr = "nacos-svc"
+        namespace = "seata"
+        cluster = "default"
+        username = "seata"
+        password = "seata"
+      }
+    }
+    config {
+      type = "file"
+      file {
+        name = "file.conf"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: seata-cluster
+  labels:
+    app: seata-cluster
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: seata-cluster
+  serviceName: seata-cluster-svc
+  template:
+    spec:
+      volumes:
+        - name: seata-cluster-conf
+          configMap:
+            name: seata-cluster-conf
+            items:
+              - key: file.conf
+                path: file.conf
+              - key: registry-k8s.conf
+                path: registry-k8s.conf
+      containers:
+        - name: seata-cluster
+          image: seataio/seata-server:1.2.0
+          command:
+            - sh
+          args:
+            - -c
+            - |
+               export SERVER_NODE=$(hostname | awk -F '-' '{print $NF;}')
+               cat /seata-server/tmp-conf/file.conf > /seata-server/resources/file.conf
+               cat /seata-server/tmp-conf/registry-k8s.conf > /seata-server/resources/registry-k8s.conf
+               SERVER_NODE=$SERVER_NODE java -Djava.security.egd=file:/dev/./urandom \
+                  -server \
+                  -Xss512k \
+                  -XX:+UnlockExperimentalVMOptions \
+                  -XX:+UseContainerSupport \
+                  -XX:SurvivorRatio=10 \
+                  -XX:MetaspaceSize=128m \
+                  -XX:MaxMetaspaceSize=256m \
+                  -XX:MaxDirectMemorySize=1024m \
+                  -XX:-OmitStackTraceInFastThrow \
+                  -XX:-UseAdaptiveSizePolicy \
+                  -XX:+HeapDumpOnOutOfMemoryError \
+                  -XX:HeapDumpPath=/var/log/seata_heapdump.hprof \
+                  -XX:+DisableExplicitGC \
+                  -XX:+CMSParallelRemarkEnabled \
+                  -XX:+UseCMSInitiatingOccupancyOnly \
+                  -XX:CMSInitiatingOccupancyFraction=75 \
+                  -Xloggc:/var/log/seata_gc.log \
+                  -verbose:gc \
+                  -Dio.netty.leakDetectionLevel=advanced \
+                  -cp \
+                  /seata-server/resources:/seata-server/classes:/seata-server/libs/* \
+                  io.seata.server.Server
+          ports:
+            - containerPort: 8091
+          env:
+            - name: STORE_MODE
+              value: db
+            - name: SEATA_ENV
+              value: k8s
+          volumeMounts:
+            - mountPath: /seata-server/tmp-conf/file.conf
+              name: seata-cluster-conf
+              subPath: file.conf
+              readOnly: false
+            - mountPath: /seata-server/tmp-conf/registry-k8s.conf
+              name: seata-cluster-conf
+              subPath: registry-k8s.conf
+              readOnly: false
+            - mountPath: /seata-server/sessionStore
+              name: seata-session
+              readOnly: false
+    metadata:
+      labels:
+        app: seata-cluster
+        kubernetes.io/cluster-service: seata-cluster
+  volumeClaimTemplates:
+    - metadata:
+        name: seata-session
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: glusterfs
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seata-cluster-svc
+spec:
+  selector:
+    kubernetes.io/cluster-service: seata-cluster
+  ports:
+    - port: 8091
+      name: seata
+      protocol: TCP
+  type: ClusterIP
