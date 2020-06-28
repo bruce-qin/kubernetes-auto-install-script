@@ -2,8 +2,8 @@
 
 FROM alpine AS build
 
-ARG NACOS_VERSION=1.2.1
-ARG SPRING_BOOT_VERSION=2.2.7
+ARG NACOS_VERSION=1.3.0
+ARG SPRING_BOOT_VERSION=2.3.1
 ARG MYSQL_VERSION=8.0.20
 ARG MINA_IO_VERSION=2.1.3
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
@@ -26,12 +26,12 @@ RUN cd nacos-${NACOS_VERSION}; \
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
 
 #阶段二 拉取nacos官方镜像
-FROM nacos/nacos-server:1.2.1 AS standard
+FROM nacos/nacos-server:1.3.0 AS standard
 
 #阶段三 重新发布
 FROM alpine AS release
 
-ARG NACOS_VERSION=1.2.1
+ARG NACOS_VERSION=1.3.0
 
 RUN apk add --no-cache openjdk8-jre bash dos2unix
 
