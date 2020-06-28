@@ -19,9 +19,9 @@ RUN  wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
         tar -xzf ${NACOS_VERSION}.tar.gz
 
 RUN cd nacos-${NACOS_VERSION}; \
-        sed -i "$(( $(sed -n -e '/spring-boot-dependencies/=' pom.xml) +1 ))s/<version>.*/<version>${SPRING_BOOT_VERSION}.RELEASE<\/version>/g" pom.xml;\
-        sed -i "$(( $(sed -n -e '/mysql-connector-java/=' pom.xml) +1 ))s/<version>.*/<version>${MYSQL_VERSION}<\/version>/g" pom.xml;\
-        sed -i "$(( $(sed -n -e '/mina-core/=' pom.xml) +1 ))s/<version>.*/<version>${MINA_IO_VERSION}<\/version>/g" pom.xml;\
+        sed -i "$(sed -n -e '/<spring-boot-dependencies.version>/=' pom.xml)s/<spring-boot-dependencies.version>.*/<spring-boot-dependencies.version>${SPRING_BOOT_VERSION}.RELEASE<\/spring-boot-dependencies.version>/g" pom.xml;\
+        sed -i "$(sed -n -e '/<mysql-connector-java.version>/=' pom.xml)s/<mysql-connector-java.version>.*/<mysql-connector-java.version>${MYSQL_VERSION}<\/mysql-connector-java.version>/g" pom.xml;\
+        sed -i "$(sed -n -e '/<mina-core.version>/=' pom.xml)s/<mina-core.version>.*/<mina-core.version>${MINA_IO_VERSION}<\/mina-core.version>/g" pom.xml;\
         sed -i "s/${MYSQL_OLD_CLASS}/${MYSQL_NEW_CLASS}/g" naming/src/main/java/com/alibaba/nacos/naming/healthcheck/MysqlHealthCheckProcessor.java;\
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
 
