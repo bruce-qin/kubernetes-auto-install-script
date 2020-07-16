@@ -2,7 +2,7 @@
 
 本项目是 [Nacos](https://github.com/alibaba/nacos) Server的docker镜像的build源码,以及Nacos server 在docker的单机和集群的运行例子.
 
-> 更新了spring及mysql数据库连接驱动版本到8.0
+> 更新了spring及mysql数据库连接驱动版本到8.0,以及使用alpine linux作为容器基础镜像
 
 ## 项目目录
 
