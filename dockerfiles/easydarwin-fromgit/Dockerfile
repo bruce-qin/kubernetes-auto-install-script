@@ -11,9 +11,6 @@ RUN apk add --no-cache git \
                         dos2unix \
                         tar ;\
         npm i -g apidoc;\
-#        npm i -g rimraf;\
-#        npm i -g  readline;\
-#        npm i -g @penggy/pack;\
         cd $GOPATH/src/github.com;\
         mkdir EasyDarwin && cd EasyDarwin;\
         git clone https://github.com/bruce-qin/EasyDarwin.git --depth=1 EasyDarwin;\
@@ -25,8 +22,6 @@ RUN apk add --no-cache git \
         dos2unix easydarwin.ini;\
         mkdir -p ${OUT_PUT_DIR};\
         cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
-#        pack tar;\
-#        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
 FROM jrottenberg/ffmpeg:4.2-alpine
 ENV LANG C.UTF-8
@@ -85,12 +80,12 @@ RUN {\
         echo 'EASYDARWIN_HOME=$(cat /easydarwin_home)';\
         echo 'fi';\
         echo '$EASYDARWIN_HOME/easydarwin';\
-        }>/start-easydarwin && chmod +x /start-easydarwin
+        }>/start-easydarwin && chmod +x /start-easydarwin;\
+        #ts存储文件位置
+        mkdir -p /home/media/hls
 #暴露容器rtsp端口
 EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
-#ts存储文件位置
-RUN mkdir -p /home/media/hls
-VOLUME /media/hls
+VOLUME /home/media/hls
 ENTRYPOINT ["/start-easydarwin"]

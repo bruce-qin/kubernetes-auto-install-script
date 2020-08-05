@@ -86,12 +86,12 @@ RUN {\
         echo 'EASYDARWIN_HOME=$(cat /easydarwin_home)';\
         echo 'fi';\
         echo '$EASYDARWIN_HOME/easydarwin';\
-        }>/start-easydarwin && chmod +x /start-easydarwin
+        }>/start-easydarwin && chmod +x /start-easydarwin;\
+        #ts存储文件位置
+        mkdir -p /home/media/hls
 #暴露容器rtsp端口
 EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
-#ts存储文件位置
-RUN mkdir -p /home/media/hls
-VOLUME /media/hls
+VOLUME /home/media/hls
 ENTRYPOINT ["/start-easydarwin"]
