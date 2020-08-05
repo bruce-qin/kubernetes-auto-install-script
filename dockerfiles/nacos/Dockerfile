@@ -33,8 +33,6 @@ FROM alpine AS release
 
 ARG NACOS_VERSION=1.3.2
 
-RUN apk add --no-cache openjdk8-jre bash dos2unix
-
 ENV MODE="cluster" \
     PREFER_HOST_MODE="ip"\
     BASE_DIR="/home/nacos" \
@@ -54,21 +52,19 @@ ENV MODE="cluster" \
     TIME_ZONE="Asia/Shanghai" \
     JAVA_OPT_EXT="--server.tomcat.basedir=$BASE_DIR/logs"
 
-RUN mkdir -p $BASE_DIR
-
 WORKDIR /$BASE_DIR
 
 COPY --from=standard $BASE_DIR $BASE_DIR
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar $BASE_DIR/target/
 
-RUN  cd logs \
-	&& touch start.out \
-	&& ln -sf /dev/stdout start.out \
-	&& ln -sf /dev/stderr start.out
+RUN  apk add --no-cache openjdk8-jre bash dos2unix;\
+	touch logs/start.out;\
+	ln -sf /dev/stdout logs/start.out;\
+	ln -sf /dev/stderr logs/start.out;\
+	dos2unix bin/docker-startup.sh;\
+	chmod +x bin/docker-startup.sh conf/*;\
+	apk del dos2unix
 
-RUN dos2unix bin/docker-startup.sh &&  dos2unix conf/* && chmod +x bin/docker-startup.sh
-
-RUN apk del dos2unix
 
 EXPOSE 8848
 ENTRYPOINT ["bin/docker-startup.sh"]
