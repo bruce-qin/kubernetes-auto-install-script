@@ -61,8 +61,8 @@ RUN  apk add --no-cache openjdk8-jre bash dos2unix;\
 	touch logs/start.out;\
 	ln -sf /dev/stdout logs/start.out;\
 	ln -sf /dev/stderr logs/start.out;\
-	dos2unix bin/docker-startup.sh;\
-	chmod +x bin/docker-startup.sh conf/*;\
+	dos2unix bin/docker-startup.sh conf/*;\
+	chmod +x bin/docker-startup.sh;\
 	apk del dos2unix
 
 
