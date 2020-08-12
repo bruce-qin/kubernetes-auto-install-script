@@ -362,7 +362,7 @@ spec:
             - --storage.tsdb.path=/data/prometheus  #数据存储位置
           ports:
             - containerPort: 9090
-              protocol: http
+              protocol: TCP
           volumeMounts:
             - mountPath: /etc/prometheus
               name: prometheus-config

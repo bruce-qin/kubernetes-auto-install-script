@@ -43,7 +43,7 @@ RUN mkdir -p /build && \
     wget -O - https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz | tar -zxC /build -f - && \
     mv /build/openssl-${OPENSSL_VERSION} /build/openssl && \
     wget -O - http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar -zxC /build -f - && \
-    mv /build/zlib-${ZLIB_VERSION} /build/zlib
+    mv /build/zlib-${ZLIB_VERSION} /build/zlib ;\
 
 # Build a minimal version of nginx
 RUN cd /build/nginx && \
@@ -51,8 +51,6 @@ RUN cd /build/nginx && \
         --prefix=/etc/nginx \
         --sbin-path=/usr/local/sbin/nginx \
         --conf-path=/etc/nginx/nginx.conf \
-        --error-log-path=/var/log/nginx/error.log \
-        --http-log-path=/var/log/nginx/access.log \
         --pid-path=/var/run/nginx.pid \
         --lock-path=/var/lock/nginx.lock \
         --http-client-body-temp-path=/tmp/nginx/client-body \
@@ -88,34 +86,32 @@ RUN apk --no-cache add nginx-mod-http-image-filter \
 #RUN set +e && addgroup -S nginx && \
 #    adduser -s /sbin/nologin -G nginx -S -D -H nginx
 
-# Set up directories
-RUN set -e && mkdir -p /etc/nginx /var/log/nginx /var/www /tmp/nginx/client-body && \
-    chown -R nginx:nginx /var/log/nginx /var/www && \
-    chmod -R 775 /var/log/nginx /var/www
-
-# Forward logs to Docker
-RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
-
-# Set up exposed ports
-EXPOSE 1935
-EXPOSE 80
-EXPOSE 443
-
 # Copy files from build stage
 COPY --from=0 /build/nginx/conf/ /etc/nginx/
 COPY --from=0 /build/nginx/html/ /etc/nginx/html/
 COPY --from=0 /build/nginx/objs/nginx /usr/local/sbin/nginx
 # Set up config file
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN chmod 444 /etc/nginx/nginx.conf && mkdir -p /media/{hls,dash}
+
+# Set up directories
+RUN set -e && mkdir -p /etc/nginx/logs/ /var/log/nginx /var/www /tmp/nginx/client-body && \
+    chown -R nginx:nginx /var/log/nginx /var/www && \
+    chmod -R 775 /var/log/nginx /var/www ;\
+    ln -sf /dev/stdout /etc/nginx/logs/access.log && \
+    ln -sf /dev/stderr /etc/nginx/logs/error.log ;\
+    chmod 444 /etc/nginx/nginx.conf && mkdir -p /media/{hls,dash} ;\
+    chmod +x /usr/local/sbin/nginx && \
+                    {\
+                    echo '#!/bin/sh' ;\
+                    echo '/usr/local/sbin/nginx -g "daemon off;"' ;\
+                    }>/docker-endpoint && chmod +x /docker-endpoint
+# Set up exposed ports
+EXPOSE 1935
+EXPOSE 80
+EXPOSE 443
+
 #挂载音视频媒体文件 hls:/media/hls dash:/media/dash
 VOLUME /media
 #自定义nginx配置
 VOLUME /etc/nginx/
-RUN chmod +x /usr/local/sbin/nginx && \
-                {\
-                echo '#!/bin/sh' ;\
-                echo '/usr/local/sbin/nginx -g "daemon off;"' ;\
-                }>/docker-endpoint && chmod +x /docker-endpoint
 ENTRYPOINT [ "/docker-endpoint" ]
