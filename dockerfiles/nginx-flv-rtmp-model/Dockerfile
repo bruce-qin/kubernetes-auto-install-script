@@ -43,7 +43,7 @@ RUN mkdir -p /build && \
     wget -O - https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz | tar -zxC /build -f - && \
     mv /build/openssl-${OPENSSL_VERSION} /build/openssl && \
     wget -O - http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz | tar -zxC /build -f - && \
-    mv /build/zlib-${ZLIB_VERSION} /build/zlib ;\
+    mv /build/zlib-${ZLIB_VERSION} /build/zlib
 
 # Build a minimal version of nginx
 RUN cd /build/nginx && \
