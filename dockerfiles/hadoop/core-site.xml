@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- 指定hdfs的nameservice为mycluster -->
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://kube-hadoop-cluster</value>
+    </property>
+
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/home/hadoop/data/tmp</value>
+    </property>
+
+    <property>
+        <name>hadoop.http.staticuser.user</name>
+        <value>root</value>
+    </property>
+
+    <!-- 指定zookeeper地址 -->
+    <property>
+        <name>ha.zookeeper.quorum</name>
+        <value>ZOOKEEPER_CONNECT_STRING</value>
+    </property>
+
+    <!-- hadoop链接zookeeper的超时时长设置 -->
+    <property>
+        <name>ha.zookeeper.session-timeout.ms</name>
+        <value>30000</value>
+        <description>ms</description>
+    </property>
+
+    <property>
+        <name>fs.trash.interval</name>
+        <value>1440</value>
+    </property>
+
+    <property>
+        <name>dfs.namenode.rpc-bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+    <property>
+        <name>hadoop.security.token.service.use_ip</name>
+        <value>false</value>
+    </property>
+
+</configuration>

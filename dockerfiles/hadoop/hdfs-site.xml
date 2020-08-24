@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <!-- journalnode集群之间通信的超时时间 -->
+    <property>
+        <name>dfs.qjournal.start-segment.timeout.ms</name>
+        <value>60000</value>
+    </property>
+    <property>
+        <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+        <value>false</value>
+    </property>
+
+    <!--指定hdfs的nameservice为kube-hadoop-cluster，需要和core-site.xml中的保持一致
+                          dfs.ha.namenodes.[nameservice id]为在nameservice中的每一个NameNode设置唯一标示符。
+        配置一个逗号分隔的NameNode ID列表。这将是被DataNode识别为所有的NameNode。
+        例如，如果使用"kube-hadoop-cluster"作为nameservice ID，并且使用"nn01"和"nn02"作为NameNodes标示符
+    -->
+    <property>
+        <name>dfs.nameservices</name>
+        <value>kube-hadoop-cluster</value>
+    </property>
+
+    <!-- kube-hadoop-cluster下面有两个NameNode，分别是nn01，nn02 -->
+    <property>
+        <name>dfs.ha.namenodes.kube-hadoop-cluster</name>
+        <value>nn01,nn02</value>
+    </property>
+
+    <!-- nn01的RPC通信地址 -->
+    <property>
+        <name>dfs.namenode.rpc-address.kube-hadoop-cluster.nn01</name>
+        <value>nn01:8020</value>
+    </property>
+
+    <!-- nn02的RPC通信地址 -->
+    <property>
+        <name>dfs.namenode.rpc-address.kube-hadoop-cluster.nn02</name>
+        <value>nn02:8020</value>
+    </property>
+
+    <!-- nn01的http通信地址 -->
+    <property>
+        <name>dfs.namenode.http-address.kube-hadoop-cluster.nn01</name>
+        <value>nn01:50070</value>
+    </property>
+
+    <!-- nn02的http通信地址 -->
+    <property>
+        <name>dfs.namenode.http-address.kube-hadoop-cluster.nn02</name>
+        <value>nn02:50070</value>
+    </property>
+
+    <!-- 指定NameNode的edits元数据的共享存储位置。也就是JournalNode列表
+                          该url的配置格式：qjournal://host1:port1;host2:port2;host3:port3/journalId
+        journalId推荐使用nameservice，默认端口号是：8485 -->
+    <property>
+        <name>dfs.namenode.shared.edits.dir</name>
+        <value>qjournal://nn01:8485;nn02:8485;dn01:8485;dn02:8485;dn03:8485/kube-hadoop-cluster</value>
+    </property>
+
+    <!-- 配置失败自动切换实现方式 -->
+    <property>
+        <name>dfs.client.failover.proxy.provider.kube-hadoop-cluster</name>
+        <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+    </property>
+
+    <!-- 配置隔离机制方法，多个机制用换行分割，即每个机制暂用一行 -->
+    <!--<property>
+        <name>dfs.ha.fencing.methods</name>
+        <value>
+            sshfence
+            shell(/bin/true)
+        </value>
+    </property>
+    <property>
+          <name>dfs.ha.fencing.ssh.private-key-files</name>
+          <value>/root/.ssh/id_rsa</value>
+    </property>-->
+
+    <property>
+        <name>dfs.permissions.enabled</name>
+        <value>false</value>
+    </property>
+
+    <property>
+        <name>dfs.support.append</name>
+        <value>true</value>
+    </property>
+
+    <!-- 指定副本数 -->
+    <property>
+        <name>dfs.replication</name>
+        <value>3</value>
+    </property>
+
+
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>/home/hadoop/data/nn</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>/home/hadoop/data/dn</value>
+    </property>
+
+    <!-- 指定JournalNode在本地磁盘存放数据的位置 -->
+    <property>
+        <name>dfs.journalnode.edits.dir</name>
+        <value>/home/hadoop/data/jn</value>
+    </property>
+
+    <!-- 开启NameNode失败自动切换 -->
+    <property>
+        <name>dfs.ha.automatic-failover.enabled</name>
+        <value>true</value>
+    </property>
+
+    <!-- 启用webhdfs -->
+    <property>
+        <name>dfs.webhdfs.enabled</name>
+        <value>true</value>
+    </property>
+
+    <!-- 配置sshfence隔离机制超时时间 -->
+    <property>
+        <name>dfs.ha.fencing.ssh.connect-timeout</name>
+        <value>30000</value>
+    </property>
+
+    <property>
+        <name>ha.failover-controller.cli-check.rpc-timeout.ms</name>
+        <value>60000</value>
+    </property>
+
+</configuration>
