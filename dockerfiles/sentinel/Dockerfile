@@ -31,3 +31,5 @@ ENTRYPOINT [ "java", \
                     "-Dauth.password=${SENTINEL_PASSWORD}",  \
                     "-jar", \
                     "/root/sentinel-dashboard.jar"]
+
+CMD [""]
