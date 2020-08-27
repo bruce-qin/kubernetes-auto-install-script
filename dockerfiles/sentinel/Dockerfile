@@ -3,9 +3,11 @@ FROM alpine
 ARG SENTINEL_VERSION=1.8.0
 ENV LANG=C.UTF-8
 
-RUN apk add --no-cache --update wget openjdk8-jre ;\
+RUN apk add --no-cache --update wget openjdk8-jre tzdata ;\
         wget -O /root/sentinel-dashboard.jar https://github.com/alibaba/Sentinel/releases/download/${SENTINEL_VERSION}/sentinel-dashboard-${SENTINEL_VERSION}.jar ;\
-        apk del wget
+        apk del wget ;\
+        cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
+        echo "Asia/Shanghai" > /etc/timezone
 
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
     CLASSPATH=.:$JAVA_HOME/lib \

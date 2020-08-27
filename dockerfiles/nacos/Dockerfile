@@ -58,13 +58,15 @@ COPY --from=standard $BASE_DIR/conf/ $BASE_DIR/conf/
 COPY --from=standard $BASE_DIR/init.d/ $BASE_DIR/init.d/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar $BASE_DIR/target/
 
-RUN  apk add --no-cache openjdk8-jre bash dos2unix;\
+RUN  apk add --no-cache openjdk8-jre bash dos2unix tzdata;\
 	touch logs/start.out;\
 	ln -sf /dev/stdout logs/start.out;\
 	ln -sf /dev/stderr logs/start.out;\
 	dos2unix bin/docker-startup.sh conf/*;\
 	chmod +x bin/docker-startup.sh;\
-	apk del dos2unix
+	apk del dos2unix;\
+	cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
+    echo "Asia/Shanghai" > /etc/timezone
 
 
 EXPOSE 8848
