@@ -28,6 +28,8 @@ RUN cd nacos-${NACOS_VERSION}; \
 #阶段二 拉取nacos官方镜像
 FROM nacos/nacos-server:1.3.2 AS standard
 
+#RUN sed -i '$c $JAVA ${JAVA_OPT}' bin/docker-startup.sh
+
 #阶段三 重新发布
 FROM alpine AS release
 
@@ -47,9 +49,11 @@ ENV MODE="cluster" \
         JVM_XMX="1g" \
         JVM_MS="128m" \
         JVM_MMS="320m" \
+        JVM_XMN="256m" \
         NACOS_DEBUG="n" \
         TOMCAT_ACCESSLOG_ENABLED="false" \
-        TIME_ZONE="Asia/Shanghai"
+        TIME_ZONE="Asia/Shanghai" \
+        JAVA_OPT_EXT="--server.tomcat.basedir=/home/nacos/logs"
 
 WORKDIR /$BASE_DIR
 
