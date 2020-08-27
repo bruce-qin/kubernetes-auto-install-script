@@ -1,5 +1,6 @@
 FROM golang:alpine AS baseBuild
 ARG OUT_PUT_DIR=/tmp/build/easydarwin
+WORKDIR /app
 RUN apk add --no-cache git \
                         gcc \
                         g++ \
@@ -10,12 +11,9 @@ RUN apk add --no-cache git \
                         gzip \
                         dos2unix \
                         tar ;\
-        npm i -g apidoc;\
-        cd $GOPATH/src/github.com;\
-        mkdir EasyDarwin && cd EasyDarwin;\
         git clone https://github.com/bruce-qin/EasyDarwin.git --depth=1 EasyDarwin;\
         cd EasyDarwin;\
-        go get;\
+        go get -u;\
         sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags '-extldflags -static -s -w' -o easydarwin\"," package.json;\
         cat package.json;\
         npm run build:lin;\
