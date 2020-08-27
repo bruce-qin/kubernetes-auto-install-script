@@ -42,9 +42,8 @@ ENV MODE="cluster" \
     FUNCTION_MODE="all" \
     NACOS_USER="nacos" \
     JAVA="${JAVA_HOME}/bin/java" \
-    JVM_XMS="2g" \
-    JVM_XMX="2g" \
-    JVM_XMN="1g" \
+    JVM_XMS="384m" \
+    JVM_XMX="1g" \
     JVM_MS="128m" \
     JVM_MMS="320m" \
     NACOS_DEBUG="n" \
@@ -54,7 +53,9 @@ ENV MODE="cluster" \
 
 WORKDIR /$BASE_DIR
 
-COPY --from=standard $BASE_DIR $BASE_DIR
+COPY --from=standard $BASE_DIR/bin/ $BASE_DIR/bin/
+COPY --from=standard $BASE_DIR/conf/ $BASE_DIR/conf/
+COPY --from=standard $BASE_DIR/init.d/ $BASE_DIR/init.d/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar $BASE_DIR/target/
 
 RUN  apk add --no-cache openjdk8-jre bash dos2unix;\
@@ -67,4 +68,4 @@ RUN  apk add --no-cache openjdk8-jre bash dos2unix;\
 
 
 EXPOSE 8848
-ENTRYPOINT ["bin/docker-startup.sh"]
+ENTRYPOINT ["bash", "bin/docker-startup.sh"]
