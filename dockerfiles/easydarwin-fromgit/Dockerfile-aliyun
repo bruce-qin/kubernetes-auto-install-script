@@ -29,7 +29,7 @@ RUN apk add --no-cache git \
 #        pack tar;\
 #        tar -xzf $(ls | grep EasyDarwin-*.tar.gz) -C ${OUT_PUT_DIR}
 
-FROM jrottenberg/ffmpeg:4.2-alpine
+FROM jrottenberg/ffmpeg:4.3-alpine
 ENV LANG C.UTF-8
 WORKDIR /
 #install easydarwin
