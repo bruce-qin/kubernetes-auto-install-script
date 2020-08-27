@@ -56,6 +56,7 @@ WORKDIR /$BASE_DIR
 COPY --from=standard $BASE_DIR/bin/ $BASE_DIR/bin/
 COPY --from=standard $BASE_DIR/conf/ $BASE_DIR/conf/
 COPY --from=standard $BASE_DIR/init.d/ $BASE_DIR/init.d/
+COPY --from=standard $BASE_DIR/logs/ $BASE_DIR/logs/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar $BASE_DIR/target/
 
 RUN  apk add --no-cache openjdk8-jre bash dos2unix tzdata;\
