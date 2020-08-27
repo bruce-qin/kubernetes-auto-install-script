@@ -119,7 +119,8 @@
 | NACOS_AUTH_TOKEN_EXPIRE_SECONDS      |  token 失效时间        | 默认 :18000                          |
 | NACOS_AUTH_TOKEN      |  token       | 默认 :SecretKey012345678901234567890123456789012345678901234567890123456789                          |
 | NACOS_AUTH_CACHE_ENABLE      |  权限缓存开关 ,开启后权限缓存的更新默认有15秒的延迟      | 默认 : false                          |
-
+|MEMBER_LIST        |使用命令行参数配置集群列表  |eg:192.168.16.101:8847?raft_port=8807,192.168.16.101?raft_port=8808,192.168.16.101:8849?raft_port=8809   |
+|EMBEDDED_STORAGE       |集群模式下使用嵌套存储替换MySQL数据库 |`embedded` 默认 : none|
 
 
 
