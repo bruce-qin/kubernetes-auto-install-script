@@ -23,7 +23,7 @@ RUN apk add --no-cache git \
         mkdir -p ${OUT_PUT_DIR};\
         cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
 
-FROM jrottenberg/ffmpeg:4.2-alpine
+FROM jrottenberg/ffmpeg:4.3-alpine
 ENV LANG C.UTF-8
 WORKDIR /
 #install easydarwin
