@@ -33,33 +33,34 @@ FROM alpine AS release
 
 ARG NACOS_VERSION=1.3.2
 
+
 ENV MODE="cluster" \
-    PREFER_HOST_MODE="ip"\
-    BASE_DIR="/home/nacos" \
-    JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk" \
-    CLASSPATH=".:/home/nacos/conf:$JAVA_HOME/lib" \
-    CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
-    FUNCTION_MODE="all" \
-    NACOS_USER="nacos" \
-    JAVA="${JAVA_HOME}/bin/java" \
-    JVM_XMS="384m" \
-    JVM_XMX="1g" \
-    JVM_MS="128m" \
-    JVM_MMS="320m" \
-    NACOS_DEBUG="n" \
-    TOMCAT_ACCESSLOG_ENABLED="false" \
-    TIME_ZONE="Asia/Shanghai" \
-    JAVA_OPT_EXT="--server.tomcat.basedir=$BASE_DIR/logs"
+        PREFER_HOST_MODE="ip"\
+        BASE_DIR="/home/nacos" \
+        CLASSPATH=".:/home/nacos/conf:$CLASSPATH" \
+        CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
+        FUNCTION_MODE="all" \
+        JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk" \
+        NACOS_USER="nacos" \
+        JAVA="/usr/lib/jvm/java-1.8-openjdk/bin/java" \
+        JVM_XMS="384m" \
+        JVM_XMX="1g" \
+        JVM_MS="128m" \
+        JVM_MMS="320m" \
+        NACOS_DEBUG="n" \
+        TOMCAT_ACCESSLOG_ENABLED="false" \
+        TIME_ZONE="Asia/Shanghai"
 
 WORKDIR /$BASE_DIR
 
-COPY --from=standard $BASE_DIR/bin/ $BASE_DIR/bin/
-COPY --from=standard $BASE_DIR/conf/ $BASE_DIR/conf/
-COPY --from=standard $BASE_DIR/init.d/ $BASE_DIR/init.d/
-COPY --from=standard $BASE_DIR/logs/ $BASE_DIR/logs/
-COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar $BASE_DIR/target/
+COPY --from=standard $BASE_DIR/bin/ bin/
+COPY --from=standard $BASE_DIR/conf/ conf/
+COPY --from=standard $BASE_DIR/init.d/ init.d/
+COPY --from=standard $BASE_DIR/logs/ logs/
+COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
 RUN  apk add --no-cache openjdk8-jre bash dos2unix tzdata;\
+    mkdir -p logs;\
 	touch logs/start.out;\
 	ln -sf /dev/stdout logs/start.out;\
 	ln -sf /dev/stderr logs/start.out;\
@@ -68,7 +69,6 @@ RUN  apk add --no-cache openjdk8-jre bash dos2unix tzdata;\
 	apk del dos2unix;\
 	cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
     echo "Asia/Shanghai" > /etc/timezone
-
 
 EXPOSE 8848
 ENTRYPOINT ["bash", "bin/docker-startup.sh"]
