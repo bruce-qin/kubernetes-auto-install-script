@@ -3,10 +3,12 @@ FROM alpine AS release
 RUN     apk add --no-cache  openjdk11-jre tzdata;\
             cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
             echo "Asia/Shanghai" > /etc/timezone
+
+ARG JH=/usr/lib/jvm/java-11-openjdk
 #java
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
-    CLASSPATH=.:$JAVA_HOME/lib \
-    PATH=$PATH:$JAVA_HOME/bin \
+ENV JAVA_HOME=$JH \
+    CLASSPATH=.:$JH/lib \
+    PATH=$PATH:$JH/bin \
     TIME_ZONE="Asia/Shanghai" \
     LANG=zh_CN.utf8
 
