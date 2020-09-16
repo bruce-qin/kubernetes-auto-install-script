@@ -1,7 +1,7 @@
 FROM alpine AS release
 #install ffmpeg openjdk
 RUN         sed -i "s/dl-cdn.alpinelinux.org/mirror.tuna.tsinghua.edu.cn/g" /etc/apk/repositories;\
-            apk add --no-cache openjdk11-jre tzdata;\
+            apk add --no-cache dmidecode openjdk11-jre tzdata;\
             cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
             echo "Asia/Shanghai" > /etc/timezone
 
