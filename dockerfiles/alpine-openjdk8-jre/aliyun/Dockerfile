@@ -50,10 +50,10 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
 RUN apk add --no-cache --virtual=build-dependencies wget \
     && mkdir -p $JH \
     && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_${JAVA_BRANCH}-ga/Alibaba_Dragonwell_${DRAGONWELL_VERSION}-GA_Linux_x64.tar.gz" | tar -zxC /tmp -f - \
-    && mv /tmp/$(ls /tmp)/jre/* $JH
+    && mv /tmp/$(ls /tmp)/jre/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
     && apk del build-dependencies \
-    && rm -rf /tmp/*
+    && rm -rf /tmp/* \
     && java -version
 
 ENTRYPOINT  ["sh"]
