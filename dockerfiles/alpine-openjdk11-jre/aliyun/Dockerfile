@@ -16,7 +16,7 @@ ENV JAVA_HOME=$JH  \
 
 
 #install tzdata
-RUN     apk add --no-cache tzdata dmidecode zlib libgcc;\
+RUN     apk add --no-cache tzdata dmidecode zlib libgcc libgc++;\
             cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
             echo "Asia/Shanghai" > /etc/timezone
 
