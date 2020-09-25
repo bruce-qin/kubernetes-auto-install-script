@@ -3,6 +3,10 @@ FROM alpine AS release
 ARG GLIBC_BASE_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/download
 ARG GLIBC_PACKAGE_VERSION=2.32-r0
 
+ARG ARCHLINUX_BASE_URL=https://archive.archlinux.org/packages
+ARG GCC_LIBS_VERSION=10.2.0-2
+ARG ZLIB_VERSION=1.2.11-4
+
 ARG GRAGONWELL_BASE_URL=https://github.com/alibaba/dragonwell11/releases/download
 ARG DRAGONWELL_VERSION=11.0.8.3
 ARG JAVA_BRANCH=11.0.8
@@ -42,6 +46,26 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
     && apk del build-dependencies \
     && rm -rf /etc/apk/keys/sgerrand.rsa.pub \
     && rm -rf /tmp/*
+
+#==============
+# Install gcc-libs & zlib
+#==============
+
+RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd \
+    && cd /tmp \
+    && mkdir /tmp/gcc \
+    && wget "${ARCHLINUX_BASE_URL}/g/gcc-libs/gcc-libs-${GCC_LIBS_VERSION}-x86_64.pkg.tar.zst" -O gcc-libs.tar.zst \
+    && zstd -d /tmp/gcc-libs.tar.zst --output-dir-flat /tmp \
+    && tar -xf /tmp/gcc-libs.tar -C /tmp/gcc \
+    && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
+    && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && mkdir /tmp/zlib \
+    && wget "${ARCHLINUX_BASE_URL}/z/zlib/zlib-1%3A${ZLIB_VERSION}-x86_64.pkg.tar.xz" -O zlib.pkg.tar.xz\
+    && tar xvJf zlib.pkg.tar.xz -C /tmp/zlib \
+    && mv /tmp/zlib/usr/lib/libz.so* /usr/glibc-compat/lib \
+    && apk del build-dependencies \
+    && rm -rf /tmp/*
+
 
 #====================
 # Install dragonwell jre
