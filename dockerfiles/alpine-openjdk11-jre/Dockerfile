@@ -43,7 +43,7 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
         "${ALPINE_GLIBC_BIN_PACKAGE_FILENAME}" \
         "${ALPINE_GLIBC_I18N_PACKAGE_FILENAME}" \
     && /usr/glibc-compat/bin/localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 \
-    && apk del build-dependencies \
+    && apk del build-dependencies wget\
     && rm -rf /etc/apk/keys/sgerrand.rsa.pub \
     && rm -rf /tmp/*
 
@@ -51,7 +51,7 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
 # Install gcc-libs & zlib
 #==============
 
-RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd \
+RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd wget\
     && cd /tmp \
     && mkdir /tmp/gcc \
     && wget "${ARCHLINUX_BASE_URL}/g/gcc-libs/gcc-libs-${GCC_LIBS_VERSION}-x86_64.pkg.tar.zst" -O gcc-libs.tar.zst \
@@ -63,19 +63,19 @@ RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd \
     && wget "${ARCHLINUX_BASE_URL}/z/zlib/zlib-1%3A${ZLIB_VERSION}-x86_64.pkg.tar.xz" -O zlib.pkg.tar.xz\
     && tar xvJf zlib.pkg.tar.xz -C /tmp/zlib \
     && mv /tmp/zlib/usr/lib/libz.so* /usr/glibc-compat/lib \
-    && apk del build-dependencies \
+    && apk del build-dependencies xz zstd wget\
     && rm -rf /tmp/*
 
 
 #====================
 # Install dragonwell jre
 #====================
-RUN apk add --no-cache --virtual=build-dependencies wget \
+RUN apk add --no-cache wget \
     && mkdir -p $JH \
     && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga/OpenJDK11U-jdk_x64_linux_dragonwell_dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga.tar.gz" | tar -zxC /tmp -f - \
     && mv /tmp/$(ls /tmp)/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
-    && apk del build-dependencies \
+    && apk del wget\
     && rm -rf /tmp/* \
     && rm -rf ${JAVA_HOME}/lib/src.zip ${JAVA_HOME}/include ${JAVA_HOME}/jmods  ${JAVA_HOME}/man \
     && java -version

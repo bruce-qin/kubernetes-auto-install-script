@@ -39,19 +39,19 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
         "${ALPINE_GLIBC_BIN_PACKAGE_FILENAME}" \
         "${ALPINE_GLIBC_I18N_PACKAGE_FILENAME}" \
     && /usr/glibc-compat/bin/localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 \
-    && apk del build-dependencies \
+    && apk del build-dependencies wget\
     && rm -rf /etc/apk/keys/sgerrand.rsa.pub \
     && rm -rf /tmp/*
 
 #====================
 # Install dragonwell jre
 #====================
-RUN apk add --no-cache --virtual=build-dependencies wget \
+RUN apk add --no-cache wget \
     && mkdir -p $JH \
     && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_${JAVA_BRANCH}-ga/Alibaba_Dragonwell_${DRAGONWELL_VERSION}-GA_Linux_x64.tar.gz" | tar -zxC /tmp -f - \
     && mv /tmp/$(ls /tmp)/jre/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
-    && apk del build-dependencies \
+    && apk del wget\
     && rm -rf /tmp/* \
     && java -version
 

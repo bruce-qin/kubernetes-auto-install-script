@@ -2,9 +2,9 @@ FROM justtin/alpine-openjdk8-jre
 
 ARG SENTINEL_VERSION=1.8.0
 
-RUN apk  add --no-cache --virtual=build-dependencies wget \
+RUN apk  add --no-cache  wget \
         && wget -O /root/sentinel-dashboard.jar "https://github.com/alibaba/Sentinel/releases/download/v${SENTINEL_VERSION}/sentinel-dashboard-${SENTINEL_VERSION}.jar" \
-        && apk del build-dependencies
+        && apk del wget
 
 ENV SENTINEL_USERNAME sentinel
 ENV SENTINEL_PASSWORD sentinel
