@@ -77,7 +77,7 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
     && apk del build-dependencies \
     && rm -rf /tmp/* \
-    && rm -f ${JAVA_HOME}/lib/src.zip \
+    && rm -f ${JAVA_HOME}/lib/src.zip ${JAVA_HOME}/include ${JAVA_HOME}/include  ${JAVA_HOME}/jmods  ${JAVA_HOME}/man \
     && java -version
 
 ENTRYPOINT  ["sh"]
