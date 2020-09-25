@@ -3,9 +3,9 @@
 FROM alpine AS build
 
 ARG NACOS_VERSION=1.3.2
-ARG SPRING_BOOT_VERSION=2.3.3
+ARG SPRING_BOOT_VERSION=2.3.4
 ARG MYSQL_VERSION=8.0.21
-ARG MINA_IO_VERSION=2.1.3
+ARG MINA_IO_VERSION=2.1.4
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
 ARG MYSQL_NEW_CLASS=com.mysql.cj.jdbc.MysqlDataSource
 
@@ -31,7 +31,7 @@ FROM nacos/nacos-server:1.3.2 AS standard
 #RUN sed -i '$c $JAVA ${JAVA_OPT}' bin/docker-startup.sh
 
 #阶段三 重新发布
-FROM alpine AS release
+FROM  justtin/alpine-openjdk8-jre AS release
 
 ARG NACOS_VERSION=1.3.2
 
@@ -42,9 +42,7 @@ ENV MODE="cluster" \
         CLASSPATH=".:/home/nacos/conf:$CLASSPATH" \
         CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
         FUNCTION_MODE="all" \
-        JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk" \
         NACOS_USER="nacos" \
-        JAVA="/usr/lib/jvm/java-1.8-openjdk/bin/java" \
         JVM_XMS="384m" \
         JVM_XMX="1g" \
         JVM_MS="128m" \
@@ -52,7 +50,7 @@ ENV MODE="cluster" \
         JVM_XMN="256m" \
         NACOS_DEBUG="n" \
         TOMCAT_ACCESSLOG_ENABLED="false" \
-        TIME_ZONE="Asia/Shanghai" \
+        LANG=zh_CN.UTF-8 \
         JAVA_OPT_EXT="--server.tomcat.basedir=/home/nacos/logs"
 
 WORKDIR /$BASE_DIR
@@ -63,16 +61,14 @@ COPY --from=standard $BASE_DIR/init.d/ init.d/
 COPY --from=standard $BASE_DIR/logs/ logs/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
-RUN  apk add --no-cache openjdk8-jre bash dos2unix tzdata;\
+RUN  apk add --no-cache bash dos2unix tzdata;\
     mkdir -p logs;\
 	touch logs/start.out;\
 	ln -sf /dev/stdout logs/start.out;\
 	ln -sf /dev/stderr logs/start.out;\
 	dos2unix bin/docker-startup.sh conf/*;\
 	chmod +x bin/docker-startup.sh;\
-	apk del dos2unix;\
-	cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime;\
-    echo "Asia/Shanghai" > /etc/timezone
+	apk del dos2unix
 
 EXPOSE 8848
 ENTRYPOINT ["bash", "bin/docker-startup.sh"]
