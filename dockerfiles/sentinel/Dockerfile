@@ -1,19 +1,10 @@
-FROM alpine
+FROM justtin/alpine-openjdk8-jre
 
 ARG SENTINEL_VERSION=1.8.0
-ENV LANG=C.UTF-8
 
-RUN apk add --no-cache --update wget openjdk8-jre tzdata ;\
+RUN apk add --no-cache --virtual=build-dependencies wget \
         wget -O /root/sentinel-dashboard.jar https://github.com/alibaba/Sentinel/releases/download/${SENTINEL_VERSION}/sentinel-dashboard-${SENTINEL_VERSION}.jar ;\
-        apk del wget ;\
-        cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
-        echo "Asia/Shanghai" > /etc/timezone
-
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
-    CLASSPATH=.:$JAVA_HOME/lib \
-    PATH=$PATH:$JAVA_HOME/bin \
-    TIME_ZONE="Asia/Shanghai" \
-    LANG=zh_CN.utf8
+        apk del build-dependencies
 
 ENV SENTINEL_USERNAME sentinel
 ENV SENTINEL_PASSWORD sentinel
