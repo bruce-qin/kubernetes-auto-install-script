@@ -49,6 +49,7 @@ ENV MODE="cluster" \
         JVM_MMS="320m" \
         JVM_XMN="256m" \
         NACOS_DEBUG="n" \
+        JAVA="java" \
         TOMCAT_ACCESSLOG_ENABLED="false" \
         LANG=zh_CN.UTF-8 \
         JAVA_OPT_EXT="--server.tomcat.basedir=/home/nacos/logs"
@@ -61,14 +62,14 @@ COPY --from=standard $BASE_DIR/init.d/ init.d/
 COPY --from=standard $BASE_DIR/logs/ logs/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
-RUN  apk add --no-cache bash dos2unix tzdata;\
+RUN  apk add --no-cache bash --virtual=build-dependencies dos2unix \
     mkdir -p logs;\
 	touch logs/start.out;\
 	ln -sf /dev/stdout logs/start.out;\
 	ln -sf /dev/stderr logs/start.out;\
 	dos2unix bin/docker-startup.sh conf/*;\
 	chmod +x bin/docker-startup.sh;\
-	apk del dos2unix
+	apk del build-dependencies
 
 EXPOSE 8848
 ENTRYPOINT ["bash", "bin/docker-startup.sh"]
