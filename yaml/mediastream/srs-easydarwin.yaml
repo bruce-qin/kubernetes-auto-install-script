@@ -220,7 +220,7 @@ spec:
             - name: ENABLE_MULTICAST
               value:  "1"
             - name:   EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://socs/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://socs/{path}-aac -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://socs/{path}-mp3 -hide_banner"
+              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -v error -f flv rtmp://socs/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://socs/{path}-aac -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://socs/{path}-mp3 -hide_banner"
 ---
 apiVersion: v1
 kind: Service
