@@ -82,6 +82,11 @@ data:
             fast_cache  0;
             mount       [vhost]/[app]/[stream].flv;
         }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
+        }
     }
 ---
 apiVersion: v1
@@ -124,6 +129,11 @@ data:
             fast_cache  20;
             mount       [vhost]/[app]/[stream].aac;
         }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
+        }
     }
 ---
 apiVersion: v1
@@ -165,6 +175,11 @@ data:
             enabled     on;
             fast_cache  20;
             mount       [vhost]/[app]/[stream].mp3;
+        }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
         }
     }
 ---
@@ -383,6 +398,9 @@ spec:
         - name: config-volume
           configMap:
             name: srs-edge-config
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
       containers:
         - name: srs-edge
           image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
@@ -398,6 +416,9 @@ spec:
               protocol: TCP
               name: http
           volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
             - name: config-volume
               mountPath: /usr/local/srs/conf
 #          lifecycle:
@@ -488,6 +509,9 @@ spec:
         app: srs-aac-edge
     spec:
       volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
         - name: config-volume
           configMap:
             name: srs-edge-aac-config
@@ -506,6 +530,9 @@ spec:
               protocol: TCP
               name: http
           volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
             - name: config-volume
               mountPath: /usr/local/srs/conf
       restartPolicy: Always
@@ -562,6 +589,9 @@ spec:
         app: srs-mp3-edge
     spec:
       volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
         - name: config-volume
           configMap:
             name: srs-edge-mp3-config
@@ -580,6 +610,9 @@ spec:
               protocol: TCP
               name: http
           volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
             - name: config-volume
               mountPath: /usr/local/srs/conf
       restartPolicy: Always
