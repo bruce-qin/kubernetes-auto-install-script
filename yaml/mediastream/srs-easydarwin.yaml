@@ -40,6 +40,15 @@ data:
         hls {
             enabled         on;
         }
+        http_hooks {
+            enabled         on;
+            on_connect      http://127.0.0.1:8505/srs/onConnect
+            on_close           http://127.0.0.1:8505/srs/onClose
+            on_publish        http://127.0.0.1:8505/srs/onPublish
+            on_unpublish    http://127.0.0.1:8505/srs/onUnpublish
+            on_play             http://127.0.0.1:8505/srs/onPlay
+            on_stop             http://127.0.0.1:8505/srs/onStop
+        }
     }
 ---
 apiVersion: v1
@@ -79,28 +88,108 @@ data:
         }
         http_remux {
             enabled     on;
-            fast_cache  20;
+            fast_cache  0;
             mount       [vhost]/[app]/[stream].flv;
         }
-        # srs 推流时触发ffmpeg命令v3.0-b4暂时不可用，采用easydarwin推送到srs
-       #exec {
-       #    enabled     on;
-       #    publish     ./objs/ffmpeg/bin/ffmpeg  -i rtmp://127.0.0.1/[app]/[stream] -c copy -f rtsp -rtsp_transport tcp rtsp://rtsp-svc/[app]/[stream];
-       #}
-       # transcode {
-       # enabled     on;
-       # ffmpeg      ./objs/ffmpeg/bin/ffmpeg;
-       # engine easydarwin {
-       #     enabled         on;
-       #     vcodec          copy;
-       #     acodec          copy;
-       #     oformat         rtsp;
-       #     aparams {
-       #         rtsp_transport tcp;
-       #         v   error;
-       #     }
-       #     output         rtsp://rtsp-svc/[app]/[stream];
-       # }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
+        }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: srs-edge-aac-config
+data:
+  srs.conf: |
+    listen              1935;
+    max_connections     10000;
+    daemon              off;
+    grace_start_wait    700;
+    grace_final_wait    800;
+    force_grace_quit    on;
+    http_api {
+        enabled         on;
+        listen          1985;
+    }
+    http_server {
+        enabled         on;
+        listen          8080;
+    }
+    vhost __defaultVhost__ {
+        min_latency     on;
+        tcp_nodelay     on;
+        play {
+            mw_latency      100;
+            gop_cache       off;
+            queue_length    10;
+        }
+        publish {
+            mr          off;
+        }
+        cluster {
+            mode            remote;
+            origin          srs-origin-0.socs srs-origin-1.socs srs-origin2.socs;
+        }
+        http_remux {
+            enabled     on;
+            fast_cache  20;
+            mount       [vhost]/[app]/[stream].aac;
+        }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
+        }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: srs-edge-mp3-config
+data:
+  srs.conf: |
+    listen              1935;
+    max_connections     10000;
+    daemon              off;
+    grace_start_wait    700;
+    grace_final_wait    800;
+    force_grace_quit    on;
+    http_api {
+        enabled         on;
+        listen          1985;
+    }
+    http_server {
+        enabled         on;
+        listen          8080;
+    }
+    vhost __defaultVhost__ {
+        min_latency     on;
+        tcp_nodelay     on;
+        play {
+            mw_latency      100;
+            gop_cache       off;
+            queue_length    10;
+        }
+        publish {
+            mr          off;
+        }
+        cluster {
+            mode            remote;
+            origin          srs-origin-0.socs srs-origin-1.socs srs-origin2.socs;
+        }
+        http_remux {
+            enabled     on;
+            fast_cache  20;
+            mount       [vhost]/[app]/[stream].mp3;
+        }
+        http_static {
+            enabled     on;
+            mount       [vhost]/;
+            dir         /usr/local/srs/objs/nginx/html;
+        }
     }
 ---
 ### easydarwin
@@ -125,7 +214,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: easydarwin
-          image: justtin/easydarwin
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 554
@@ -140,7 +229,7 @@ spec:
             - name: ENABLE_MULTICAST
               value:  "1"
             - name:   EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://socs/{path} -hide_banner"
+              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -v error -f flv rtmp://srs-edge-service/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://srs-edge-service/{path}-aac -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://srs-edge-service/{path}-mp3 -hide_banner"
 ---
 apiVersion: v1
 kind: Service
@@ -245,7 +334,7 @@ spec:
             name: srs-origin-config
       containers:
         - name: srs
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:v3.0-b4
+          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
@@ -307,7 +396,7 @@ metadata:
   labels:
     app: srs-edge
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       name: srs-edge
@@ -318,9 +407,12 @@ spec:
         - name: config-volume
           configMap:
             name: srs-edge-config
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
       containers:
         - name: srs-edge
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:v3.0-b4
+          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
@@ -333,6 +425,9 @@ spec:
               protocol: TCP
               name: http
           volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
             - name: config-volume
               mountPath: /usr/local/srs/conf
 #          lifecycle:
@@ -387,7 +482,7 @@ spec:
       hostNetwork: true
       containers:
         - name: easydarwin-rtpudp-nested
-          image: justtin/easydarwin
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 554
@@ -402,8 +497,168 @@ spec:
             - name: CLOSE_OLD
               value: "0"
             - name: EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f flv rtmp://127.0.0.1:31935/{path} -hide_banner; ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:30554/{path} -hide_banner"
+              value: "ffmpeg -i rtsp://127.0.0.1/{path} -c copy -v error -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:30554/{path} -hide_banner"
       restartPolicy: Always
   selector:
     matchLabels:
       app: easydarwin-rtpudp-nested
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srs-aac-edge
+  labels:
+    app: srs-aac-edge
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: srs-aac-edge
+      labels:
+        app: srs-aac-edge
+    spec:
+      volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
+        - name: config-volume
+          configMap:
+            name: srs-edge-aac-config
+      containers:
+        - name: srs-aac-edge
+          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1935
+              protocol: TCP
+              name: rtmp
+            - containerPort: 1985
+              protocol: TCP
+              name: api
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
+            - name: config-volume
+              mountPath: /usr/local/srs/conf
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: srs-aac-edge
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srs-aac-rtmp-edge-svc
+spec:
+  clusterIP: None
+  selector:
+    app: srs-aac-edge
+  ports:
+    - name: socs-1935-1935
+      port: 1935
+      protocol: TCP
+      targetPort: 1935
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srs-aac-http-edge-svc
+spec:
+  type: NodePort
+  selector:
+    app: srs-aac-edge
+  #    statefulset.kubernetes.io/pod-name: srs-origin-0
+  ports:
+    - name: srs-api-service-1985-1985
+      port: 1985
+      protocol: TCP
+      targetPort: 1985
+    - name: srs-web-svc-8080
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+      nodePort: 32080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srs-mp3-edge
+  labels:
+    app: srs-mp3-edge
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: srs-mp3-edge
+      labels:
+        app: srs-mp3-edge
+    spec:
+      volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: srs-hls-pvc
+        - name: config-volume
+          configMap:
+            name: srs-edge-mp3-config
+      containers:
+        - name: srs-mp3-edge
+          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1935
+              protocol: TCP
+              name: rtmp
+            - containerPort: 1985
+              protocol: TCP
+              name: api
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /usr/local/srs/objs/nginx/html
+              readOnly: true
+            - name: config-volume
+              mountPath: /usr/local/srs/conf
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: srs-mp3-edge
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srs-mp3-rtmp-edge-svc
+spec:
+  clusterIP: None
+  selector:
+    app: srs-mp3-edge
+  ports:
+    - name: socs-1935-1935
+      port: 1935
+      protocol: TCP
+      targetPort: 1935
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srs-mp3-http-edge-svc
+spec:
+  type: NodePort
+  selector:
+    app: srs-mp3-edge
+  #    statefulset.kubernetes.io/pod-name: srs-origin-0
+  ports:
+    - name: srs-api-service-1985-1985
+      port: 1985
+      protocol: TCP
+      targetPort: 1985
+    - name: srs-web-svc-8080
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+      nodePort: 32180
