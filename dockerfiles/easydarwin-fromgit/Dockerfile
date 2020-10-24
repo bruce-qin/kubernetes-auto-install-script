@@ -41,6 +41,8 @@ ENV KEEP_PLAYERS 0
 ENV SAVE_STREAM_TO_LOCAL 0
 #rtp udp推送时服务端端口范围
 ENV RTPSERVER_UDPORT_RANGE 50000:55000
+#推流时执行ffmpeg命令错误重试次数
+ENV EASYDARWIN_CMD_ERROR_REPEAT_TIME 5
 COPY --from=0 /tmp/build/easydarwin /easydarwin
 RUN {\
         echo '#!/bin/sh';\
