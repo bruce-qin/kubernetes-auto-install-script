@@ -4,51 +4,55 @@ WORKDIR /app
 RUN apk add --no-cache git \
                         gcc \
                         g++ \
-                        libtool \
-                        make \
                         nodejs \
                         npm \
-                        gzip \
-                        dos2unix \
-                        tar ;\
+                        dos2unix ; \
         git clone https://github.com/bruce-qin/EasyDarwin.git --depth=1 EasyDarwin;\
         cd EasyDarwin;\
         go get -u;\
-        sed -i "$(sed -n -e '/"build:lin":/=' package.json)c \"build:lin\": \"go build -tags release -tags netgo -ldflags '-extldflags -static -s -w' -o easydarwin\"," package.json;\
-        cat package.json;\
         npm run build:lin;\
         dos2unix easydarwin.ini;\
         mkdir -p ${OUT_PUT_DIR};\
         cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
 
-FROM jrottenberg/ffmpeg:4.3-alpine
+##二阶段 发布镜像
+FROM alpine
 ENV LANG C.UTF-8
-WORKDIR /
+WORKDIR /app
 #install easydarwin
-#系统登录账号（rtsp推拉流）
-ENV DEFAULT_USERNAME admin
-#系统登录密码（rtsp推拉流）
-ENV DEFAULT_PASSWORD admin
-#是否使能向服务器推流或者从服务器播放时验证用户名密码. [注意] 因为服务器端并不保存明文密码，所以推送或者播放时，客户端应该输入密码的md5后的值。
-ENV AUTHORIZATION_ENABLE 0
-#新的推流器连接时，如果已有同一个推流器（PATH相同）在推流，是否关闭老的推流器。
-#如果为0，则不会关闭老的推流器，新的推流器会被响应406错误，否则会关闭老的推流器，新的推流器会响应成功。
-ENV CLOSE_OLD 0
-#当close_old为1时，是否保留被关闭的推流器对应的播放器。
-#如果为0，则原推流器对应的播放器会被断开。否则会被保留下来。注意，如果该选项为1，可能某些播放器会有异常，因为RTP序列可能不一致了。
-ENV KEEP_PLAYERS 0
-#是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置/media/hls
-ENV SAVE_STREAM_TO_LOCAL 0
-#rtp udp推送时服务端端口范围
-ENV RTPSERVER_UDPORT_RANGE 50000:55000
-#推流时执行ffmpeg命令错误重试次数
-ENV EASYDARWIN_CMD_ERROR_REPEAT_TIME 5
-COPY --from=0 /tmp/build/easydarwin /easydarwin
-RUN {\
+ENV \
+    #系统登录账号（rtsp推拉流）
+    DEFAULT_USERNAME=admin \
+    #系统登录密码（rtsp推拉流）
+    DEFAULT_PASSWORD=admin \
+    #是否使能向服务器推流或者从服务器播放时验证用户名密码. [注意] 因为服务器端并不保存明文密码，所以推送或者播放时，客户端应该输入密码的md5后的值。
+    AUTHORIZATION_ENABLE=0 \
+    #新的推流器连接时，如果已有同一个推流器（PATH相同）在推流，是否关闭老的推流器。
+    #如果为0，则不会关闭老的推流器，新的推流器会被响应406错误，否则会关闭老的推流器，新的推流器会响应成功。
+    CLOSE_OLD=0 \
+    #当close_old为1时，是否保留被关闭的推流器对应的播放器。
+    #如果为0，则原推流器对应的播放器会被断开。否则会被保留下来。注意，如果该选项为1，可能某些播放器会有异常，因为RTP序列可能不一致了。
+    KEEP_PLAYERS=0 \
+    #是否开启推送的同事进行本地存储，开启后则可以进行录像查询与回放。ts文件存储位置/media/hls
+    SAVE_STREAM_TO_LOCAL=0 \
+    #rtp udp推送时服务端端口范围
+    RTPSERVER_UDPORT_RANGE=50000:55000 \
+    #是否启用集群
+    ENABLE_MULTICAST=1 \
+    #推流时执行ffmpeg命令错误重试次数
+    EASYDARWIN_CMD_ERROR_REPEAT_TIME=5 \
+    #启用组播集群时绑定网卡
+    EAYDARWIN_MULTICST_BIND_INF_NAME=''
+COPY --from=0 /tmp/build/easydarwin /app/easydarwin
+RUN apk add --no-cache tzdata ffmpeg ;\
+        cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
+        rm -rf /usr/share/zoneinfo/ ;\
+        echo "Asia/Shanghai" > /etc/timezone ;\
+        {\
         echo '#!/bin/sh';\
-        echo 'if [ ! -f "/easydarwin_home" ];then';\
-        echo 'EASYDARWIN_HOME=$(dirname $(find /easydarwin -name easydarwin.ini))';\
-        echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/local\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'if [ ! -f "/app/easydarwin_home" ];then';\
+        echo 'EASYDARWIN_HOME=$(dirname $(find /app/easydarwin -name easydarwin.ini))';\
+        echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'if [[ -n $DEFAULT_USERNAME ]];then';\
         echo '  sed -i "s/^default_username=.*/default_username=$DEFAULT_USERNAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
@@ -70,17 +74,20 @@ RUN {\
         echo 'if [[ -n $ENABLE_MULTICAST ]];then';\
         echo '  sed -i "s/^enable_multicast=.*/enable_multicast=$ENABLE_MULTICAST/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
+        echo 'if [[ -n $EAYDARWIN_MULTICST_BIND_INF_NAME ]];then';\
+        echo '  sed -i "s/^multicast_svc_bind_inf=.*/multicast_svc_bind_inf=$EAYDARWIN_MULTICST_BIND_INF_NAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
         echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
         echo '  sed -i "s/^save_stream_to_local=.*/keep_players=$SAVE_STREAM_TO_LOCAL/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo '  sed -i "s/^m3u8_dir_path=.*/m3u8_dir_path=\/home\/media\/hls/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'chmod +x $EASYDARWIN_HOME/easydarwin';\
-        echo 'echo "$EASYDARWIN_HOME" > /easydarwin_home';\
+        echo 'echo "$EASYDARWIN_HOME" > /app/easydarwin_home';\
         echo 'else';\
-        echo 'EASYDARWIN_HOME=$(cat /easydarwin_home)';\
+        echo 'EASYDARWIN_HOME=$(cat /app/easydarwin_home)';\
         echo 'fi';\
         echo '$EASYDARWIN_HOME/easydarwin';\
-        }>/start-easydarwin && chmod +x /start-easydarwin;\
+        }>/app/start-easydarwin && chmod +x /app/start-easydarwin;\
         #ts存储文件位置
         mkdir -p /home/media/hls
 #暴露容器rtsp端口
@@ -88,4 +95,4 @@ EXPOSE 554
 #暴露容器http端口
 EXPOSE 10008
 VOLUME /home/media/hls
-ENTRYPOINT ["/start-easydarwin"]
+ENTRYPOINT ["/app/start-easydarwin"]
