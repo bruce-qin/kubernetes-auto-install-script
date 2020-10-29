@@ -41,13 +41,13 @@ data:
             enabled         on;
         }
         http_hooks {
-            enabled         on;
-            on_connect      http://127.0.0.1:8505/srs/onConnect
-            on_close           http://127.0.0.1:8505/srs/onClose
-            on_publish        http://127.0.0.1:8505/srs/onPublish
-            on_unpublish    http://127.0.0.1:8505/srs/onUnpublish
-            on_play             http://127.0.0.1:8505/srs/onPlay
-            on_stop             http://127.0.0.1:8505/srs/onStop
+            enabled         off;
+            #on_connect      http://127.0.0.1:8505/srs/onConnect
+            #on_close           http://127.0.0.1:8505/srs/onClose
+            #on_publish        http://127.0.0.1:8505/srs/onPublish
+            #on_unpublish    http://127.0.0.1:8505/srs/onUnpublish
+            #on_play             http://127.0.0.1:8505/srs/onPlay
+            #on_stop             http://127.0.0.1:8505/srs/onStop
         }
     }
 ---
@@ -334,7 +334,7 @@ spec:
             name: srs-origin-config
       containers:
         - name: srs
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
@@ -412,7 +412,7 @@ spec:
             claimName: srs-hls-pvc
       containers:
         - name: srs-edge
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
@@ -526,7 +526,7 @@ spec:
             name: srs-edge-aac-config
       containers:
         - name: srs-aac-edge
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
@@ -606,7 +606,7 @@ spec:
             name: srs-edge-mp3-config
       containers:
         - name: srs-mp3-edge
-          image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs:3
+          image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 1935
