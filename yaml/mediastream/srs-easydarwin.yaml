@@ -396,7 +396,7 @@ metadata:
   labels:
     app: srs-edge
 spec:
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       name: srs-edge
@@ -461,13 +461,12 @@ spec:
       nodePort: 31080
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: easydarwin-rtpudp-nested
   labels:
     app: easydarwin-rtpudp-nested
 spec:
-  replicas: 1
   template:
     metadata:
       name: easydarwin-rtpudp-nested
@@ -510,7 +509,7 @@ metadata:
   labels:
     app: srs-aac-edge
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       name: srs-aac-edge
@@ -590,7 +589,7 @@ metadata:
   labels:
     app: srs-mp3-edge
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       name: srs-mp3-edge
