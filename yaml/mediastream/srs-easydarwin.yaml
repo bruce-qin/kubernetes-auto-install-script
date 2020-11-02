@@ -9,8 +9,9 @@ metadata:
 data:
   srs.conf: |
     listen                 1935;
+    daemon              off;
     max_connections  3000;
-    daemon               off;
+    srs_log_tank        console;
     http_api {
         enabled         on;
         listen          1985;
@@ -18,6 +19,7 @@ data:
     http_server {
         enabled         on;
         listen          8080;
+        dir             ./objs/nginx/html;
     }
     vhost __defaultVhost__ {
         min_latency     on;
@@ -32,13 +34,16 @@ data:
         }
         cluster {
             origin_cluster  on;
-            coworkers       srs-origin-0.socs srs-origin-1.socs srs-origin-2.socs;
+            coworkers       srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin-2.socs;
         }
         http_remux {
             enabled     on;
         }
         hls {
             enabled         on;
+            hls_fragment    0.2;
+            hls_window      2;
+            hls_wait_keyframe       off;
         }
         http_hooks {
             enabled         off;
@@ -58,11 +63,12 @@ metadata:
 data:
   srs.conf: |
     listen              1935;
-    max_connections     10000;
     daemon              off;
+    max_connections     10000;
     grace_start_wait    700;
     grace_final_wait    800;
-    force_grace_quit    on;
+    force_grace_quit    off;
+    srs_log_tank        console;
     http_api {
         enabled         on;
         listen          1985;
@@ -70,6 +76,7 @@ data:
     http_server {
         enabled         on;
         listen          8080;
+        dir             ./objs/nginx/html;
     }
     vhost __defaultVhost__ {
         min_latency     on;
@@ -84,7 +91,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-0.socs srs-origin-1.socs srs-origin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
         }
         http_remux {
             enabled     on;
@@ -105,11 +112,12 @@ metadata:
 data:
   srs.conf: |
     listen              1935;
-    max_connections     10000;
     daemon              off;
+    max_connections     10000;
     grace_start_wait    700;
     grace_final_wait    800;
-    force_grace_quit    on;
+    force_grace_quit    off;
+    srs_log_tank        console;
     http_api {
         enabled         on;
         listen          1985;
@@ -117,6 +125,7 @@ data:
     http_server {
         enabled         on;
         listen          8080;
+        dir             ./objs/nginx/html;
     }
     vhost __defaultVhost__ {
         min_latency     on;
@@ -131,7 +140,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-0.socs srs-origin-1.socs srs-origin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
         }
         http_remux {
             enabled     on;
@@ -152,11 +161,12 @@ metadata:
 data:
   srs.conf: |
     listen              1935;
-    max_connections     10000;
     daemon              off;
+    max_connections     10000;
     grace_start_wait    700;
     grace_final_wait    800;
-    force_grace_quit    on;
+    force_grace_quit    off;
+    srs_log_tank        console;
     http_api {
         enabled         on;
         listen          1985;
@@ -164,6 +174,7 @@ data:
     http_server {
         enabled         on;
         listen          8080;
+        dir             ./objs/nginx/html;
     }
     vhost __defaultVhost__ {
         min_latency     on;
@@ -178,7 +189,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-0.socs srs-origin-1.socs srs-origin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
         }
         http_remux {
             enabled     on;
@@ -192,60 +203,6 @@ data:
         }
     }
 ---
-### easydarwin
-#--- 只支持rtsp tcp推流
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: easydarwin
-  labels:
-    app: easydarwin
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: easydarwin
-  serviceName: rtsp-svc
-  template:
-    metadata:
-      labels:
-        app: easydarwin
-    spec:
-      restartPolicy: Always
-      containers:
-        - name: easydarwin
-          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 554
-              name: rtsp
-              protocol: TCP
-            - containerPort: 10008
-              name: web
-              protocol: TCP
-          env:
-            - name: CLOSE_OLD
-              value: "0"
-            - name: ENABLE_MULTICAST
-              value:  "1"
-            - name:   EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -v error -f flv rtmp://srs-edge-service/{path} -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://srs-edge-service/{path}-aac -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://srs-edge-service/{path}-mp3 -hide_banner"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rtsp-svc
-spec:
-  selector:
-    app: easydarwin
-  ports:
-    - port: 554
-      protocol: TCP
-      targetPort: 554
-      name: rtsp
-      nodePort: 30554
-  type: NodePort
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -253,7 +210,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    statefulset.kubernetes.io/pod-name: easydarwin-0
+    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
     - name: easydarwin-web0
       port: 10008
@@ -268,7 +225,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    statefulset.kubernetes.io/pod-name: easydarwin-1
+    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-1
   ports:
     - name: easydarwin-web1
       port: 10008
@@ -283,7 +240,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    statefulset.kubernetes.io/pod-name: easydarwin-2
+    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-2
   ports:
     - name: easydarwin-web2
       port: 10008
@@ -310,19 +267,19 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: srs-origin
+  name: srs-origin-easydarwin
   labels:
-    app: srs-origin
+    app: srs-origin-easydarwin
 spec:
   serviceName: socs
   replicas: 3
   selector:
     matchLabels:
-      app: srs-origin
+      app: srs-origin-easydarwin
   template:
     metadata:
       labels:
-        app: srs-origin
+        app: srs-origin-easydarwin
     spec:
       restartPolicy: Always
       volumes:
@@ -333,6 +290,23 @@ spec:
           configMap:
             name: srs-origin-config
       containers:
+        - name: easydarwin
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 554
+              name: rtsp
+              protocol: TCP
+            - containerPort: 10008
+              name: web
+              protocol: TCP
+          env:
+            - name: CLOSE_OLD
+              value: "0"
+            - name: ENABLE_MULTICAST
+              value: "1"
+            - name: EASYDARWIN_PUSH_FFMPEG_CMD
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -v error -f flv rtmp://127.0.0.1/{path} -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://127.0.0.1/{path}-aac -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://127.0.0.1/{path}-mp3 -hide_banner"
         - name: srs
           image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
@@ -360,7 +334,7 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    app: srs-origin
+    app: srs-origin-easydarwin
   ports:
     - name: socs-1935-1935
       port: 1935
@@ -374,9 +348,14 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: srs-origin
-#    statefulset.kubernetes.io/pod-name: srs-origin-0
+    app: srs-origin-easydarwin
+#    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
+    - name: rtsp
+      port: 554
+      targetPort: 554
+      nodePort: 30554
+      protocol: TCP
     - name: srs-api-service-1985-1985
       port: 1985
       protocol: TCP
@@ -570,7 +549,7 @@ spec:
   type: NodePort
   selector:
     app: srs-aac-edge
-  #    statefulset.kubernetes.io/pod-name: srs-origin-0
+  #    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
     - name: srs-api-service-1985-1985
       port: 1985
@@ -650,7 +629,7 @@ spec:
   type: NodePort
   selector:
     app: srs-mp3-edge
-  #    statefulset.kubernetes.io/pod-name: srs-origin-0
+  #    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
     - name: srs-api-service-1985-1985
       port: 1985
