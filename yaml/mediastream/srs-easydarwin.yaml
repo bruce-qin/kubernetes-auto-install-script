@@ -91,7 +91,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin-2.socs;
         }
         http_remux {
             enabled     on;
@@ -140,7 +140,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin-2.socs;
         }
         http_remux {
             enabled     on;
@@ -189,7 +189,7 @@ data:
         }
         cluster {
             mode            remote;
-            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin2.socs;
+            origin          srs-origin-easydarwin-0.socs srs-origin-easydarwin-1.socs srs-origin-easydarwin-2.socs;
         }
         http_remux {
             enabled     on;
