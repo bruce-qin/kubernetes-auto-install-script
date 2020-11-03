@@ -14,7 +14,7 @@ data:
     srs_log_tank        console;
     http_api {
         enabled         on;
-        listen          1985;
+        listen          80;
     }
     http_server {
         enabled         on;
@@ -69,10 +69,6 @@ data:
     grace_final_wait    800;
     force_grace_quit    off;
     srs_log_tank        console;
-    http_api {
-        enabled         on;
-        listen          1985;
-    }
     http_server {
         enabled         on;
         listen          8080;
@@ -118,10 +114,6 @@ data:
     grace_final_wait    800;
     force_grace_quit    off;
     srs_log_tank        console;
-    http_api {
-        enabled         on;
-        listen          1985;
-    }
     http_server {
         enabled         on;
         listen          8080;
@@ -167,10 +159,6 @@ data:
     grace_final_wait    800;
     force_grace_quit    off;
     srs_log_tank        console;
-    http_api {
-        enabled         on;
-        listen          1985;
-    }
     http_server {
         enabled         on;
         listen          8080;
@@ -306,7 +294,7 @@ spec:
             - name: ENABLE_MULTICAST
               value: "1"
             - name: EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -v error -f flv rtmp://127.0.0.1/{path} -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn  -c:a aac -v error -f flv rtmp://127.0.0.1/{path}-aac -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn -c:a libmp3lame -v error -f flv rtmp://127.0.0.1/{path}-mp3 -hide_banner"
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -avoid_negative_ts make_zero -fflags +discardcorrupt  -c:v libx264 -c:a aac -v error -f flv rtmp://127.0.0.1/{path} -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn -avoid_negative_ts make_zero -fflags +discardcorrupt  -c:a aac -v error -f flv rtmp://127.0.0.1/{path}-aac -hide_banner; ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -vn -avoid_negative_ts make_zero -fflags +discardcorrupt  -c:a libmp3lame -v error -f flv rtmp://127.0.0.1/{path}-mp3 -hide_banner"
         - name: srs
           image: ossrs/srs:3
           imagePullPolicy: IfNotPresent
@@ -314,7 +302,7 @@ spec:
             - containerPort: 1935
               name: rtmp
               protocol: TCP
-            - containerPort: 1985
+            - containerPort: 80
               name: api
               protocol: TCP
             - containerPort: 8080
@@ -356,10 +344,6 @@ spec:
       targetPort: 554
       nodePort: 30554
       protocol: TCP
-    - name: srs-api-service-1985-1985
-      port: 1985
-      protocol: TCP
-      targetPort: 1985
     - name: srs-web-svc-8080
       port: 8080
       targetPort: 8080
@@ -397,9 +381,6 @@ spec:
             - containerPort: 1935
               protocol: TCP
               name: rtmp
-            - containerPort: 1985
-              protocol: TCP
-              name: api
             - containerPort: 8080
               protocol: TCP
               name: http
@@ -510,9 +491,6 @@ spec:
             - containerPort: 1935
               protocol: TCP
               name: rtmp
-            - containerPort: 1985
-              protocol: TCP
-              name: api
             - containerPort: 8080
               protocol: TCP
               name: http
@@ -551,10 +529,6 @@ spec:
     app: srs-aac-edge
   #    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
-    - name: srs-api-service-1985-1985
-      port: 1985
-      protocol: TCP
-      targetPort: 1985
     - name: srs-web-svc-8080
       port: 8080
       targetPort: 8080
@@ -590,9 +564,6 @@ spec:
             - containerPort: 1935
               protocol: TCP
               name: rtmp
-            - containerPort: 1985
-              protocol: TCP
-              name: api
             - containerPort: 8080
               protocol: TCP
               name: http
@@ -631,10 +602,6 @@ spec:
     app: srs-mp3-edge
   #    statefulset.kubernetes.io/pod-name: srs-origin-easydarwin-0
   ports:
-    - name: srs-api-service-1985-1985
-      port: 1985
-      protocol: TCP
-      targetPort: 1985
     - name: srs-web-svc-8080
       port: 8080
       targetPort: 8080
