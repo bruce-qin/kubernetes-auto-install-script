@@ -5,8 +5,6 @@ WORKDIR /app
 RUN    apk add --no-cache --update ffmpeg
 ADD ./haikuotiankong.mp3 /app
 
-ENV MULITCAST_ADDR=239.12.13.14:2345
-
 ENTRYPOINT ["ffmpeg", \
                     "-re", \
                     "-stream_loop", \
@@ -21,4 +19,4 @@ ENTRYPOINT ["ffmpeg", \
                     "-f", \
                     "rtp"]
 
-CMD ["rtp://$MULITCAST_ADDR"]
+CMD ["rtp://239.12.13.14:2345"]
