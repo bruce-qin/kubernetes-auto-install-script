@@ -19,4 +19,4 @@ ENTRYPOINT ["ffmpeg", \
                     "128k", \
                     "-f", \
                     "rtp", \
-                    "rtp://${MULITCAST_ADDR}"]
+                    "rtp://$MULITCAST_ADDR"]
