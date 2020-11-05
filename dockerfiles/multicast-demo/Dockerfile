@@ -15,6 +15,7 @@ ENTRYPOINT ["ffmpeg", \
                     "/app/haikuotiankong.mp3", \
                     "-c:a", \
                     "libmp3lame", \
+                    "-vn", \
                     "-b:a", \
                     "128k", \
                     "-f", \
