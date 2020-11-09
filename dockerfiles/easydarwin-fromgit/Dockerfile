@@ -69,19 +69,19 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo '  sed -i "s/^authorization_type=.*/authorization_type=$AUTHORIZATION_TYPE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [[ -n $REMOTE_HTTP_AUTHORIZATION_URL ]];then';\
-        echo '  sed -i "s/^remote_http_authorization_url=.*/remote_http_authorization_url=$REMOTE_HTTP_AUTHORIZATION_URL/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^remote_http_authorization_url=.*/remote_http_authorization_url=${REMOTE_HTTP_AUTHORIZATION_URL//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [[ -n $EASYDARWIN_REST_API_ON_PLAY ]];then';\
-        echo '  sed -i "s/^on_play=.*/on_play=$EASYDARWIN_REST_API_ON_PLAY/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^on_play=.*/on_play=${EASYDARWIN_REST_API_ON_PLAY//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [[ -n $EASYDARWIN_REST_API_ON_STOP ]];then';\
-        echo '  sed -i "s/^on_stop=.*/on_stop=$EASYDARWIN_REST_API_ON_STOP/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^on_stop=.*/on_stop=${EASYDARWIN_REST_API_ON_STOP//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [[ -n $EASYDARWIN_REST_API_ON_PUBLISH ]];then';\
-        echo '  sed -i "s/^on_publish=.*/on_publish=$EASYDARWIN_REST_API_ON_PUBLISH/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^on_publish=.*/on_publish=${EASYDARWIN_REST_API_ON_PUBLISH//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [[ -n $EASYDARWIN_REST_API_ON_TEARDOWN ]];then';\
-        echo '  sed -i "s/^on_teardown=.*/on_teardown=$EASYDARWIN_REST_API_ON_TEARDOWN/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo '  sed -i "s/^on_teardown=.*/on_teardown=${EASYDARWIN_REST_API_ON_TEARDOWN//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$CLOSE_OLD" == "1" ];then';\
         echo '  sed -i "s/^close_old=.*/close_old=$CLOSE_OLD/g" $EASYDARWIN_HOME/easydarwin.ini';\
