@@ -8,7 +8,7 @@ ENV DEFAULT_USERNAME admin
 ENV DEFAULT_PASSWORD admin
 ## 是否启用向服务器推流或者从服务器播放时验证用户名密码. [注意] 因为服务器端并不保存明文密码，所以推送或者播放时，客户端应该输入密码的md5后的值。
 ENV LOCAL_AUTHORIZATION_ENABLE 0
-##是否启用远程身份认证，适用于cluster
+## 是否启用远程身份认证，适用于cluster
 ENV REMOTE_HTTP_AUTHORIZATION_ENABLE 0
 ## 身份认证类型`Basic`or`Digest`
 ENV AUTHORIZATION_TYPE Digest
