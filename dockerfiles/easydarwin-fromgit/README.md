@@ -15,7 +15,16 @@ ENV AUTHORIZATION_TYPE Digest
 ## 远程身份认证地址，请求必须返回`0`表示成功，否则则失败
 > 请求类型 `POST application/json`:
 ```json
-{"authType":"Digest","username":"admin","password":"admin","realm":"rtsp(23435)","nonce":"8fd7c44874480bd6...","uri":"rtsp://192.168.1.76:554/live/123asd","response":"ca29ba3....","requestMethod":"SETUP"}
+{
+    "authType": "Digest",
+    "username": "admin",
+    "password": "admin",
+    "realm": "rtsp(23435)",
+    "nonce": "8fd7c44874480bd6...",
+    "uri": "rtsp://192.168.1.76:554/live/123asd",
+    "response": "ca29ba3....",
+    "requestMethod": "SETUP"
+}
 ```
 >为`Basic`时只有`username`和`password`\
 >为`Digest`时没有`passord`,认证算法匹配response==MD5(MD5(username:realm:password):nonce:MD5(method:uri))
