@@ -83,6 +83,21 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo 'if [[ -n $EASYDARWIN_REST_API_ON_TEARDOWN ]];then';\
         echo '  sed -i "s/^on_teardown=.*/on_teardown=${EASYDARWIN_REST_API_ON_TEARDOWN//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
+        echo 'if [[ -n $ENABLE_HTTP_AUDIO_STREAM ]];then';\
+        echo '  sed -i "s/^enable_http_audio_stream=.*/enable_http_audio_stream=$ENABLE_HTTP_AUDIO_STREAM/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $HTTP_AUDIO_STREAM_PORT ]];then';\
+        echo '  sed -i "s/^http_audio_stream_port=.*/http_audio_stream_port=$HTTP_AUDIO_STREAM_PORT/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $ENABLE_HTTP_VIDEO_STREAM ]];then';\
+        echo '  sed -i "s/^enable_http_video_stream=.*/enable_http_video_stream=$ENABLE_HTTP_VIDEO_STREAM/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $HTTP_VIDEO_STREAM_PORT ]];then';\
+        echo '  sed -i "s/^http_video_stream_port=.*/http_video_stream_port=$HTTP_VIDEO_STREAM_PORT/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n $NGINX_RTMP_HLS_DIR_MAP ]];then';\
+        echo '  sed -i "s/^nginx_rtmp_hls_dir_map=.*/nginx_rtmp_hls_dir_map=${NGINX_RTMP_HLS_DIR_MAP//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
         echo 'if [ "$CLOSE_OLD" == "1" ];then';\
         echo '  sed -i "s/^close_old=.*/close_old=$CLOSE_OLD/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
