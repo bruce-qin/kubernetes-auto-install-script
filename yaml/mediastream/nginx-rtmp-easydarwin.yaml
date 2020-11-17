@@ -1,0 +1,449 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-rtmp-flv-cfgmap
+data:
+  nginx.conf: |
+    #user  nobody;
+
+    worker_processes 8;
+
+    #error_log  logs/error.log;
+    #error_log  logs/error.log  notice;
+    #error_log  logs/error.log  info;
+
+    #pid        logs/nginx.pid;
+
+
+    events {
+        worker_connections 1024;
+    }
+
+
+    http {
+        include mime.types;
+        default_type application/octet-stream;
+        #文件限制大小
+        client_max_body_size 1024m;
+        proxy_buffer_size 128k;
+        proxy_buffering on;
+        proxy_buffers 4 64k;
+        proxy_busy_buffers_size 128k;
+        proxy_max_temp_file_size 1024m;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+        #                  '$status $body_bytes_sent "$http_referer" '
+        #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+        #access_log  logs/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        #keepalive_timeout  0;
+        keepalive_timeout   65;
+
+        #gzip  on;
+
+        server {
+            listen          80;
+            #server_name  localhost;
+
+            #charset koi8-r;
+
+            #access_log  logs/host.access.log  main;
+
+            location / {
+                root   html;
+                index  index.html index.htm;
+                #proxy_pass http://webmanager/;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+            }
+
+            #error_page  404              /404.html;
+
+            # redirect server error pages to the static page /50x.html
+            #
+            error_page   500 502 503 504  /50x.html;
+            location = /50x.html {
+                root   html;
+            }
+
+            # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+            #
+            #location ~ \.php$ {
+            #    proxy_pass   http://127.0.0.1;
+            #}
+
+            # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+            #
+            #location ~ \.php$ {
+            #    root           html;
+            #    fastcgi_pass   127.0.0.1:9000;
+            #    fastcgi_index  index.php;
+            #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+            #    include        fastcgi_params;
+            #}
+
+            # deny access to .htaccess files, if Apache's document root
+            # concurs with nginx's one
+            #
+            #location ~ /\.ht {
+            #    deny  all;
+            #}
+            location /live {
+                flv_live on;
+                chunked_transfer_encoding on;
+                add_header 'Access-Control-Allow-Origin' '*';
+                add_header 'Access-Control-Allow-Credentials' 'true';
+            }
+            location ~* /(nvr|ipc|livemp3|ebm)/.+ {
+                types {
+                    application/vnd.apple.mpegurl m3u8;
+                    video/mp2t ts;
+                }
+                add_header 'Cache-Control' 'no-cache';
+                root /var/nginx/hls;
+            }
+            location /stat {
+                rtmp_stat all;
+                rtmp_stat_stylesheet stat.xsl;
+            }
+            location /stat.xsl {
+                alias /etc/nginx/stat.xsl;
+            }
+            location /control {
+                rtmp_control all;
+            }
+        }
+
+    }
+
+    rtmp_auto_push  on;
+    rtmp_auto_push_reconnect  1s;
+    rtmp_socket_dir  /tmp;
+
+    rtmp {
+        out_queue 4096;
+        out_cork  8;
+        max_streams 256;
+        timeout 15s;
+        drop_idle_publisher 15s;
+        log_size     1m;
+
+        server {
+            listen 1935 reuseport;
+            hls on;
+            hls_nested on;
+            application nvr {
+                live on;
+                hls_path /var/nginx/hls/nvr;
+                gop_cache on;
+            }
+            application ipc {
+                live on;
+                gop_cache on;
+                hls_path /var/nginx/hls/ipc;
+            }
+            application livemp3 {
+                live on;
+                hls_path /var/nginx/hls/livemp3;
+            }
+            application ebm {
+                live on;
+                hls_path /var/nginx/hls/ebm;
+            }
+            # 开播调用 application/x-www-form-urlencoded，call=play、addr - client IP address、clientid - nginx client id 、app - application name、flashVer - client flash version、swfUrl - client swf url、tcUrl - tcUrl、pageUrl - client page url、name - stream name
+            #on_play http://127.0.0.1/rtmp/processWebhook;
+            # 推流调用
+            #on_publish http://127.0.0.1/rtmp/processWebhook;
+            # 开播完成后调用
+            #on_play_done http://127.0.0.1/rtmp/processWebhook;
+            # 推流完成后调用
+            #on_publish_done http://127.0.0.1/rtmp/processWebhook;
+        }
+    }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-hls-pvc
+spec:
+  storageClassName: glusterfs
+  accessModes:
+    -   ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-rtmp
+  labels:
+    app: nginx-rtmp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: nginx-rtmp
+      labels:
+        app: nginx-rtmp
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+        #此处添加了node节点筛选器指定node labels 为master的节点 可以通过 `kubectl label nodes NODE_NAME nginx-rtmp=master` 指定
+        nginx-rtmp: master
+      containers:
+        - name: nginx-rtmp
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/nginx-http-flv-rtmp
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: hls-dir
+              readOnly: false
+              mountPath: /var/nginx/hls
+            - mountPath:  /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              name: nginx-conf
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: hls-dir
+          persistentVolumeClaim:
+            claimName: nginx-hls-pvc
+        - name: nginx-conf
+          configMap:
+            name: nginx-rtmp-flv-cfgmap
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+  selector:
+    matchLabels:
+      app: nginx-rtmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-rtmp-hls
+spec:
+  selector:
+    app: nginx-rtmp
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30080
+      protocol: TCP
+      targetPort: 80
+      name: http-hls-flv
+    - port: 1935
+      nodePort: 31935
+      targetPort: 1935
+      protocol: TCP
+      name: rtmp
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: easydarwin-rtpudp-frontend
+  labels:
+    app: easydarwin-rtpudp-frontend
+spec:
+  template:
+    metadata:
+      name: easydarwin-rtpudp-frontend
+      labels:
+        app: easydarwin-rtpudp-frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+        #此处添加了node节点筛选器指定node labels 为master的节点 可以通过 `kubectl label nodes NODE_NAME srs-rtsp=master` 指定
+        srs-rtsp: master
+      # 使其共用宿主机网络,方便rtsp udp推送
+      hostNetwork: true
+      volumes:
+        - name: nginx-hsl-dir
+          persistentVolumeClaim:
+            readOnly: true
+            claimName: nginx-hls-pvc
+      containers:
+        - name: easydarwin-rtpudp-frontend
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 554
+              protocol: TCP
+              name: rtsp
+            - containerPort: 10008
+              protocol: TCP
+              name: http
+            - containerPort: 8088
+              protocol: TCP
+              name: http-mp3
+            - containerPort: 8099
+              protocol: TCP
+              name: http-hls
+          env:
+            - name: EASYDARWIN_CMD_ERROR_REPEAT_TIME
+              value: "20"
+            - name: NGINX_RTMP_HLS_DIR_MAP
+              value: /var/nginx/hls
+            - name: ENABLE_HTTP_VIDEO_STREAM
+              value: "1"
+            - name: RTPSERVER_UDPORT_RANGE
+              value: 50000:55000
+            - name: CLOSE_OLD
+              value: "0"
+            - name: EASYDARWIN_PUSH_FFMPEG_CMD
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c copy -v error -fflags +sortdts+genpts -f rtsp -rtsp_transport tcp rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/{path} -hide_banner"
+            - name: EASYDARWIN_PUSH_FFMPEG_MAP_CMD_livemp3
+              value: ""
+            - name: EASYDARWIN_PUSH_FFMPEG_OTHER_CMD
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -fflags +sortdts+genpts -ar 44100 -v error -f flv  rtmp://nginx-rtmp-hls.default.svc.cluster.local/{path} -hide_banner"
+          volumeMounts:
+            - mountPath: /var/nginx/hls
+              name: nginx-hsl-dir
+              readOnly: true
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: easydarwin-rtpudp-frontend
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: easydarwin-rtsp-cluster
+  labels:
+    app: easydarwin-rtsp-cluster
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: easydarwin-rtsp-cluster
+      labels:
+        app: easydarwin-rtsp-cluster
+    spec:
+      volumes:
+        - name: nginx-hsl-dir
+          persistentVolumeClaim:
+            readOnly: true
+            claimName: nginx-hls-pvc
+      containers:
+        - name: easydarwin-rtsp-cluster
+          image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 554
+              protocol: TCP
+              name: rtsp
+            - containerPort: 10008
+              protocol: TCP
+              name: http
+            - containerPort: 8088
+              protocol: TCP
+              name: http-mp3
+            - containerPort: 8099
+              protocol: TCP
+              name: http-hls
+          env:
+#            - name: EASYDARWIN_REST_API_ON_TEARDOWN
+#              value: http://127.0.0.1/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_PUBLISH
+#              value: http://127.0.0.1/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_STOP
+#              value: http://127.0.0.1/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_PLAY
+#              value: http://127.0.0.1/rtsp/processWebhook
+            - name: NGINX_RTMP_HLS_DIR_MAP
+              value: /var/nginx/hls
+            - name: ENABLE_HTTP_VIDEO_STREAM
+              value: "1"
+            - name: CLOSE_OLD
+              value: "0"
+          volumeMounts:
+            - mountPath: /var/nginx/hls
+              name: nginx-hsl-dir
+              readOnly: true
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: easydarwin-rtsp-cluster
+  serviceName: rtsp-cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easydarwin-rtsp-cluster
+spec:
+  selector:
+    app: easydarwin-rtsp-cluster
+  ports:
+    - port: 554
+      targetPort: 554
+      protocol: TCP
+      name: rtsp
+      nodePort: 30554
+    - port: 8099
+      targetPort: 8099
+      protocol: TCP
+      name: http-hls
+      nodePort: 30099
+    - port: 8088
+      targetPort: 8088
+      name: http-mp3
+      nodePort: 30088
+      protocol: TCP
+    - port: 8188
+      targetPort: 8088
+      nodePort: 32180
+      name: http-mp32
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easydarwin-web0
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: easydarwin-rtsp-cluster-0
+  ports:
+    - name: easydarwin-web0
+      port: 10008
+      protocol: TCP
+      targetPort: 10008
+      nodePort: 30008
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easydarwin-web1
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: easydarwin-rtsp-cluster-1
+  ports:
+    - name: easydarwin-web1
+      port: 10008
+      protocol: TCP
+      targetPort: 10008
+      nodePort: 31008
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easydarwin-web2
+spec:
+  type: NodePort
+  selector:
+    statefulset.kubernetes.io/pod-name: easydarwin-rtsp-cluster-2
+  ports:
+    - name: easydarwin-web2
+      port: 10008
+      protocol: TCP
+      targetPort: 10008
+      nodePort: 32008

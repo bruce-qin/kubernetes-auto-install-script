@@ -23,7 +23,8 @@ ENV AUTHORIZATION_TYPE Digest
     "nonce": "8fd7c44874480bd6...",
     "uri": "rtsp://192.168.1.76:554/live/123asd",
     "response": "ca29ba3....",
-    "requestMethod": "SETUP"
+    "requestMethod": "SETUP",
+    "sessionType": "player | pusher"
 }
 ```
 >为`Basic`时只有`username`和`password`\
