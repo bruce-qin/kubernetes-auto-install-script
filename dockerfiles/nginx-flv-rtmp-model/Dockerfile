@@ -3,7 +3,7 @@
 # Separate build stage to keep build dependencies out of our final image
 ARG ALPINE_VERSION=alpine
 FROM ${ALPINE_VERSION}
-
+ENV LANG C.UTF-8
 # Software versions to build
 ARG NGINX_VERSION=nginx-1.18.0
 ARG NGINX_HTTP_FLV_MODEL_VERSION=1.2.8
@@ -75,6 +75,8 @@ RUN cd /build/nginx && \
 # Final image stage
 FROM ${ALPINE_VERSION}
 
+ENV LANG C.UTF-8
+
 RUN apk --no-cache add nginx-mod-http-image-filter \
                 libxslt \
                 libedit \
@@ -106,9 +108,9 @@ RUN set -e && mkdir -p /etc/nginx/logs/ /var/log/nginx /var/www /tmp/nginx/clien
                     echo '/usr/local/sbin/nginx -g "daemon off;"' ;\
                     }>/docker-endpoint && chmod +x /docker-endpoint
 # Set up exposed ports
-EXPOSE 1935
-EXPOSE 80
-EXPOSE 443
+EXPOSE 1935 \
+             80 \
+             443
 
 #挂载音视频媒体文件 hls:/media/hls dash:/media/dash
 VOLUME /media
