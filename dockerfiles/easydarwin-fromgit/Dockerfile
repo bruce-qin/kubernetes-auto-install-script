@@ -53,10 +53,10 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo 'if [ ! -f "/app/easydarwin_home" ];then';\
         echo 'EASYDARWIN_HOME=$(dirname $(find /app/easydarwin -name easydarwin.ini))';\
         echo 'sed -i "s/^ffmpeg_path=.*/ffmpeg_path=\/usr\/bin\/ffmpeg/g" $EASYDARWIN_HOME/easydarwin.ini';\
-        echo 'if [[ -n $DEFAULT_USERNAME ]];then';\
+        echo 'if [[ -n "$DEFAULT_USERNAME" ]];then';\
         echo '  sed -i "s/^default_username=.*/default_username=$DEFAULT_USERNAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $DEFAULT_PASSWORD ]];then';\
+        echo 'if [[ -n "$DEFAULT_PASSWORD" ]];then';\
         echo '  sed -i "s/^default_password=.*/default_password=$DEFAULT_PASSWORD/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$LOCAL_AUTHORIZATION_ENABLE" == "1" ];then';\
@@ -65,37 +65,37 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo 'if [ "$REMOTE_HTTP_AUTHORIZATION_ENABLE" == "1" ];then';\
         echo '  sed -i "s/^remote_http_authorization_enable=.*/remote_http_authorization_enable=$REMOTE_HTTP_AUTHORIZATION_ENABLE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $AUTHORIZATION_TYPE ]];then';\
+        echo 'if [[ -n "$AUTHORIZATION_TYPE" ]];then';\
         echo '  sed -i "s/^authorization_type=.*/authorization_type=$AUTHORIZATION_TYPE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $REMOTE_HTTP_AUTHORIZATION_URL ]];then';\
+        echo 'if [[ -n "$REMOTE_HTTP_AUTHORIZATION_URL" ]];then';\
         echo '  sed -i "s/^remote_http_authorization_url=.*/remote_http_authorization_url=${REMOTE_HTTP_AUTHORIZATION_URL//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $EASYDARWIN_REST_API_ON_PLAY ]];then';\
+        echo 'if [[ -n "$EASYDARWIN_REST_API_ON_PLAY" ]];then';\
         echo '  sed -i "s/^on_play=.*/on_play=${EASYDARWIN_REST_API_ON_PLAY//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $EASYDARWIN_REST_API_ON_STOP ]];then';\
+        echo 'if [[ -n "$EASYDARWIN_REST_API_ON_STOP" ]];then';\
         echo '  sed -i "s/^on_stop=.*/on_stop=${EASYDARWIN_REST_API_ON_STOP//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $EASYDARWIN_REST_API_ON_PUBLISH ]];then';\
+        echo 'if [[ -n "$EASYDARWIN_REST_API_ON_PUBLISH" ]];then';\
         echo '  sed -i "s/^on_publish=.*/on_publish=${EASYDARWIN_REST_API_ON_PUBLISH//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $EASYDARWIN_REST_API_ON_TEARDOWN ]];then';\
+        echo 'if [[ -n "$EASYDARWIN_REST_API_ON_TEARDOWN" ]];then';\
         echo '  sed -i "s/^on_teardown=.*/on_teardown=${EASYDARWIN_REST_API_ON_TEARDOWN//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $ENABLE_HTTP_AUDIO_STREAM ]];then';\
+        echo 'if [[ -n "$ENABLE_HTTP_AUDIO_STREAM" ]];then';\
         echo '  sed -i "s/^enable_http_audio_stream=.*/enable_http_audio_stream=$ENABLE_HTTP_AUDIO_STREAM/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $HTTP_AUDIO_STREAM_PORT ]];then';\
+        echo 'if [[ -n "$HTTP_AUDIO_STREAM_PORT" ]];then';\
         echo '  sed -i "s/^http_audio_stream_port=.*/http_audio_stream_port=$HTTP_AUDIO_STREAM_PORT/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $ENABLE_HTTP_VIDEO_STREAM ]];then';\
+        echo 'if [[ -n "$ENABLE_HTTP_VIDEO_STREAM" ]];then';\
         echo '  sed -i "s/^enable_http_video_stream=.*/enable_http_video_stream=$ENABLE_HTTP_VIDEO_STREAM/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $HTTP_VIDEO_STREAM_PORT ]];then';\
+        echo 'if [[ -n "$HTTP_VIDEO_STREAM_PORT" ]];then';\
         echo '  sed -i "s/^http_video_stream_port=.*/http_video_stream_port=$HTTP_VIDEO_STREAM_PORT/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $NGINX_RTMP_HLS_DIR_MAP ]];then';\
+        echo 'if [[ -n "$NGINX_RTMP_HLS_DIR_MAP" ]];then';\
         echo '  sed -i "s/^nginx_rtmp_hls_dir_map=.*/nginx_rtmp_hls_dir_map=${NGINX_RTMP_HLS_DIR_MAP//\//\\\/}/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$CLOSE_OLD" == "1" ];then';\
@@ -104,16 +104,16 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo 'if [ "$KEEP_PLAYERS" == "1" ];then';\
         echo '  sed -i "s/^keep_players=.*/keep_players=$KEEP_PLAYERS/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $STREAM_NOTEXIST_WAIT_SECOND ]];then';\
+        echo 'if [[ -n "$STREAM_NOTEXIST_WAIT_SECOND" ]];then';\
         echo '  sed -i "s/^stream_notexist_wait_second=.*/stream_notexist_wait_second=$STREAM_NOTEXIST_WAIT_SECOND/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $RTPSERVER_UDPORT_RANGE ]];then';\
+        echo 'if [[ -n "$RTPSERVER_UDPORT_RANGE" ]];then';\
         echo '  sed -i "s/^rtpserver_udport_range=.*/rtpserver_udport_range=$RTPSERVER_UDPORT_RANGE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $ENABLE_MULTICAST ]];then';\
+        echo 'if [[ -n "$ENABLE_MULTICAST" ]];then';\
         echo '  sed -i "s/^enable_multicast=.*/enable_multicast=$ENABLE_MULTICAST/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
-        echo 'if [[ -n $EAYDARWIN_MULTICST_BIND_INF_NAME ]];then';\
+        echo 'if [[ -n "$EAYDARWIN_MULTICST_BIND_INF_NAME" ]];then';\
         echo '  sed -i "s/^multicast_svc_bind_inf=.*/multicast_svc_bind_inf=$EAYDARWIN_MULTICST_BIND_INF_NAME/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$SAVE_STREAM_TO_LOCAL" == "1" ];then';\
