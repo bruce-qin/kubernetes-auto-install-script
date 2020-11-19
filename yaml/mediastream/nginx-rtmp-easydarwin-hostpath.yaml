@@ -157,28 +157,16 @@ data:
                 live on;
                 hls_path /var/nginx/hls/ebm;
             }
-            # 开播调用 application/x-www-form-urlencoded，call=play、addr - client IP address、clientid - nginx client id 、app - application name、flashVer - client flash version、swfUrl - client swf url、tcUrl - tcUrl、pageUrl - client page url、name - stream name
-            #on_play http://127.0.0.1/rtmp/processWebhook;
+            # 开播调用，call=play、addr - client IP address、clientid - nginx client id 、app - application name、flashVer - client flash version、swfUrl - client swf url、tcUrl - tcUrl、pageUrl - client page url、name - stream name
+            on_play http://192.168.101.220:8505/rtmp/processWebhook;
             # 推流调用
-            #on_publish http://127.0.0.1/rtmp/processWebhook;
+            on_publish http://192.168.101.220:8505/rtmp/processWebhook;
             # 开播完成后调用
-            #on_play_done http://127.0.0.1/rtmp/processWebhook;
+            on_play_done http://192.168.101.220:8505/rtmp/processWebhook;
             # 推流完成后调用
-            #on_publish_done http://127.0.0.1/rtmp/processWebhook;
+            on_publish_done http://192.168.101.220:8505/rtmp/processWebhook;
         }
     }
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: nginx-hls-pvc
-spec:
-  storageClassName: glusterfs
-  accessModes:
-    -   ReadWriteMany
-  resources:
-    requests:
-      storage: 20Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -213,8 +201,8 @@ spec:
       restartPolicy: Always
       volumes:
         - name: hls-dir
-          persistentVolumeClaim:
-            claimName: nginx-hls-pvc
+          hostPath:
+            path: /home/nginx/hls
         - name: nginx-conf
           configMap:
             name: nginx-rtmp-flv-cfgmap
@@ -267,9 +255,8 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       volumes:
         - name: nginx-hsl-dir
-          persistentVolumeClaim:
-            readOnly: true
-            claimName: nginx-hls-pvc
+          hostPath:
+            path: /home/nginx/hls
       containers:
         - name: easydarwin-rtpudp-frontend
           image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
@@ -331,9 +318,8 @@ spec:
     spec:
       volumes:
         - name: nginx-hsl-dir
-          persistentVolumeClaim:
-            readOnly: true
-            claimName: nginx-hls-pvc
+          hostPath:
+            path: /home/nginx/hls
       containers:
         - name: easydarwin-rtsp-cluster
           image: registry.cn-hangzhou.aliyuncs.com/justtin/easydarwin
@@ -352,14 +338,14 @@ spec:
               protocol: TCP
               name: http-hls
           env:
-#            - name: EASYDARWIN_REST_API_ON_TEARDOWN
-#              value: http://127.0.0.1/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_PUBLISH
-#              value: http://127.0.0.1/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_STOP
-#              value: http://127.0.0.1/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_PLAY
-#              value: http://127.0.0.1/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_TEARDOWN
+              value: http://192.168.101.220:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_PUBLISH
+              value: http://192.168.101.220:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_STOP
+              value: http://192.168.101.220:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_PLAY
+              value: http://192.168.101.220:8505/rtsp/processWebhook
             - name: NGINX_RTMP_HLS_DIR_MAP
               value: /var/nginx/hls
             - name: ENABLE_HTTP_VIDEO_STREAM
