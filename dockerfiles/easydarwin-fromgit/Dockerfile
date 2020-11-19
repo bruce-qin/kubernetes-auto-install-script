@@ -104,6 +104,9 @@ RUN apk add --no-cache tzdata ffmpeg ;\
         echo 'if [ "$KEEP_PLAYERS" == "1" ];then';\
         echo '  sed -i "s/^keep_players=.*/keep_players=$KEEP_PLAYERS/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
+        echo 'if [[ -n $STREAM_NOTEXIST_WAIT_SECOND ]];then';\
+        echo '  sed -i "s/^stream_notexist_wait_second=.*/stream_notexist_wait_second=$STREAM_NOTEXIST_WAIT_SECOND/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
         echo 'if [[ -n $RTPSERVER_UDPORT_RANGE ]];then';\
         echo '  sed -i "s/^rtpserver_udport_range=.*/rtpserver_udport_range=$RTPSERVER_UDPORT_RANGE/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
