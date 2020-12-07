@@ -2,9 +2,9 @@
 
 FROM alpine AS build
 
-ARG NACOS_VERSION=1.3.2
-ARG SPRING_BOOT_VERSION=2.3.4
-ARG MYSQL_VERSION=8.0.21
+ARG NACOS_VERSION=1.4.0
+ARG SPRING_BOOT_VERSION=2.4.0
+ARG MYSQL_VERSION=8.0.22
 ARG MINA_IO_VERSION=2.1.4
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
 ARG MYSQL_NEW_CLASS=com.mysql.cj.jdbc.MysqlDataSource
@@ -26,14 +26,14 @@ RUN cd nacos-${NACOS_VERSION}; \
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
 
 #阶段二 拉取nacos官方镜像
-FROM nacos/nacos-server:1.3.2 AS standard
+FROM nacos/nacos-server:1.4.0 AS standard
 
 #RUN sed -i '$c $JAVA ${JAVA_OPT}' bin/docker-startup.sh
 
 #阶段三 重新发布
 FROM  justtin/alpine-openjdk8-jre AS release
 
-ARG NACOS_VERSION=1.3.2
+ARG NACOS_VERSION=1.4.0
 
 
 ENV MODE="cluster" \

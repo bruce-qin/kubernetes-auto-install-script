@@ -73,17 +73,14 @@ RUN cd /build/nginx && \
     cp /build/nginx-http-flv-module/stat.xsl /build/nginx/conf/
 
 # Final image stage
-FROM ${ALPINE_VERSION}
-
-ENV LANG C.UTF-8
+FROM justtin/alpine-ffmpeg
 
 RUN apk --no-cache add nginx-mod-http-image-filter \
                 libxslt \
                 libedit \
                 perl \
                 geoip \
-                gd \
-                ffmpeg
+                gd
 
 # Set up group and user
 #RUN set +e && addgroup -S nginx && \
@@ -103,11 +100,7 @@ RUN set -e && mkdir -p /etc/nginx/logs/ /var/log/nginx /var/www /tmp/nginx/clien
     ln -sf /dev/stdout /etc/nginx/logs/access.log && \
     ln -sf /dev/stderr /etc/nginx/logs/error.log ;\
     chmod 444 /etc/nginx/nginx.conf && mkdir -p /media/{hls,dash} ;\
-    chmod +x /usr/local/sbin/nginx && \
-                    {\
-                    echo '#!/bin/sh' ;\
-                    echo '/usr/local/sbin/nginx -g "daemon off;"' ;\
-                    }>/docker-endpoint && chmod +x /docker-endpoint
+    chmod +x /usr/local/sbin/nginx
 # Set up exposed ports
 EXPOSE 1935 \
              80 \
@@ -117,4 +110,4 @@ EXPOSE 1935 \
 VOLUME /media
 #自定义nginx配置
 VOLUME /etc/nginx/
-ENTRYPOINT [ "/docker-endpoint" ]
+CMD ["nginx", "-g", "daemon off;"]

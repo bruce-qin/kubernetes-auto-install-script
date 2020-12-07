@@ -16,8 +16,7 @@ RUN apk add --no-cache git \
         cp -r easydarwin easydarwin.ini  www ${OUT_PUT_DIR}
 
 ##二阶段 发布镜像
-FROM alpine
-ENV LANG C.UTF-8
+FROM justtin/alpine-ffmpeg
 WORKDIR /app
 #install easydarwin
 ENV \
@@ -44,11 +43,7 @@ ENV \
     #启用组播集群时绑定网卡
     EAYDARWIN_MULTICST_BIND_INF_NAME=''
 COPY --from=0 /tmp/build/easydarwin /app/easydarwin
-RUN apk add --no-cache tzdata ffmpeg ;\
-        cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
-        rm -rf /usr/share/zoneinfo/ ;\
-        echo "Asia/Shanghai" > /etc/timezone ;\
-        {\
+RUN {\
         echo '#!/bin/sh';\
         echo 'if [ ! -f "/app/easydarwin_home" ];then';\
         echo 'EASYDARWIN_HOME=$(dirname $(find /app/easydarwin -name easydarwin.ini))';\
