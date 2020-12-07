@@ -58,7 +58,6 @@ data:
             location / {
                 root   html;
                 index  index.html index.htm;
-                #proxy_pass http://webmanager/;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection "Upgrade";
@@ -157,14 +156,34 @@ data:
                 live on;
                 hls_path /var/nginx/hls/ebm;
             }
+
+            # 推流时执行
+            # 作用域：rtmp, server, application
+            # exec_push ffmpeg -i rtmp://localhost/$app/$name -c copy  -v error -fflags +sortdts+genpts -f rtsp -rtsp_transport tcp rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/$app/$name -hide_banner
+
+            # 拉流时执行，只是在第一个客户端连接时调用，最后一个客户端调用是kill掉执行进程
+            # 作用域：rtmp, server, application
+            # exec_pull ffmpeg -rtsp_transport tcp -i rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/$app/$name -c copy  -v error -fflags +sortdts+genpts -f flv rtmp://127.0.0.1/$app/$name -hide_banner
+
+            # 启动nginx时就执行，
+            # 作用域：rtmp, server, application
+            # exec_static ffmpeg -rtsp_transport tcp -i rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/live/static-stream -c copy  -v error -fflags +sortdts+genpts -f flv rtmp://127.0.0.1/$app/$name -hide_banner
+
             # 开播调用，call=play、addr - client IP address、clientid - nginx client id 、app - application name、flashVer - client flash version、swfUrl - client swf url、tcUrl - tcUrl、pageUrl - client page url、name - stream name
-            on_play http://192.168.101.220:8505/rtmp/processWebhook;
+            # 作用域：rtmp, server, application
+            # on_play http://192.168.101.220:8505/rtmp/processWebhook;
+
             # 推流调用
-            on_publish http://192.168.101.220:8505/rtmp/processWebhook;
+            # 作用域：rtmp, server, application
+            # on_publish http://192.168.101.220:8505/rtmp/processWebhook;
+
             # 开播完成后调用
-            on_play_done http://192.168.101.220:8505/rtmp/processWebhook;
+            # 作用域：rtmp, server, application
+            # on_play_done http://192.168.101.220:8505/rtmp/processWebhook;
+
             # 推流完成后调用
-            on_publish_done http://192.168.101.220:8505/rtmp/processWebhook;
+            # 作用域：rtmp, server, application
+            # on_publish_done http://192.168.101.220:8505/rtmp/processWebhook;
         }
     }
 ---
@@ -275,6 +294,8 @@ spec:
               protocol: TCP
               name: http-hls
           env:
+            - name: ENABLE_HTTP_AUDIO_STREAM
+              value: "0"
 #            - name: EAYDARWIN_MULTICST_BIND_INF_NAME
 #              value: em1
             - name: EASYDARWIN_CMD_ERROR_REPEAT_TIME
@@ -282,15 +303,15 @@ spec:
             - name: NGINX_RTMP_HLS_DIR_MAP
               value: /var/nginx/hls
             - name: ENABLE_HTTP_VIDEO_STREAM
-              value: "1"
+              value: "0"
             - name: RTPSERVER_UDPORT_RANGE
               value: 50000:55000
             - name: CLOSE_OLD
               value: "0"
             - name: EASYDARWIN_PUSH_FFMPEG_CMD
               value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c copy -v error -fflags +sortdts+genpts -f rtsp -rtsp_transport tcp rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/{path} -hide_banner"
-            - name: EASYDARWIN_PUSH_FFMPEG_MAP_CMD_livemp3
-              value: ""
+#            - name: EASYDARWIN_PUSH_FFMPEG_MAP_CMD_livemp3
+#              value: ""
             - name: EASYDARWIN_PUSH_FFMPEG_OTHER_CMD
               value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -fflags +sortdts+genpts -ar 44100 -v error -f flv  rtmp://nginx-rtmp-hls.default.svc.cluster.local/{path} -hide_banner"
           volumeMounts:
@@ -309,7 +330,7 @@ metadata:
   labels:
     app: easydarwin-rtsp-cluster
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       name: easydarwin-rtsp-cluster
@@ -338,14 +359,14 @@ spec:
               protocol: TCP
               name: http-hls
           env:
-            - name: EASYDARWIN_REST_API_ON_TEARDOWN
-              value: http://192.168.101.220:8505/rtsp/processWebhook
-            - name: EASYDARWIN_REST_API_ON_PUBLISH
-              value: http://192.168.101.220:8505/rtsp/processWebhook
-            - name: EASYDARWIN_REST_API_ON_STOP
-              value: http://192.168.101.220:8505/rtsp/processWebhook
-            - name: EASYDARWIN_REST_API_ON_PLAY
-              value: http://192.168.101.220:8505/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_TEARDOWN
+#              value: http://192.168.101.220:8505/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_PUBLISH
+#              value: http://192.168.101.220:8505/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_STOP
+#              value: http://192.168.101.220:8505/rtsp/processWebhook
+#            - name: EASYDARWIN_REST_API_ON_PLAY
+#              value: http://192.168.101.220:8505/rtsp/processWebhook
             - name: NGINX_RTMP_HLS_DIR_MAP
               value: /var/nginx/hls
             - name: ENABLE_HTTP_VIDEO_STREAM

@@ -82,7 +82,8 @@ RUN apk --no-cache add nginx-mod-http-image-filter \
                 libedit \
                 perl \
                 geoip \
-                gd
+                gd \
+                ffmpeg
 
 # Set up group and user
 #RUN set +e && addgroup -S nginx && \
