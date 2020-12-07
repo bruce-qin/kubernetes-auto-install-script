@@ -1,5 +1,2 @@
-FROM registry.cn-hangzhou.aliyuncs.com/justtin/openjdk-jre11-alpine
-#install ffmpeg
-RUN      apk add --no-cache ffmpeg
-
+FROM justtin/jre11-ffmpeg
 ENTRYPOINT  ["sh"]
