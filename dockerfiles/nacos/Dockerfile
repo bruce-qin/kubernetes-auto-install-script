@@ -62,7 +62,7 @@ COPY --from=standard $BASE_DIR/init.d/ init.d/
 COPY --from=standard $BASE_DIR/logs/ logs/
 COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
-RUN  apk add --no-cache dos2unix \
+RUN  apk add --no-cache bash dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
 	&& chmod +x bin/docker-startup.sh \
 	&& apk del dos2unix \
