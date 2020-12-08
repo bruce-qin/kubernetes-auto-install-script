@@ -66,6 +66,7 @@ RUN  apk add --no-cache bash dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
 	&& chmod +x bin/docker-startup.sh \
     && mkdir -p $BASE_DIR/config \
+    && mkdir -p /config \
 	&& apk del dos2unix \
 	&& touch logs/start.out \
 	&& ln -sf /dev/stdout logs/start.out \
