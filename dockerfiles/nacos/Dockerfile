@@ -28,7 +28,10 @@ RUN cd nacos-${NACOS_VERSION}; \
 #阶段二 拉取nacos官方镜像
 FROM nacos/nacos-server:1.4.0 AS standard
 
-#RUN sed -i '$c $JAVA ${JAVA_OPT}' bin/docker-startup.sh
+RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh); \
+        echo "fix sed line: ${SED_LINE}"; \
+        sed -i "${SED_LINE}s/file:/optional:file:/g" ./bin/docker-startup.sh ; \
+        sed -i "${SED_LINE}s/classpath:/optional:classpath:/g" ./bin/docker-startup.sh
 
 #阶段三 重新发布
 FROM  justtin/alpine-openjdk8-jre AS release
@@ -65,8 +68,6 @@ COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-$
 RUN  apk add --no-cache bash dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
 	&& chmod +x bin/docker-startup.sh \
-    && mkdir -p $BASE_DIR/config \
-    && mkdir -p /config \
 	&& apk del dos2unix \
 	&& touch logs/start.out \
 	&& ln -sf /dev/stdout logs/start.out \
