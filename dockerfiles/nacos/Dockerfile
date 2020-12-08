@@ -65,11 +65,11 @@ COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-$
 RUN  apk add --no-cache bash dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
 	&& chmod +x bin/docker-startup.sh \
+    && mkdir -p $BASE_DIR/config \
 	&& apk del dos2unix \
-    && mkdir -p $BASE_DIR/config; \
-	touch logs/start.out; \
-	ln -sf /dev/stdout logs/start.out; \
-	ln -sf /dev/stderr logs/start.out
+	&& touch logs/start.out \
+	&& ln -sf /dev/stdout logs/start.out \
+	      ln -sf /dev/stderr logs/start.out
 
 EXPOSE 8848
 ENTRYPOINT ["bash", "bin/docker-startup.sh"]
