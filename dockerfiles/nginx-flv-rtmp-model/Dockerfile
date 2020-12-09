@@ -111,4 +111,4 @@ VOLUME /media
 #自定义nginx配置
 VOLUME /etc/nginx/
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
-CMD [""]
+CMD []
