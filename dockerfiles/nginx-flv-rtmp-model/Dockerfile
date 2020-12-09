@@ -110,4 +110,5 @@ EXPOSE 1935 \
 VOLUME /media
 #自定义nginx配置
 VOLUME /etc/nginx/
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD [""]
