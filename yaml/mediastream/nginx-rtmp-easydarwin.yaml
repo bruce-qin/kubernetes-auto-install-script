@@ -301,11 +301,11 @@ spec:
             - name: CLOSE_OLD
               value: "0"
             - name: EASYDARWIN_PUSH_FFMPEG_CMD
-              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c copy -v error -fflags +sortdts+genpts -f rtsp -rtsp_transport tcp rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/{path} -hide_banner"
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c copy -v error -fflags +sortdts+genpts -f rtsp -muxdelay 0.1 -rtsp_transport tcp rtsp://easydarwin-rtsp-cluster.default.svc.cluster.local/{path} -hide_banner"
             - name: EASYDARWIN_PUSH_FFMPEG_MAP_CMD_livemp3
               value: ""
             - name: EASYDARWIN_PUSH_FFMPEG_OTHER_CMD
-              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -fflags +sortdts+genpts -ar 44100 -v error -f flv  rtmp://nginx-rtmp-hls.default.svc.cluster.local/{path} -hide_banner"
+              value: "ffmpeg -re -rtsp_transport tcp -i rtsp://127.0.0.1/{path} -c:v libx264 -c:a aac -fflags +sortdts+genpts -ar 44100 -v error -f flv  -muxdelay 0.1 rtmp://nginx-rtmp-hls.default.svc.cluster.local/{path} -hide_banner"
           volumeMounts:
             - mountPath: /var/nginx/hls
               name: nginx-hsl-dir
