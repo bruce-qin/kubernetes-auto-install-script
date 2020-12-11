@@ -8,8 +8,8 @@ ARG GCC_LIBS_VERSION=10.2.0-4
 ARG ZLIB_VERSION=1.2.11-4
 
 ARG GRAGONWELL_BASE_URL=https://github.com/alibaba/dragonwell11/releases/download
-ARG DRAGONWELL_VERSION=11.0.8.3
-ARG JAVA_BRANCH=11.0.8
+ARG DRAGONWELL_VERSION=11.0.9.4
+ARG JAVA_BRANCH=11.0.9
 ARG JH=/opt/java
 
 ENV JAVA_HOME=$JH  \
@@ -72,7 +72,7 @@ RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd wget\
 #====================
 RUN apk add --no-cache wget \
     && mkdir -p $JH \
-    && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga/OpenJDK11U-jdk_x64_linux_dragonwell_dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga.tar.gz" | tar -zxC /tmp -f - \
+    && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga/OpenJDK11U-jdk_x64_linux_dragonwell_dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}_0.tar.gz" | tar -zxC /tmp -f - \
     && mv /tmp/$(ls /tmp)/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
     && apk del wget\
