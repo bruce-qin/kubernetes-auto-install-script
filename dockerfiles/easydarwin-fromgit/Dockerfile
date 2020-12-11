@@ -1,4 +1,4 @@
-FROM golang:alpine AS baseBuild
+FROM golang:1.14-alpine AS baseBuild
 ARG OUT_PUT_DIR=/tmp/build/easydarwin
 WORKDIR /app
 RUN apk add --no-cache git \
