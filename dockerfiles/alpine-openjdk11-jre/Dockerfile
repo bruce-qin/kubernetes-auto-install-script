@@ -72,7 +72,6 @@ RUN apk add --no-cache --virtual=build-dependencies binutils xz zstd wget\
 #====================
 RUN apk add --no-cache wget \
     && mkdir -p $JH \
-    https://github.com/alibaba/dragonwell11/releases/download/dragonwell-11.0.9.4_jdk-11.0.9-ga/OpenJDK11U-jdk_x64_linux_dragonwell_dragonwell-11.0.9.4_11.0.9_0.tar.gz
     && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_jdk-${JAVA_BRANCH}-ga/OpenJDK11U-jdk_x64_linux_dragonwell_dragonwell-${DRAGONWELL_VERSION}_${JAVA_BRANCH}_0.tar.gz" | tar -zxC /tmp -f - \
     && mv /tmp/$(ls /tmp)/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
