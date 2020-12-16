@@ -4,8 +4,8 @@ ARG GLIBC_BASE_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/downloa
 ARG GLIBC_PACKAGE_VERSION=2.32-r0
 
 ARG GRAGONWELL_BASE_URL=https://github.com/alibaba/dragonwell8/releases/download
-ARG DRAGONWELL_VERSION=8.5.4
-ARG JAVA_BRANCH=jdk8u272
+ARG DRAGONWELL_VERSION=8.5.5
+ARG JAVA_BRANCH=jdk8u275
 ARG JH=/opt/java
 
 ENV JAVA_HOME=$JH  \
