@@ -41,7 +41,11 @@ ENV \
     #推流时执行ffmpeg命令错误重试次数
     EASYDARWIN_CMD_ERROR_REPEAT_TIME=5 \
     #启用组播集群时绑定网卡
-    EAYDARWIN_MULTICST_BIND_INF_NAME=''
+    EAYDARWIN_MULTICST_BIND_INF_NAME=''\
+    #tcp读超时（毫秒）
+    READ_TIMEOUT=60000\
+    #tcp 写超时（毫秒）
+    WRITE_TIMEOUT=10000
 COPY --from=0 /tmp/build/easydarwin /app/easydarwin
 RUN {\
         echo '#!/bin/sh';\
@@ -53,6 +57,12 @@ RUN {\
         echo 'fi';\
         echo 'if [[ -n "$DEFAULT_PASSWORD" ]];then';\
         echo '  sed -i "s/^default_password=.*/default_password=$DEFAULT_PASSWORD/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n "$READ_TIMEOUT" ]];then';\
+        echo '  sed -i "s/^read_timeout=.*/read_timeout=$READ_TIMEOUT/g" $EASYDARWIN_HOME/easydarwin.ini';\
+        echo 'fi';\
+        echo 'if [[ -n "$WRITE_TIMEOUT" ]];then';\
+        echo '  sed -i "s/^write_timeout=.*/write_timeout=$WRITE_TIMEOUT/g" $EASYDARWIN_HOME/easydarwin.ini';\
         echo 'fi';\
         echo 'if [ "$LOCAL_AUTHORIZATION_ENABLE" == "1" ];then';\
         echo '  sed -i "s/^local_authorization_enable=.*/local_authorization_enable=$LOCAL_AUTHORIZATION_ENABLE/g" $EASYDARWIN_HOME/easydarwin.ini';\
