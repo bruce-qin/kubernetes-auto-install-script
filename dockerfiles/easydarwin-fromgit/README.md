@@ -75,3 +75,7 @@ ENV ENABLE_HTTP_VIDEO_STREAM
 ENV HTTP_VIDEO_STREAM_PORT
 ## nginx rtmp-hls文件存储目录
 ENV NGINX_RTMP_HLS_DIR_MAP
+##tcp读超时（毫秒）`0`永不超时
+ENV READ_TIMEOUT
+##tcp 写超时（毫秒），`0`永不超时
+ENV WRITE_TIMEOUT

@@ -42,10 +42,10 @@ ENV \
     EASYDARWIN_CMD_ERROR_REPEAT_TIME=5 \
     #启用组播集群时绑定网卡
     EAYDARWIN_MULTICST_BIND_INF_NAME=''\
-    #tcp读超时（毫秒）
-    READ_TIMEOUT=60000\
-    #tcp 写超时（毫秒）
-    WRITE_TIMEOUT=10000
+    #tcp读超时（毫秒）0::永不超时
+    READ_TIMEOUT=40000\
+    #tcp 写超时（毫秒），0::永不超时
+    WRITE_TIMEOUT=20000
 COPY --from=0 /tmp/build/easydarwin /app/easydarwin
 RUN {\
         echo '#!/bin/sh';\
