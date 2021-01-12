@@ -127,11 +127,14 @@ spec:
       labels:
         k8s-app: metrics-server
     spec:
+      securityContext:
+        runAsUser: 0
       containers:
         - args:
-            - --cert-dir=/tmp
+            - --cert-dir=/var/run/k8s/cert
             - --secure-port=4443
-            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+            - --kubelet-insecure-tls
+            - --kubelet-preferred-address-types=InternalDNS,InternalIP
             - --kubelet-use-node-status-port
           image: bitnami/metrics-server:0.4.1
           imagePullPolicy: IfNotPresent
@@ -143,6 +146,9 @@ spec:
               scheme: HTTPS
             periodSeconds: 10
           name: metrics-server
+          volumeMounts:
+            - mountPath: /var/run/k8s/cert
+              name: cert-dir
           ports:
             - containerPort: 4443
               name: https
@@ -155,19 +161,14 @@ spec:
               scheme: HTTPS
             periodSeconds: 10
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp-dir
+            runAsUser: 0
+      volumes:
+        - emptyDir: {}
+          name: cert-dir
       nodeSelector:
         kubernetes.io/os: linux
       priorityClassName: system-cluster-critical
       serviceAccountName: metrics-server
-      volumes:
-        - emptyDir: {}
-          name: tmp-dir
 ---
 apiVersion: apiregistration.k8s.io/v1
 kind: APIService

@@ -13,10 +13,14 @@ spec:
       labels:
         app: grafana
     spec:
+      securityContext:
+        runAsUser: 0
       containers:
         - name: grafana
           image: grafana/grafana
           imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
           resources:
             limits:
               cpu: 1000m
@@ -56,6 +60,7 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/grafana
               name: data
+              readOnly: false
       volumes:
         - name: data
           hostPath:

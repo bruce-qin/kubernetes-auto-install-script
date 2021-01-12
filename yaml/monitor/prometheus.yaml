@@ -355,10 +355,14 @@ spec:
         app: promotheus
     spec:
       serviceAccountName: prometheus
+      securityContext:
+        runAsUser: 0
       containers:
         - name: promotheus
           image: prom/prometheus
           imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
           command:
             - /bin/prometheus
           args:
