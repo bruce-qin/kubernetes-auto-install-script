@@ -171,19 +171,19 @@ data:
 
             # 开播调用，call=play、addr - client IP address、clientid - nginx client id 、app - application name、flashVer - client flash version、swfUrl - client swf url、tcUrl - tcUrl、pageUrl - client page url、name - stream name
             # 作用域：rtmp, server, application
-            # on_play http://192.168.101.220:8505/rtmp/processWebhook;
+            on_play http://streaming-media-server.default.svc.cluster.local:8505/rtmp/processWebhook;
 
             # 推流调用
             # 作用域：rtmp, server, application
-            # on_publish http://192.168.101.220:8505/rtmp/processWebhook;
+            on_publish http://streaming-media-server.default.svc.cluster.local:8505/rtmp/processWebhook;
 
             # 开播完成后调用
             # 作用域：rtmp, server, application
-            # on_play_done http://192.168.101.220:8505/rtmp/processWebhook;
+            on_play_done http://streaming-media-server.default.svc.cluster.local:8505/rtmp/processWebhook;
 
             # 推流完成后调用
             # 作用域：rtmp, server, application
-            # on_publish_done http://192.168.101.220:8505/rtmp/processWebhook;
+            on_publish_done http://streaming-media-server.default.svc.cluster.local:8505/rtmp/processWebhook;
         }
     }
 ---
@@ -359,14 +359,14 @@ spec:
               protocol: TCP
               name: http-hls
           env:
-#            - name: EASYDARWIN_REST_API_ON_TEARDOWN
-#              value: http://192.168.101.220:8505/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_PUBLISH
-#              value: http://192.168.101.220:8505/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_STOP
-#              value: http://192.168.101.220:8505/rtsp/processWebhook
-#            - name: EASYDARWIN_REST_API_ON_PLAY
-#              value: http://192.168.101.220:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_TEARDOWN
+              value: http://streaming-media-server.default.svc.cluster.local:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_PUBLISH
+              value: http://streaming-media-server.default.svc.cluster.local:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_STOP
+              value: http://streaming-media-server.default.svc.cluster.local:8505/rtsp/processWebhook
+            - name: EASYDARWIN_REST_API_ON_PLAY
+              value: http://streaming-media-server.default.svc.cluster.local:8505/rtsp/processWebhook
             - name: NGINX_RTMP_HLS_DIR_MAP
               value: /var/nginx/hls
             - name: ENABLE_HTTP_VIDEO_STREAM

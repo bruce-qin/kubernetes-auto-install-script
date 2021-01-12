@@ -110,8 +110,8 @@ spec:
           volumeMounts:
             - mountPath: /alertmanager
               name: storage-volume
-            - mountPath: config-volume
-              name: /etc/config/
+            - mountPath: /etc/config/
+              name: config-volume
             - mountPath: /etc/alertmanager-templates
               name: templates-volume
             - mountPath: /etc/localtime
