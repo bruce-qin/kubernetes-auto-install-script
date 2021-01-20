@@ -25,7 +25,7 @@ RUN cd nacos-${NACOS_VERSION}; \
         sed -i "$(sed -n -e '/<mina-core.version>/=' pom.xml)s/<mina-core.version>.*/<mina-core.version>${MINA_IO_VERSION}<\/mina-core.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<tomcat-embed-jasper.version>/=' pom.xml)s/<tomcat-embed-jasper.version>.*/<tomcat-embed-jasper.version>${TOMCAT_EMBED_JASPER_VERSION}<\/tomcat-embed-jasper.version>/g" pom.xml;\
         sed -i "s/${MYSQL_OLD_CLASS}/${MYSQL_NEW_CLASS}/g" naming/src/main/java/com/alibaba/nacos/naming/healthcheck/MysqlHealthCheckProcessor.java;\
-        mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
+        mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U -DprotocExecutable=protoc
 
 #阶段二 拉取nacos官方镜像
 FROM nacos/nacos-server:1.4.1 AS standard
