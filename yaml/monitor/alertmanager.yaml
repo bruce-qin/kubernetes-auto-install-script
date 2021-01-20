@@ -40,24 +40,24 @@ data:
   alertmanager.yml: |
     global:
       resolve_timeout: 5m    ##多久没有收到告警，默认告警已恢复
-      smtp_smarthost: '*'    ##注意：这里的mail-server要加端口，要不然发不出去
-      smtp_from: '*'
-      smtp_auth_username: '*'
-      smtp_auth_password: '*'
+      smtp_smarthost: 'smtp.qq.com:587'    ##注意：这里的mail-server要加端口，要不然发不出去
+      smtp_from: '826619176@qq.com'
+      smtp_auth_username: '826619176@qq.com'
+      smtp_auth_password: 'qqpwd'  ##修改密码
 
     templates:
     - '/etc/alertmanager-templates/*.tmpl'   ##指定告警模板路径
     receivers:
     - name: default-receiver
       email_configs:
-      - to: 'wujqc@*'
+      - to: 'qinzhihua6@163.com'
         send_resolved: true        ##是否发送告警恢复邮件
-      wechat_configs:
-      - send_resolved: true        ##是否发送告警恢复微信
-        agent_id: '*'                ##应用页面上的配置
-        to_party: '1'                ##企业微信后台->通讯录->部门ID
-        corp_id: '*'                 ##应用页面上的配置
-        api_secret: '*'              ##应用页面上的配置
+      #wechat_configs:
+      #- send_resolved: true        ##是否发送告警恢复微信
+      #  agent_id: '*'                ##应用页面上的配置
+      #  to_party: '1'                ##企业微信后台->通讯录->部门ID
+      #  corp_id: '*'                 ##应用页面上的配置
+      #  api_secret: '*'              ##应用页面上的配置
 
     route:
       group_interval: 10s           ##第一次以后的告警分组要等到多久继续
@@ -91,7 +91,6 @@ spec:
           args:
             - --config.file=/etc/config/alertmanager.yml
             - --storage.path=/alertmanager
-            - --web.external-url=/
           ports:
             - containerPort: 9093
           readinessProbe:
@@ -110,14 +109,14 @@ spec:
           volumeMounts:
             - mountPath: /alertmanager
               name: storage-volume
-            - mountPath: config-volume
-              name: /etc/config/
+            - mountPath: /etc/config/
+              name: config-volume
             - mountPath: /etc/alertmanager-templates
               name: templates-volume
             - mountPath: /etc/localtime
               name: localtime
         - name: prometheus-alertmanager-configmap-reload #重新加载configmap配置
-          image: "registry.cn-hangzhou.aliyuncs.com/google_containers/configmap-reload"
+          image: "bitnami/configmap-reload"
           imagePullPolicy: "IfNotPresent"
           args:
             - --volume-dir=/etc/config
