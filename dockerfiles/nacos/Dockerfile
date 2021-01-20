@@ -2,9 +2,9 @@
 
 FROM alpine AS build
 
-ARG NACOS_VERSION=1.4.0
-ARG SPRING_BOOT_VERSION=2.4.1
-ARG MYSQL_VERSION=8.0.22
+ARG NACOS_VERSION=1.4.1
+ARG SPRING_BOOT_VERSION=2.4.2
+ARG MYSQL_VERSION=8.0.23
 ARG MINA_IO_VERSION=2.1.4
 ARG TOMCAT_EMBED_JASPER_VERSION=9.0.41
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
@@ -28,7 +28,7 @@ RUN cd nacos-${NACOS_VERSION}; \
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U
 
 #阶段二 拉取nacos官方镜像
-FROM nacos/nacos-server:1.4.0 AS standard
+FROM nacos/nacos-server:1.4.1 AS standard
 
 RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh); \
         echo "fix sed line: ${SED_LINE}"; \
@@ -38,7 +38,7 @@ RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh)
 #阶段三 重新发布
 FROM  justtin/alpine-openjdk8-jre AS release
 
-ARG NACOS_VERSION=1.4.0
+ARG NACOS_VERSION=1.4.1
 
 
 ENV MODE="cluster" \
