@@ -10,7 +10,7 @@ ARG TOMCAT_EMBED_JASPER_VERSION=9.0.41
 ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
 ARG MYSQL_NEW_CLASS=com.mysql.cj.jdbc.MysqlDataSource
 
-RUN apk add --no-cache wget openjdk8 maven tar
+RUN apk add --no-cache wget openjdk8 maven tar protoc
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 ENV CLASSPATH=.:$JAVA_HOME/lib
 ENV PATH=$PATH:$JAVA_HOME/bin
