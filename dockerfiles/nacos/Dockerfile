@@ -72,7 +72,7 @@ RUN  apk add --no-cache bash libstdc++ dos2unix \
 	&& apk del dos2unix \
 	&& touch logs/start.out \
 	&& ln -sf /dev/stdout logs/start.out \
-	      ln -sf /dev/stderr logs/start.out
+	&& ln -sf /dev/stderr logs/start.out
 
 EXPOSE 8848
 ENTRYPOINT ["bash", "bin/docker-startup.sh"]
