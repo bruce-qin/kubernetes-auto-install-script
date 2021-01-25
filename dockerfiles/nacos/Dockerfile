@@ -7,10 +7,9 @@ ARG SPRING_BOOT_VERSION=2.4.2
 ARG MYSQL_VERSION=8.0.23
 ARG MINA_IO_VERSION=2.1.4
 ARG TOMCAT_EMBED_JASPER_VERSION=9.0.41
-ARG MYSQL_OLD_CLASS=com.mysql.jdbc.jdbc2.optional.MysqlDataSource
-ARG MYSQL_NEW_CLASS=com.mysql.cj.jdbc.MysqlDataSource
 
-RUN apk add --no-cache wget openjdk8 maven tar protoc
+RUN apk add --no-cache wget openjdk8 maven tar protoc ;\
+    apk add --no-cache --update --repository http://nl.alpinelinux.org/alpine/edge/testing grpc-java
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 ENV CLASSPATH=.:$JAVA_HOME/lib
 ENV PATH=$PATH:$JAVA_HOME/bin
@@ -24,8 +23,8 @@ RUN cd nacos-${NACOS_VERSION}; \
         sed -i "$(sed -n -e '/<mysql-connector-java.version>/=' pom.xml)s/<mysql-connector-java.version>.*/<mysql-connector-java.version>${MYSQL_VERSION}<\/mysql-connector-java.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<mina-core.version>/=' pom.xml)s/<mina-core.version>.*/<mina-core.version>${MINA_IO_VERSION}<\/mina-core.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<tomcat-embed-jasper.version>/=' pom.xml)s/<tomcat-embed-jasper.version>.*/<tomcat-embed-jasper.version>${TOMCAT_EMBED_JASPER_VERSION}<\/tomcat-embed-jasper.version>/g" pom.xml;\
-        sed -i "s/${MYSQL_OLD_CLASS}/${MYSQL_NEW_CLASS}/g" naming/src/main/java/com/alibaba/nacos/naming/healthcheck/MysqlHealthCheckProcessor.java;\
-        mvn -Prelease-nacos -Dmaven.test.skip=true clean install -U -DprotocExecutable=protoc
+        sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
+        mvn -Prelease-nacos -Dmaven.test.skip=true clean package -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
 
 #阶段二 拉取nacos官方镜像
 FROM nacos/nacos-server:1.4.1 AS standard
