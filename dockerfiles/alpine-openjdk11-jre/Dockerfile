@@ -4,7 +4,7 @@ ARG GLIBC_BASE_URL=https://github.com/sgerrand/alpine-pkg-glibc/releases/downloa
 ARG GLIBC_PACKAGE_VERSION=2.32-r0
 
 ARG ARCHLINUX_BASE_URL=https://archive.archlinux.org/packages
-ARG GCC_LIBS_VERSION=10.2.0-4
+ARG GCC_LIBS_VERSION=10.2.0-6
 ARG ZLIB_VERSION=1.2.11-4
 
 ARG GRAGONWELL_BASE_URL=https://github.com/alibaba/dragonwell11/releases/download
