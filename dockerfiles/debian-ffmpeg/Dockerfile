@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 RUN apt update ;\
-    apt install ffmpeg ;\
+    apt install -y ffmpeg ;\
     rm -rf /var/lib/apt/lists/ ;\
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
     rm -rf /usr/share/zoneinfo/ ;\
