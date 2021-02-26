@@ -3,7 +3,6 @@ RUN apt update ;\
     apt install -y ffmpeg ;\
     rm -rf /var/lib/apt/lists/ ;\
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
-    rm -rf /usr/share/zoneinfo/ ;\
     echo "Asia/Shanghai" > /etc/timezone
 
 ENTRYPOINT ["ffmpeg"]
