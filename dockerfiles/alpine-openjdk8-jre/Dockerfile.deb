@@ -4,7 +4,7 @@ RUN apt update && apt install -y curl gnupg software-properties-common ;\
     curl https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - ;\
     add-apt-repository -y -u https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ ;\
     mkdir -p mkdir -p /usr/share/man/man1 ;\
-    apt install -y adoptopenjdk-8-hotspot-jre ;\
+    apt install -y adoptopenjdk-8-hotspot-jre procps ;\
     rm -rf /var/lib/apt/lists/ ;\
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
     echo "Asia/Shanghai" > /etc/timezone
