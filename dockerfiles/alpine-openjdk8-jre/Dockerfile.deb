@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 
-RUN apt update && apt install -y gnupg software-properties-common ;\
+RUN apt update && apt install -y curl gnupg software-properties-common ;\
     curl https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - ;\
     add-apt-repository -y -u https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ ;\
     apt install -y adoptopenjdk-8-hotspot-jre ;\
