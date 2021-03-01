@@ -1,0 +1,11 @@
+FROM debian:buster-slim
+
+RUN apt update && apt install -y gnupg software-properties-common ;\
+    curl https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - ;\
+    add-apt-repository -y -u https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ ;\
+    apt install -y adoptopenjdk-8-hotspot-jre ;\
+    rm -rf /var/lib/apt/lists/ ;\
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime ;\
+    echo "Asia/Shanghai" > /etc/timezone
+
+ENTRYPOINT  ["sh"]
