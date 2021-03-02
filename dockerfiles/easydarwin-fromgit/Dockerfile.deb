@@ -1,7 +1,7 @@
 FROM golang:buster AS baseBuild
 ARG OUT_PUT_DIR=/tmp/build/easydarwin
 WORKDIR /app
-RUN apk add --no-cache git \
+RUN apt update && apt install git \
                         gcc \
                         g++ \
                         nodejs \
