@@ -1,4 +1,5 @@
-FROM debian:buster-slim
+#FROM debian:buster-slim
+FROM debian:buster
 RUN apt update ;\
     apt install -y ffmpeg ;\
     rm -rf /var/lib/apt/lists/ ;\
