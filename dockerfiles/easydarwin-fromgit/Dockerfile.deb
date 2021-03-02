@@ -1,12 +1,7 @@
 FROM golang:buster AS baseBuild
 ARG OUT_PUT_DIR=/tmp/build/easydarwin
 WORKDIR /app
-RUN apt update && apt install git \
-                        gcc \
-                        g++ \
-                        nodejs \
-                        npm \
-                        dos2unix ; \
+RUN apt update && apt install -y git gcc g++ nodejs npm dos2unix;\
         git clone https://github.com/bruce-qin/EasyDarwin.git --depth=1 EasyDarwin;\
         cd EasyDarwin;\
         go get -u;\
