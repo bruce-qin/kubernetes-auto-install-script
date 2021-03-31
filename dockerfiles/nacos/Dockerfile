@@ -25,6 +25,7 @@ RUN cd nacos-${NACOS_VERSION}; \
         sed -i "$(sed -n -e '/<mina-core.version>/=' pom.xml)s/<mina-core.version>.*/<mina-core.version>${MINA_IO_VERSION}<\/mina-core.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<tomcat-embed-jasper.version>/=' pom.xml)s/<tomcat-embed-jasper.version>.*/<tomcat-embed-jasper.version>${TOMCAT_EMBED_JASPER_VERSION}<\/tomcat-embed-jasper.version>/g" pom.xml;\
         sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
+        sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
 
 #阶段二 拉取nacos官方镜像
