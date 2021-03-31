@@ -2,11 +2,11 @@
 
 FROM alpine AS build
 
-ARG NACOS_VERSION=1.4.1
-ARG SPRING_BOOT_VERSION=2.4.2
+ARG NACOS_VERSION=2.0.0-bugfix
+ARG SPRING_BOOT_VERSION=2.4.4
 ARG MYSQL_VERSION=8.0.23
 ARG MINA_IO_VERSION=2.1.4
-ARG TOMCAT_EMBED_JASPER_VERSION=9.0.41
+ARG TOMCAT_EMBED_JASPER_VERSION=9.0.44
 
 RUN apk add --no-cache wget openjdk8 maven tar protoc ;\
     apk add --no-cache --update --repository http://nl.alpinelinux.org/alpine/edge/testing grpc-java
@@ -14,8 +14,9 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 ENV CLASSPATH=.:$JAVA_HOME/lib
 ENV PATH=$PATH:$JAVA_HOME/bin
 
+
 WORKDIR /tmp
-RUN  wget https://github.com/alibaba/nacos/archive/${NACOS_VERSION}.tar.gz ;\
+RUN  wget https://github.com/alibaba/nacos/archive/refs/tags/${NACOS_VERSION}.tar.gz ;\
         tar -xzf ${NACOS_VERSION}.tar.gz
 
 RUN cd nacos-${NACOS_VERSION}; \
@@ -27,7 +28,7 @@ RUN cd nacos-${NACOS_VERSION}; \
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
 
 #阶段二 拉取nacos官方镜像
-FROM nacos/nacos-server:1.4.1 AS standard
+FROM nacos/nacos-server:2.0.0 AS standard
 
 RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh); \
         echo "fix sed line: ${SED_LINE}"; \
@@ -37,7 +38,7 @@ RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh)
 #阶段三 重新发布
 FROM  justtin/alpine-openjdk8-jre AS release
 
-ARG NACOS_VERSION=1.4.1
+ARG NACOS_VERSION=2.0.0
 
 
 ENV MODE="cluster" \
@@ -64,7 +65,8 @@ COPY --from=standard $BASE_DIR/bin/ bin/
 COPY --from=standard $BASE_DIR/conf/ conf/
 COPY --from=standard $BASE_DIR/init.d/ init.d/
 COPY --from=standard $BASE_DIR/logs/ logs/
-COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
+# 临时bugfix
+COPY --from=build /tmp/nacos-${NACOS_VERSION}-bugfix/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
 RUN  apk add --no-cache bash libstdc++ dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
