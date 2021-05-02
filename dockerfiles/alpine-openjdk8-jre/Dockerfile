@@ -5,7 +5,7 @@ ARG GLIBC_PACKAGE_VERSION=2.33-r0
 
 ARG GRAGONWELL_BASE_URL=https://github.com/alibaba/dragonwell8/releases/download
 ARG DRAGONWELL_VERSION=8.6.6
-ARG JAVA_BRANCH=jdk8u282-b1
+ARG JAVA_BRANCH=jdk8u282-ga
 ARG JH=/opt/java
 
 ENV JAVA_HOME=$JH  \
@@ -48,7 +48,7 @@ RUN apk add --no-cache --virtual=build-dependencies wget \
 #====================
 RUN apk add --no-cache --virtual=build-dependencies wget \
     && mkdir -p $JH \
-    && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_${JAVA_BRANCH}/Alibaba_Dragonwell_${DRAGONWELL_VERSION}_GA_Linux_x64.tar.gz" | tar -zxC /tmp -f - \
+    && wget -O - "${GRAGONWELL_BASE_URL}/dragonwell-${DRAGONWELL_VERSION}_${JAVA_BRANCH}/Alibaba_Dragonwell_${DRAGONWELL_VERSION}_x64_linux.tar.gz" | tar -zxC /tmp -f - \
     && mv /tmp/$(ls /tmp)/jre/* $JH \
     && ln -s ${JAVA_HOME}/bin/* /usr/bin/ \
     && apk del build-dependencies wget\
