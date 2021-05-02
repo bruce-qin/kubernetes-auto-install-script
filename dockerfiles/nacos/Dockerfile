@@ -2,11 +2,11 @@
 
 FROM alpine AS build
 
-ARG NACOS_VERSION=2.0.0-bugfix
-ARG SPRING_BOOT_VERSION=2.4.4
-ARG MYSQL_VERSION=8.0.23
+ARG NACOS_VERSION=2.0.1
+ARG SPRING_BOOT_VERSION=2.4.5
+ARG MYSQL_VERSION=8.0.24
 ARG MINA_IO_VERSION=2.1.4
-ARG TOMCAT_EMBED_JASPER_VERSION=9.0.44
+ARG TOMCAT_EMBED_JASPER_VERSION=9.0.45
 
 RUN apk add --no-cache wget openjdk8 maven tar protoc ;\
     apk add --no-cache --update --repository http://nl.alpinelinux.org/alpine/edge/testing grpc-java
@@ -29,7 +29,7 @@ RUN cd nacos-${NACOS_VERSION}; \
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
 
 #阶段二 拉取nacos官方镜像
-FROM nacos/nacos-server:2.0.0 AS standard
+FROM nacos/nacos-server:2.0.1 AS standard
 
 RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh); \
         echo "fix sed line: ${SED_LINE}"; \
@@ -39,7 +39,7 @@ RUN SED_LINE=$(sed -n -e '/DEFAULT_SEARCH_LOCATIONS=/=' ./bin/docker-startup.sh)
 #阶段三 重新发布
 FROM  justtin/alpine-openjdk8-jre AS release
 
-ARG NACOS_VERSION=2.0.0
+ARG NACOS_VERSION=2.0.1
 
 
 ENV MODE="cluster" \
