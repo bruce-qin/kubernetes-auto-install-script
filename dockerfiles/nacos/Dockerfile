@@ -7,6 +7,9 @@ ARG SPRING_BOOT_VERSION=2.4.5
 ARG MYSQL_VERSION=8.0.24
 ARG MINA_IO_VERSION=2.1.4
 ARG TOMCAT_EMBED_JASPER_VERSION=9.0.45
+ARG PROTOC_VERSION=3.15.8
+ARG GRPC_JAVA_VERSION=1.37.0
+ARG PROTO_GOOGLE_COMMON_PROTOS_VERSION=2.1.0
 
 RUN apk add --no-cache wget openjdk8 maven tar protoc ;\
     apk add --no-cache --update --repository http://nl.alpinelinux.org/alpine/edge/testing grpc-java
@@ -24,8 +27,11 @@ RUN cd nacos-${NACOS_VERSION}; \
         sed -i "$(sed -n -e '/<mysql-connector-java.version>/=' pom.xml)s/<mysql-connector-java.version>.*/<mysql-connector-java.version>${MYSQL_VERSION}<\/mysql-connector-java.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<mina-core.version>/=' pom.xml)s/<mina-core.version>.*/<mina-core.version>${MINA_IO_VERSION}<\/mina-core.version>/g" pom.xml;\
         sed -i "$(sed -n -e '/<tomcat-embed-jasper.version>/=' pom.xml)s/<tomcat-embed-jasper.version>.*/<tomcat-embed-jasper.version>${TOMCAT_EMBED_JASPER_VERSION}<\/tomcat-embed-jasper.version>/g" pom.xml;\
-        sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
-        sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
+	sed -i "$(sed -n -e '/<protobuf-java.version>/=' pom.xml)s/<protobuf-java.version>.*/<protobuf-java.version>${PROTOC_VERSION}<\/protobuf-java.version>/g" pom.xml;\
+	sed -i "$(sed -n -e '/<grpc-java.version>/=' pom.xml)s/<grpc-java.version>.*/<grpc-java.version>${GRPC_JAVA_VERSION}<\/grpc-java.version>/g" pom.xml;\
+	sed -i "$(sed -n -e '/<proto-google-common-protos.version>/=' pom.xml)s/<proto-google-common-protos.version>.*/<proto-google-common-protos.version>${PROTO_GOOGLE_COMMON_PROTOS_VERSION}<\/proto-google-common-protos.version>/g" pom.xml;\
+        # sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
+        # sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<pluginArtifact>/d" ./istio/pom.xml ;\
         sed -i "/<\/pluginArtifact>/d" ./istio/pom.xml ;\
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
