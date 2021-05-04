@@ -74,8 +74,7 @@ COPY --from=standard $BASE_DIR/bin/ bin/
 COPY --from=standard $BASE_DIR/conf/ conf/
 COPY --from=standard $BASE_DIR/init.d/ init.d/
 COPY --from=standard $BASE_DIR/logs/ logs/
-# 临时bugfix
-COPY --from=build /tmp/nacos-${NACOS_VERSION}-bugfix/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
+COPY --from=build /tmp/nacos-${NACOS_VERSION}/distribution/target/nacos-server-${NACOS_VERSION}/nacos/target/nacos-server.jar target/
 
 RUN  apk add --no-cache bash libstdc++ dos2unix \
 	&& dos2unix bin/docker-startup.sh conf/* \
