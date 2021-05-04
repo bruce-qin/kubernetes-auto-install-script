@@ -30,8 +30,8 @@ RUN cd nacos-${NACOS_VERSION}; \
 	sed -i "$(sed -n -e '/<protobuf-java.version>/=' pom.xml)s/<protobuf-java.version>.*/<protobuf-java.version>${PROTOC_VERSION}<\/protobuf-java.version>/g" pom.xml;\
 	sed -i "$(sed -n -e '/<grpc-java.version>/=' pom.xml)s/<grpc-java.version>.*/<grpc-java.version>${GRPC_JAVA_VERSION}<\/grpc-java.version>/g" pom.xml;\
 	sed -i "$(sed -n -e '/<proto-google-common-protos.version>/=' pom.xml)s/<proto-google-common-protos.version>.*/<proto-google-common-protos.version>${PROTO_GOOGLE_COMMON_PROTOS_VERSION}<\/proto-google-common-protos.version>/g" pom.xml;\
-        # sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
-        # sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
+        sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
+        sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<pluginArtifact>/d" ./istio/pom.xml ;\
         sed -i "/<\/pluginArtifact>/d" ./istio/pom.xml ;\
         mvn -Prelease-nacos -Dmaven.test.skip=true clean install -DprotocExecutable=protoc -DpluginExecutable=protoc-gen-grpc-java
