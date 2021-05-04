@@ -10,6 +10,7 @@ ARG TOMCAT_EMBED_JASPER_VERSION=9.0.45
 ARG PROTOC_VERSION=3.15.8
 ARG GRPC_JAVA_VERSION=1.37.0
 ARG PROTO_GOOGLE_COMMON_PROTOS_VERSION=2.1.0
+ARG GSON_VERSION=2.8.6
 
 RUN apk add --no-cache wget openjdk8 maven tar protoc ;\
     apk add --no-cache --update --repository http://nl.alpinelinux.org/alpine/edge/testing grpc-java
@@ -30,7 +31,8 @@ RUN cd nacos-${NACOS_VERSION}; \
 	sed -i "$(sed -n -e '/<protobuf-java.version>/=' pom.xml)s/<protobuf-java.version>.*/<protobuf-java.version>${PROTOC_VERSION}<\/protobuf-java.version>/g" pom.xml;\
 	sed -i "$(sed -n -e '/<grpc-java.version>/=' pom.xml)s/<grpc-java.version>.*/<grpc-java.version>${GRPC_JAVA_VERSION}<\/grpc-java.version>/g" pom.xml;\
 	sed -i "$(sed -n -e '/<proto-google-common-protos.version>/=' pom.xml)s/<proto-google-common-protos.version>.*/<proto-google-common-protos.version>${PROTO_GOOGLE_COMMON_PROTOS_VERSION}<\/proto-google-common-protos.version>/g" pom.xml;\
-        sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
+        sed -i "$(($(sed -n  -e '/<dependencies>/=' ./client/pom.xml)+1))i\t<dependency>\n\t\t<groupId>com.google.code.gson</groupId>\n\t\t<artifactId>gson</artifactId>\n\t\t<version>2.8.6</version>\n\t</dependency>" ./client/pom.xml;\
+	sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<pluginArtifact>/d" ./istio/pom.xml ;\
         sed -i "/<\/pluginArtifact>/d" ./istio/pom.xml ;\
