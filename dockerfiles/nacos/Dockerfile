@@ -32,7 +32,7 @@ RUN cd nacos-${NACOS_VERSION}; \
 	sed -i "$(sed -n -e '/<grpc-java.version>/=' pom.xml)s/<grpc-java.version>.*/<grpc-java.version>${GRPC_JAVA_VERSION}<\/grpc-java.version>/g" pom.xml;\
 	sed -i "$(sed -n -e '/<proto-google-common-protos.version>/=' pom.xml)s/<proto-google-common-protos.version>.*/<proto-google-common-protos.version>${PROTO_GOOGLE_COMMON_PROTOS_VERSION}<\/proto-google-common-protos.version>/g" pom.xml;\
         # 更新grpc后gson作用域变成了runtime了，需要更新依赖，不然编译不过
-	sed -i "$(($(sed -n  -e '/<dependencies>/=' ./client/pom.xml)+1))i\t<dependency>\n\t\t<groupId>com.google.code.gson</groupId>\n\t\t<artifactId>gson</artifactId>\n\t\t<version>2.8.6</version>\n\t</dependency>" ./client/pom.xml;\
+	sed -i "$(($(sed -n  -e '/<dependencies>/=' ./client/pom.xml)+1))i\\\t<dependency>\n\t\t<groupId>com.google.code.gson</groupId>\n\t\t<artifactId>gson</artifactId>\n\t\t<version>2.8.6</version>\n\t</dependency>" ./client/pom.xml;\
 	sed -i "/<pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<\/pluginArtifact>/d" ./consistency/pom.xml ;\
         sed -i "/<pluginArtifact>/d" ./istio/pom.xml ;\
